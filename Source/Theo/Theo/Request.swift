@@ -1,14 +1,14 @@
 //
-//  Request.h
-//  Theo
+//  Request.swift
+//  Cory D. Wiles
 //
-//  Created by Cory D. Wiles on 9/15/14.
+//  Created by Cory D. Wiles on 9/11/14.
 //  Copyright (c) 2014 Theo. All rights reserved.
 //
 
 import Foundation
 
-typealias RequestSuccessBlock = (data: NSData, response: NSURLResponse) -> Void
+typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
 typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
 
 let GSTNetworkErrorDomain: String = "com.graphstory.network.error"
@@ -21,7 +21,7 @@ public struct AllowedHTTPMethods {
 }
 
 class Request: NSObject, NSURLSessionDelegate {
-
+  
   lazy var httpSession: Session = {
     
     Session.SessionParams.delegate = self
@@ -30,39 +30,74 @@ class Request: NSObject, NSURLSessionDelegate {
     return Session.sharedInstance;
   }()
   
+  lazy var sessionConfiguration: NSURLSessionConfiguration = {
+    return self.httpSession.configuration.sessionConfiguration
+  }()
+  
+  lazy var sessionHTTPAdditionalHeaders: [NSObject:AnyObject]? = {
+    return self.sessionConfiguration.HTTPAdditionalHeaders
+  }()
+  
   let sessionURL: NSURL
   
-  required init(url: NSURL?) {
-
-    self.sessionURL = url!
-
+  private var httpRequest: NSURLRequest
+  
+  required init(url: NSURL?, additionalHeaders:[String:String]?) {
+    
+    self.sessionURL  = url!
+    self.httpRequest = NSURLRequest(URL: self.sessionURL)
+    
     super.init()
+    
+    if additionalHeaders != nil {
+
+      var newHeaders: [String:String] = [:]
+
+      if let sessionConfigurationHeaders = self.sessionHTTPAdditionalHeaders as? [String:String] {
+      
+        for (origininalHeader, originalValue) in sessionConfigurationHeaders {
+          newHeaders[origininalHeader] = originalValue
+        }
+        
+        for (header, value) in additionalHeaders! {
+          newHeaders[header] = value
+        }
+      }
+      
+      self.sessionConfiguration.HTTPAdditionalHeaders = newHeaders as [NSObject:AnyObject]?
+      
+    } else {
+      
+      self.sessionURL = url!
+    }
   }
   
   convenience override init() {
-    self.init(url: nil)
+    self.init(url: nil, additionalHeaders: nil)
   }
   
   // MARK: Public Methods
   
-  /// Method makes a basic HTTP get request 
+  /// Method makes a basic HTTP get request
   ///
   /// :param: RequestSuccessBlock successBlock
   /// :param: RequestErrorBlock errorBlock
   /// :returns: Void
   func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
-
-    var request: NSMutableURLRequest = {
+    
+    var request: NSURLRequest = {
       
-      let mutableRequest: NSMutableURLRequest = NSMutableURLRequest(URL: self.sessionURL);
+      let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
       
       mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
-
-      return mutableRequest
-    }()
+      
+      return mutableRequest.copy() as NSURLRequest
+      }()
+    
+    self.httpRequest = request
     
     let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
-    
+      
       var dataResp: NSData? = data
       let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
       let statusCode: Int = httpResponse.statusCode
@@ -71,9 +106,9 @@ class Request: NSObject, NSURLSessionDelegate {
       if (!containsStatusCode) {
         dataResp = nil
       }
-
+      
       if (successBlock != nil) {
-        successBlock!(data: dataResp!, response: httpResponse)
+        successBlock!(data: dataResp, response: httpResponse)
       }
       
       if (errorBlock != nil) {
@@ -83,12 +118,12 @@ class Request: NSObject, NSURLSessionDelegate {
         }
         
         if (!containsStatusCode) {
-
+          println("response \(response)")
           let localizedErrorString: String = "There was an error processing the request"
-          let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString]
+          let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "GSResponseCode" : "\(statusCode)"]
           let requestResponseError: NSError = {
             return NSError(domain: GSTNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
-          }()
+            }()
           
           errorBlock!(error: requestResponseError, response: httpResponse)
         }
@@ -101,9 +136,9 @@ class Request: NSObject, NSURLSessionDelegate {
   /// Defines and range of acceptable HTTP response codes. 200 thru 300 inclusive
   /// :returns: NSIndexSet
   class func acceptableStatusCodes() -> NSIndexSet {
-  
+    
     let nsRange = NSMakeRange(200, 100)
-
+    
     return NSIndexSet(indexesInRange: nsRange)
   }
 }
