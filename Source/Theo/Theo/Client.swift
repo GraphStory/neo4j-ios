@@ -1,8 +1,8 @@
 //
 //  Client.swift
-//  Theo
+//  Cory D. Wiles
 //
-//  Created by Cory D. Wiles on 9/15/14.
+//  Created by Cory D. Wiles on 9/14/14.
 //  Copyright (c) 2014 Theo. All rights reserved.
 //
 
@@ -73,14 +73,36 @@ class Client {
   let baseURL: String
   let username: String?
   let password: String?
+  var authHeaders: [String:String]?
+  
+  private lazy var authHeaderString: String = {
+
+    let userPasswordString: String = "\(self.username!):\(self.password!)"
+    let userPasswordData: NSData = userPasswordString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+    let credentialEncoding: String = userPasswordData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
+    let authString: String = "Basic \(credentialEncoding)"
+    
+    
+    return authString
+    }()
   
   required init(baseURL: String, user: String?, pass: String?) {
     
     assert(!baseURL.isEmpty, "Base url must be set")
     
+    if let u = user {
+      self.username = user!
+    }
+    
+    if let p = pass {
+      self.password = pass!
+    }
+    
     self.baseURL = baseURL
-    self.username = user!
-    self.password = pass!
+    
+    if (self.username != nil && self.password != nil) {
+      self.authHeaders = ["Authorization" : self.authHeaderString]
+    }
   }
   
   convenience init(baseURL: String) {
@@ -97,17 +119,20 @@ class Client {
     
     let metaResource = self.baseURL + "/db/data/"
     let metaURL: NSURL = NSURL(string: metaResource)
-    let metaRequest: Request = Request(url: metaURL)
+    let metaRequest: Request = Request(url: metaURL, additionalHeaders: self.authHeaders)
     
     metaRequest.getResource({(data, response) in
       
       if (completionBlock != nil) {
         
-        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-        let meta: DBMeta = DBMeta(dictionaryResponse: jsonAsDictionary)
-        
-        completionBlock!(metaData: meta, error: nil)
+        if let responseData: NSData = data {
+          
+          let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+          let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+          let meta: DBMeta = DBMeta(dictionaryResponse: jsonAsDictionary)
+          
+          completionBlock!(metaData: meta, error: nil)
+        }
       }
       }, errorBlock: {(error, response) in
         
