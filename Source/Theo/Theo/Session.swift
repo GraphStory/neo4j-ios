@@ -1,49 +1,45 @@
 //
-//  Session.h
-//  Theo
+//  Session.swift
+//  Cory D. Wiles
 //
-//  Created by Cory D. Wiles on 9/15/14.
+//  Created by Cory D. Wiles on 9/11/14.
 //  Copyright (c) 2014 Theo. All rights reserved.
 //
 
 import Foundation
 
-public struct Configuration {
-
+public class Configuration {
+  
   private let requestTimeout: Double  = 10
   private let resourceTimeout: Double = 20
   
-  let sessionConfiguration: NSURLSessionConfiguration
-
+  var sessionConfiguration: NSURLSessionConfiguration
+  
   lazy private var cache: NSURLCache = {
     
     let memoryCacheLimit: Int = 10 * 1024 * 1024;
     let diskCapacity: Int = 50 * 1024 * 1024;
     
-   /**
+    /**
     * http://nsscreencast.com/episodes/91-afnetworking-2-0
     */
     
     let cache:NSURLCache = NSURLCache(memoryCapacity: memoryCacheLimit, diskCapacity: diskCapacity, diskPath: nil)
     
     return cache
-  }()
+    }()
   
   init() {
+
+    let additionalHeaders: [String:String] = ["Accept": "application/json"]
     
-    let userPasswordString: String = "graph-1095:sqS7FrpojNHjJZcJBWtu"
-    let userPasswordData: NSData = userPasswordString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-    let credentialEncoding: String = userPasswordData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-    let authString: String = "Basic \(credentialEncoding)"
-    let additionalHeaders: [String:String] = ["Accept": "application/json", "Authorization": authString]
+    self.sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
     
-    sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-    
-    sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
-    sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
-    sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
-    sessionConfiguration.HTTPAdditionalHeaders      = additionalHeaders
-    sessionConfiguration.URLCache                   = self.cache
+    self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
+    self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
+    self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
+    self.sessionConfiguration.HTTPAdditionalHeaders      = additionalHeaders
+    self.sessionConfiguration.URLCache                   = self.cache
   }
 }
 
@@ -54,9 +50,10 @@ class Session {
     static var token : dispatch_once_t = 0
     static var instance : Session?
   }
-
+  
   var session: NSURLSession
   var sessionDelegateQueue: NSOperationQueue = NSOperationQueue.mainQueue()
+  var configuration: Configuration = Configuration()
   
   struct SessionParams {
     static var delegate: NSURLSessionDelegate?
@@ -65,8 +62,8 @@ class Session {
   
   class var sharedInstance: Session {
     
-    dispatch_once(&Static.token) {
-      Static.instance = Session(sessionDelegate: SessionParams.delegate, queue: SessionParams.queue)
+  dispatch_once(&Static.token) {
+    Static.instance = Session(sessionDelegate: SessionParams.delegate, queue: SessionParams.queue)
     }
     
     return Static.instance!
@@ -74,9 +71,7 @@ class Session {
   
   required init(sessionDelegate: NSURLSessionDelegate?, queue: NSOperationQueue?) {
     
-    assert(sessionDelegate != nil, "Session delegate can't be nil")
-
-    let configuration = Configuration()
+    //    assert(sessionDelegate, "Session delegate can't be nil")
     
     if let operationQueue = queue {
       self.sessionDelegateQueue = operationQueue
