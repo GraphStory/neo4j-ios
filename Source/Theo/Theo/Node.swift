@@ -74,7 +74,8 @@ struct NodeMeta: Printable {
 
 class Node {
 
-    private var nodeData: [String:AnyObject]?
+    private(set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    //TODO: Ability to add labels
     
     required init(data: Dictionary<String,AnyObject>?) {
         
@@ -89,11 +90,8 @@ class Node {
     
     func getProp(propertyName: String) -> AnyObject? {
 
-        if let dictionaryData: [String:AnyObject] = self.nodeData {
-            
-            if let object: AnyObject = self.nodeData![propertyName] {
-                return object
-            }
+        if let object: AnyObject = self.nodeData[propertyName] {
+            return object
         }
         
         return nil
@@ -101,12 +99,13 @@ class Node {
     
     func setProp(propertyName: String, propertyValue: String) -> Void {
         
-        if let dictionaryData: [String:AnyObject] = self.nodeData {
-
-            var objectValue: AnyObject = propertyValue as AnyObject
-            
-            self.nodeData![propertyName] = objectValue
-        }
+        var objectValue: AnyObject = propertyValue as AnyObject
+        
+        self.nodeData[propertyName] = objectValue
+    }
+    
+    func isEmpty() -> Bool {
+        return self.nodeData.keys.isEmpty
     }
 }
 
@@ -117,12 +116,9 @@ extension Node: Printable {
     var description: String {
         
         var returnString: String = ""
-        
-        if let dictionaryData: [String:AnyObject] = self.nodeData {
-        
-            for (key, value) in dictionaryData {
-                returnString += "\(key): \(value) "
-            }
+            
+        for (key, value) in self.nodeData {
+            returnString += "\(key): \(value) "
         }
         
         return returnString
