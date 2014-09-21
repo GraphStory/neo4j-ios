@@ -150,7 +150,6 @@ class Client {
         let nodeRequest: Request = Request(url: nodeRL, additionalHeaders: self.authHeaders)
         
         nodeRequest.getResource(
-            
             {(data, response) in
             
                 if (completionBlock != nil) {
@@ -165,6 +164,36 @@ class Client {
                         completionBlock!(metaData: meta, node: node, error: nil)
                     }
                 }
+            
+            }, errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(metaData: nil, node: nil, error: error)
+                }
+        })
+    }
+    
+    func saveNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    
+        let nodeResource = self.baseURL + "/db/data/node"
+        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        
+        nodeRequest.postResource(node.nodeData,
+            {(data, response) in
+
+            if (completionBlock != nil) {
+                
+                if let responseData: NSData = data {
+                    
+                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                    let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
+                    let node: Node = Node(data: meta.data)
+                    
+                    completionBlock!(metaData: meta, node: node, error: nil)
+                }
+            }
             
             }, errorBlock: {(error, response) in
                 
