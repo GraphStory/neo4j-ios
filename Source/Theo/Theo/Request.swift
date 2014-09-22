@@ -15,9 +15,10 @@ let TheoNetworkErrorDomain: String = "com.theo.network.error"
 
 public struct AllowedHTTPMethods {
   
-    static var GET: String  = "GET"
-    static var PUT: String  = "PUT"
-    static var POST: String = "POST"
+    static var GET: String    = "GET"
+    static var PUT: String    = "PUT"
+    static var POST: String   = "POST"
+    static var DELETE: String = "DELETE"
 }
 
 class Request: NSObject, NSURLSessionDelegate {
@@ -126,7 +127,7 @@ class Request: NSObject, NSURLSessionDelegate {
                     println("response \(response)")
                     
                     let localizedErrorString: String = "There was an error processing the request"
-                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "GSResponseCode" : "\(statusCode)"]
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
@@ -180,10 +181,62 @@ class Request: NSObject, NSURLSessionDelegate {
                     println("response \(response)")
                     
                     let localizedErrorString: String = "There was an error processing the request"
-                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)"]
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
+                    
+                    errorBlock!(error: requestResponseError, response: httpResponse)
+                }
+            }
+        })
+        
+        task.resume()
+    }
+    
+    func deleteResource(resourceID: String, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    
+        var request: NSURLRequest = {
+            
+            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
+            
+            mutableRequest.HTTPMethod = AllowedHTTPMethods.POST
+            
+            return mutableRequest.copy() as NSURLRequest
+            }()
+        
+        self.httpRequest = request
+        
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+            
+            var dataResp: NSData? = data
+            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            let statusCode: Int = httpResponse.statusCode
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            
+            if (!containsStatusCode) {
+                dataResp = nil
+            }
+            
+            if (successBlock != nil) {
+                successBlock!(data: dataResp, response: httpResponse)
+            }
+            
+            if (errorBlock != nil) {
+                
+                if (error != nil) {
+                    errorBlock!(error: error, response: httpResponse)
+                }
+                
+                if (!containsStatusCode) {
+                    
+                    println("response \(response)")
+                    
+                    let localizedErrorString: String = "There was an error processing the request"
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+                    let requestResponseError: NSError = {
+                        return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
+                        }()
                     
                     errorBlock!(error: requestResponseError, response: httpResponse)
                 }
