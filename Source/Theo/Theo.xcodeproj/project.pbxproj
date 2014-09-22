@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		019506C019CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C119CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
+		019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */ = {isa = PBXBuildFile; fileRef = 019506C219CF4C7A006F3596 /* TheoConfig.json.example */; };
+		019506C619CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
+		019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
+		019506C919CF4CA0006F3596 /* TheoConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 019506C819CF4CA0006F3596 /* TheoConfig.json */; };
+		019506CD19CF555E006F3596 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506CC19CF555E006F3596 /* Config.swift */; };
 		01FB2CC619C7DAB800D429E7 /* Theo.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FB2CC519C7DAB800D429E7 /* Theo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */; };
 		01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1219C7DB5D00D429E7 /* Request.swift */; };
@@ -21,6 +26,10 @@
 
 /* Begin PBXFileReference section */
 		019506BF19CC61AB006F3596 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		019506C219CF4C7A006F3596 /* TheoConfig.json.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheoConfig.json.example; sourceTree = "<group>"; };
+		019506C319CF4C7A006F3596 /* TemplateIcon2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TemplateIcon2x.png; sourceTree = "<group>"; };
+		019506C819CF4CA0006F3596 /* TheoConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TheoConfig.json; sourceTree = "<group>"; };
+		019506CC19CF555E006F3596 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		01FB2CC019C7DAB800D429E7 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FB2CC419C7DAB800D429E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01FB2CC519C7DAB800D429E7 /* Theo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Theo.h; sourceTree = "<group>"; };
@@ -92,8 +101,12 @@
 		01FB2CCC19C7DAB800D429E7 /* TheoTests */ = {
 			isa = PBXGroup;
 			children = (
+				019506CC19CF555E006F3596 /* Config.swift */,
+				019506C819CF4CA0006F3596 /* TheoConfig.json */,
 				01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */,
 				01FB2CCD19C7DAB800D429E7 /* Supporting Files */,
+				019506C219CF4C7A006F3596 /* TheoConfig.json.example */,
+				019506C319CF4C7A006F3596 /* TemplateIcon2x.png */,
 			);
 			path = TheoTests;
 			sourceTree = "<group>";
@@ -195,6 +208,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				019506C619CF4C7A006F3596 /* TemplateIcon2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +216,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */,
+				019506C919CF4CA0006F3596 /* TheoConfig.json in Resources */,
+				019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,6 +245,7 @@
 				01FB2D1519C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */,
 				01FB2D1719C7DB5D00D429E7 /* Session.swift in Sources */,
+				019506CD19CF555E006F3596 /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
