@@ -25,6 +25,13 @@ struct NodeMeta: Printable {
     let incoming_typed_relationships: String = ""
     let create_relationship: String          = ""
     let data: [String: AnyObject]            = [String: AnyObject]()
+
+    func nodeID() -> String {
+
+        let pathComponents: Array<String> = self.node_self.componentsSeparatedByString("/")
+
+        return pathComponents.last!
+    }
     
     init(dictionaryResponse: Dictionary<String, AnyObject>!) {
         
@@ -68,13 +75,14 @@ struct NodeMeta: Printable {
     }
     
     var description: String {
-        return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data)"
+        return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data), nodeID \(self.nodeID())"
     }
 }
 
 class Node {
 
     private(set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+
     //TODO: Ability to add labels
     
     required init(data: Dictionary<String,AnyObject>?) {
