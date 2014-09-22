@@ -1,4 +1,3 @@
-# Xcode
 .DS_Store
 */build/*
 *.pbxuser
@@ -16,8 +15,5 @@ DerivedData
 .idea/
 *.hmap
 *.xccheckout
-
-#CocoaPods
 Pods
-
-
+Source/Theo/TheoTests/TheoConfig.json
