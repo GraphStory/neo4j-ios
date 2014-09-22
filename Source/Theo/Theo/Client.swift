@@ -10,6 +10,7 @@ import Foundation
 
 typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
 typealias TheoNodeRequestCompletionBlock = (metaData: NodeMeta?, node: Node?, error: NSError?) -> Void
+typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
 
 struct DBMeta: Printable {
   
@@ -143,9 +144,9 @@ class Client {
        })
     }
     
-    func fetchNode(nodeID: UInt, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
-        let nodeResource = self.baseURL + "/db/data/node/\(nodeID)"
+        let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeRL: NSURL = NSURL(string: nodeResource)
         let nodeRequest: Request = Request(url: nodeRL, additionalHeaders: self.authHeaders)
         
@@ -199,6 +200,31 @@ class Client {
                 
                 if (completionBlock != nil) {
                     completionBlock!(metaData: nil, node: nil, error: error)
+                }
+        })
+    }
+    
+    //TODO: Need to add in check for relationships
+    func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    
+        let nodeResource = self.baseURL + "/db/data/node"
+        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        
+        nodeRequest.deleteResource(nodeID,
+            {(data, response) in
+                
+                if (completionBlock != nil) {
+                    
+                    if let responseData: NSData = data {
+                        completionBlock!(error: nil)
+                    }
+                }
+                
+            }, errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(error: error)
                 }
         })
     }
