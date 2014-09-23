@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
+		01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
 		019506C019CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C119CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */ = {isa = PBXBuildFile; fileRef = 019506C219CF4C7A006F3596 /* TheoConfig.json.example */; };
@@ -25,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01422D2419D0B04A00B4B3B8 /* Relationship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		019506BF19CC61AB006F3596 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		019506C219CF4C7A006F3596 /* TheoConfig.json.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheoConfig.json.example; sourceTree = "<group>"; };
 		019506C319CF4C7A006F3596 /* TemplateIcon2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TemplateIcon2x.png; sourceTree = "<group>"; };
@@ -85,6 +88,7 @@
 				01FB2CC519C7DAB800D429E7 /* Theo.h */,
 				01FB2CC319C7DAB800D429E7 /* Supporting Files */,
 				01FB2D1819C7DBBF00D429E7 /* Client.swift */,
+				01422D2419D0B04A00B4B3B8 /* Relationship.swift */,
 				019506BF19CC61AB006F3596 /* Node.swift */,
 			);
 			path = Theo;
@@ -229,6 +233,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1619C7DB5D00D429E7 /* Session.swift in Sources */,
 				01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */,
@@ -242,6 +247,7 @@
 			files = (
 				01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */,
 				019506C119CC61AB006F3596 /* Node.swift in Sources */,
+				01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1519C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */,
 				01FB2D1719C7DB5D00D429E7 /* Session.swift in Sources */,
