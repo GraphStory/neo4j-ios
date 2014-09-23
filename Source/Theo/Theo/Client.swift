@@ -163,6 +163,8 @@ class Client {
                         let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
                         let node: Node = Node(data: meta.data)
                         
+                        node.meta = meta
+                        
                         completionBlock!(metaData: meta, node: node, error: nil)
                     }
                 }
@@ -192,6 +194,8 @@ class Client {
                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
                     let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
                     let node: Node = Node(data: meta.data)
+                    
+                    node.meta = meta
                     
                     completionBlock!(metaData: meta, node: node, error: nil)
                 }
@@ -232,9 +236,11 @@ class Client {
     
     func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
-        let relationshipResource = "\(self.baseURL)\(relationship.fromNode)"
+        let relationshipResource = "\(relationship.fromNode)"
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+
+        println("relationshipResource " + relationshipResource)
         
         relationshipRequest.postResource(relationship.relationshipInfo,
                                          successBlock: {(data, response) in
