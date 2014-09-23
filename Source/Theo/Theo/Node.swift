@@ -131,6 +131,10 @@ extension Node: Printable {
             returnString += "\(key): \(value) "
         }
         
+        if let meta: NodeMeta = self.meta {
+            returnString += meta.description
+        }
+            
         return returnString
     }
 }
