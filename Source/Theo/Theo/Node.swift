@@ -81,7 +81,9 @@ struct NodeMeta: Printable {
 
 class Node {
 
-    private(set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    private (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    
+    var meta: NodeMeta?
 
     //TODO: Ability to add labels
     
