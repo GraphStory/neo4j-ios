@@ -11,6 +11,7 @@ import Foundation
 typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
 typealias TheoNodeRequestCompletionBlock = (metaData: NodeMeta?, node: Node?, error: NSError?) -> Void
 typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
+typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
 
 struct DBMeta: Printable {
   
@@ -227,5 +228,35 @@ class Client {
                     completionBlock!(error: error)
                 }
         })
+    }
+    
+    func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+        
+        let relationshipResource = "\(self.baseURL)\(relationship.fromNode)"
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        
+        relationshipRequest.postResource(relationship.relationshipInfo,
+                                         successBlock: {(data, response) in
+                                            
+                                            if (completionBlock != nil) {
+
+                                                if let responseData: NSData = data {
+
+                                                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                                                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                                                    let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
+                                                    let node: Node = Node(data: meta.data)
+                                                    
+                                                    completionBlock!(metaData: meta, node: node, error: nil)
+                                                }
+                                            }
+                                         
+                                         }, errorBlock: {(error, response) in
+
+                                                if (completionBlock != nil) {
+                                                    completionBlock!(metaData: nil, node: nil, error: error)
+                                                }
+                                         })
     }
 }
