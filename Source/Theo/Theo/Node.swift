@@ -33,9 +33,9 @@ struct NodeMeta: Printable {
         return pathComponents.last!
     }
     
-    init(dictionaryResponse: Dictionary<String, AnyObject>!) {
+    init(dictionary: Dictionary<String, AnyObject>!) {
         
-        for (key: String, value: AnyObject) in dictionaryResponse {
+        for (key: String, value: AnyObject) in dictionary {
             
             switch key {
             case "extensions":
@@ -90,7 +90,12 @@ class Node {
     required init(data: Dictionary<String,AnyObject>?) {
         
         if let dictionaryData: [String:AnyObject] = data {
-            self.nodeData = dictionaryData
+
+            self.meta = NodeMeta(dictionary: dictionaryData)
+            
+            if let metaForNode = self.meta {
+                self.nodeData = metaForNode.data
+            }
         }
     }
     

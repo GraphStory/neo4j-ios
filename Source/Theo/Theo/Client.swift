@@ -9,7 +9,7 @@
 import Foundation
 
 typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
-typealias TheoNodeRequestCompletionBlock = (metaData: NodeMeta?, node: Node?, error: NSError?) -> Void
+typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
 typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
 typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
 
@@ -160,19 +160,19 @@ class Client {
                         
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                         let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                        let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
+                        let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
                         let node: Node = Node(data: meta.data)
                         
                         node.meta = meta
                         
-                        completionBlock!(metaData: meta, node: node, error: nil)
+                        completionBlock!(node: node, error: nil)
                     }
                 }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(metaData: nil, node: nil, error: error)
+                    completionBlock!(node: nil, error: error)
                 }
         })
     }
@@ -192,19 +192,19 @@ class Client {
                     
                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
+                    let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
                     let node: Node = Node(data: meta.data)
                     
                     node.meta = meta
                     
-                    completionBlock!(metaData: meta, node: node, error: nil)
+                    completionBlock!(node: node, error: nil)
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(metaData: nil, node: nil, error: error)
+                    completionBlock!(node: nil, error: error)
                 }
         })
     }
@@ -251,17 +251,17 @@ class Client {
 
                                                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                                                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                                                    let meta: NodeMeta = NodeMeta(dictionaryResponse: jsonAsDictionary)
+                                                    let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
                                                     let node: Node = Node(data: meta.data)
                                                     
-                                                    completionBlock!(metaData: meta, node: node, error: nil)
+                                                    completionBlock!(node: node, error: nil)
                                                 }
                                             }
                                          
                                          }, errorBlock: {(error, response) in
 
                                                 if (completionBlock != nil) {
-                                                    completionBlock!(metaData: nil, node: nil, error: error)
+                                                    completionBlock!(node: nil, error: error)
                                                 }
                                          })
     }
