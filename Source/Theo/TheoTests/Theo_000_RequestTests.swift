@@ -103,18 +103,16 @@ class Theo_000_RequestTestsTests: XCTestCase {
         
         theo.fetchNode(TheoNodeIDForRUD, completionBlock: {(node, error) in
             
-            println("meta in success \(node!.meta) node \(node) error \(error)")
+            println("meta in success \(node!.meta) [node \(node)] error \(error)")
             
             XCTAssert(node!.meta != nil, "Meta data can't be nil")
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
             
             let nodeObject: Node = node!
             let nodePropertyValue: AnyObject? = nodeObject.getProp("title")
             
             XCTAssert(nodePropertyValue != nil, "The nodeProperty can't be nil")
-            
-            println("nodePropertyValue \(nodePropertyValue!)")
             
             exp.fulfill()
         })
@@ -183,7 +181,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         let exp = self.expectationWithDescription("test_006_successfullyAddRelationship")
         
         /**
-         * Setup dispatch group since you to make a 3 part transation
+         * Setup dispatch group since you to make a 2 part transation
          */
 
         let nodeFetchQueueName: String           = "com.theo.node.fetch.queue"
@@ -237,12 +235,14 @@ class Theo_000_RequestTestsTests: XCTestCase {
          * End it
          */
 
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_main_queue(), {
-            
+        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+
             XCTAssertNotNil(parentNode, "parent node can't be nil")
             XCTAssertNotNil(relatedNode, "relatedNode node can't be nil")
             
             relationship.relate(parentNode!, toNode: relatedNode!, type: RelationshipType.KNOWS)
+            relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
+
             theo.saveRelationship(relationship, completionBlock: {(node, error) in
             
                 XCTAssert(node!.meta != nil, "Meta data can't be nil")
