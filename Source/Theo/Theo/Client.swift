@@ -160,10 +160,7 @@ class Client {
                         
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                         let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                        let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
-                        let node: Node = Node(data: meta.data)
-                        
-                        node.meta = meta
+                        let node: Node = Node(data: jsonAsDictionary)
                         
                         completionBlock!(node: node, error: nil)
                     }
@@ -192,10 +189,7 @@ class Client {
                     
                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
-                    let node: Node = Node(data: meta.data)
-                    
-                    node.meta = meta
+                    let node: Node = Node(data:jsonAsDictionary)
                     
                     completionBlock!(node: node, error: nil)
                 }
@@ -251,8 +245,7 @@ class Client {
 
                                                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                                                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                                                    let meta: NodeMeta = NodeMeta(dictionary: jsonAsDictionary)
-                                                    let node: Node = Node(data: meta.data)
+                                                    let node: Node = Node(data: jsonAsDictionary)
                                                     
                                                     completionBlock!(node: node, error: nil)
                                                 }
