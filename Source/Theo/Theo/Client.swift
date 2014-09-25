@@ -176,11 +176,11 @@ class Client {
     
     func saveNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
     
-        let nodeResource = self.baseURL + "/db/data/node"
+        let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
         let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
         
-        nodeRequest.postResource(node.nodeData,
+        nodeRequest.postResource(node.nodeData, forUpdate: false,
             {(data, response) in
 
             if (completionBlock != nil) {
@@ -188,10 +188,22 @@ class Client {
                 if let responseData: NSData = data {
                     
                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    let node: Node = Node(data:jsonAsDictionary)
                     
-                    completionBlock!(node: node, error: nil)
+                    if let JSONObject: AnyObject = JSON {
+                        
+                        let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                        let node: Node = Node(data:jsonAsDictionary)
+                        
+                        completionBlock!(node: node, error: nil)
+                        
+                    } else {
+                        
+                        completionBlock!(node: nil, error: nil)
+                    }
+                    
+                } else {
+                    
+                    completionBlock!(node: nil, error: nil)
                 }
             }
             
@@ -203,10 +215,52 @@ class Client {
         })
     }
     
+    func updateNode(node: Node, properties: [String:String], completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+
+        let nodeID: String = node.meta!.nodeID()
+        let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
+        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        
+        nodeRequest.postResource(properties, forUpdate: true,
+            successBlock: {(data, response) in
+            
+                if (completionBlock != nil) {
+                    
+                    if let responseData: NSData = data {
+                        
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                        
+                        if let JSONObject: AnyObject = JSON {
+
+                            let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                            let node: Node = Node(data:jsonAsDictionary)
+                            
+                            completionBlock!(node: node, error: nil)
+
+                        } else {
+
+                            completionBlock!(node: nil, error: nil)
+                        }
+
+                    } else {
+
+                        completionBlock!(node: nil, error: nil)
+                    }
+                }
+            },
+            errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(node: nil, error: error)
+                }
+        })
+    }
+    
     //TODO: Need to add in check for relationships
     func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
-        let nodeResource = self.baseURL + "/db/data/node"
+        let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
         let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
         
@@ -236,7 +290,7 @@ class Client {
 
         println("relationshipResource " + relationshipResource)
         
-        relationshipRequest.postResource(relationship.relationshipInfo,
+        relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
                                          successBlock: {(data, response) in
                                             
                                             if (completionBlock != nil) {
@@ -257,5 +311,30 @@ class Client {
                                                     completionBlock!(node: nil, error: error)
                                                 }
                                          })
+    }
+    
+    func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    
+        let relationshipResource = self.baseURL + "/db/data/relationship"
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        
+        relationshipRequest.deleteResource(relationshipID,
+                                           successBlock: {(data, response) in
+
+                                            if (completionBlock != nil) {
+                                                
+                                                if let responseData: NSData = data {
+                                                    completionBlock!(error: nil)
+                                                }
+                                            }
+
+                                           },
+                                           errorBlock: {(error, response) in
+                                            
+                                            if (completionBlock != nil) {
+                                                completionBlock!(error: error)
+                                            }
+                                           })
     }
 }
