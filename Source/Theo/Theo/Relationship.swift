@@ -23,9 +23,16 @@ struct RelationshipMeta: Printable {
     let end: String                     = ""
     let data: [String: AnyObject]       = [String: AnyObject]()
     
-    init(dictionaryResponse: Dictionary<String, AnyObject>!) {
+    func relationshipID() -> String {
         
-        for (key: String, value: AnyObject) in dictionaryResponse {
+        let pathComponents: Array<String> = self.relationship_self.componentsSeparatedByString("/")
+        
+        return pathComponents.last!
+    }
+    
+    init(dictionary: Dictionary<String, AnyObject>!) {
+        
+        for (key: String, value: AnyObject) in dictionary {
             
             switch key {
             case "extensions":
@@ -34,7 +41,7 @@ struct RelationshipMeta: Printable {
                 self.start = value as String
             case "property":
                 self.property = value as String
-            case "relationship_self":
+            case "self":
                 self.relationship_self = value as String
             case "properties":
                 self.properties = value as String
@@ -51,7 +58,7 @@ struct RelationshipMeta: Printable {
     }
     
     var description: String {
-        return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data))"
+        return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data), relationshipID \(self.relationshipID()))"
     }
 }
 
@@ -66,9 +73,16 @@ struct RelationshipType {
     static var LOVES: String   = "LOVES"
 }
 
+struct RelationshipDirection {
+    
+    static var ALL: String = "all"
+    static var IN: String  = "in"
+    static var OUT: String = "out"
+}
+
 class Relationship {
 
-    private (set) var relationshipMeta: [String:AnyObject]       = [String:AnyObject]()
+    private (set) var relationshipMeta: RelationshipMeta?
     private (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
     private (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
 
@@ -111,17 +125,31 @@ class Relationship {
         
         return ""
     }()
-    
-    init() {
+
+    required init(data: Dictionary<String,AnyObject>?) {
+        
         self.relationshipCreateMeta = [String:AnyObject]()
-        self.relationshipData = [String: AnyObject]()
+        self.relationshipData       = [String: AnyObject]()
+        
+        if let dictionaryData: [String:AnyObject] = data {
+
+            self.relationshipMeta = RelationshipMeta(dictionary: dictionaryData)
+            
+            if let metaForRelationship = self.relationshipMeta {
+                self.relationshipData = metaForRelationship.data
+            }
+        }
+    }
+    
+    convenience init() {
+        self.init(data: nil)
     }
     
     func relate(fromNode: Node, toNode: Node, type: String) {
     
-        self.relationshipCreateMeta[RelationshipDataFromNodeKey]  = fromNode.meta?.create_relationship
-        self.relationshipCreateMeta[RelationshipDataToNodeKey]    = toNode.meta?.nodeID()
-        self.relationshipCreateMeta[RelationshipDataTypeKey]      = type
+        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship
+        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID()
+        self.relationshipCreateMeta[RelationshipDataTypeKey]     = type
     }
     
     func getProp(propertyName: String) -> AnyObject? {
