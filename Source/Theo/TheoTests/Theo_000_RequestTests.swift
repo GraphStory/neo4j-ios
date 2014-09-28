@@ -412,7 +412,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_010_successfullyDeleteExistingNode() {
+    func test_011_successfullyDeleteExistingNode() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_010_successfullyDeleteExistingNode")
