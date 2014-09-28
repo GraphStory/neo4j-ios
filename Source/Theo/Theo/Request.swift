@@ -100,7 +100,7 @@ class Request: NSObject, NSURLSessionDelegate {
             }()
     
         self.httpRequest = request
-    
+
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
       
             var dataResp: NSData? = data
@@ -123,9 +123,7 @@ class Request: NSObject, NSURLSessionDelegate {
                 }
         
                 if (!containsStatusCode) {
-                    
-                    println("response \(response)")
-                    
+
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
                     let requestResponseError: NSError = {
@@ -139,15 +137,15 @@ class Request: NSObject, NSURLSessionDelegate {
     
         task.resume()
     }
-    
-    func postResource(postData: AnyObject, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+
+    func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
         var request: NSURLRequest = {
             
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
             let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: NSJSONWritingOptions(0), error: nil)!
             
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.POST
+            mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
             
             return mutableRequest.copy() as NSURLRequest
@@ -178,8 +176,6 @@ class Request: NSObject, NSURLSessionDelegate {
                 
                 if (!containsStatusCode) {
                     
-                    println("response \(response)")
-                    
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
                     let requestResponseError: NSError = {
@@ -194,13 +190,13 @@ class Request: NSObject, NSURLSessionDelegate {
         task.resume()
     }
     
-    func deleteResource(resourceID: String, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
         var request: NSURLRequest = {
             
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
             
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.POST
+            mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
             
             return mutableRequest.copy() as NSURLRequest
             }()
