@@ -70,8 +70,6 @@ class Session {
   
     required init(sessionDelegate: NSURLSessionDelegate?, queue: NSOperationQueue?) {
 
-    //    assert(sessionDelegate, "Session delegate can't be nil")
-
         if let operationQueue = queue {
             self.sessionDelegateQueue = operationQueue
         }
