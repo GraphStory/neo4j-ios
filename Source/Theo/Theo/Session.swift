@@ -20,7 +20,7 @@ public class Configuration {
     let memoryCacheLimit: Int = 10 * 1024 * 1024;
     let diskCapacity: Int = 50 * 1024 * 1024;
 
-    /**
+   /**
     * http://nsscreencast.com/episodes/91-afnetworking-2-0
     */
 
