@@ -82,10 +82,9 @@ struct NodeMeta: Printable {
 class Node {
 
     private (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    private (set) var labels: [String] = [String]()
     
     var meta: NodeMeta?
-
-    //TODO: Ability to add labels
     
     required init(data: Dictionary<String,AnyObject>?) {
         
@@ -119,8 +118,16 @@ class Node {
         self.nodeData[propertyName] = objectValue
     }
     
+    func addLabel(label:String) -> Void {
+        self.labels.append(label)
+    }
+    
     func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
+    }
+    
+    func hasLabels() -> Bool {
+        return self.labels.isEmpty
     }
 }
 
