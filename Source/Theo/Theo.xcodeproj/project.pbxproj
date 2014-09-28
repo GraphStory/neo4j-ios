@@ -62,6 +62,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01B952B519D8918E009D7EDA /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				01FB2D1219C7DB5D00D429E7 /* Request.swift */,
+				01FB2D1319C7DB5D00D429E7 /* Session.swift */,
+				01FB2D1819C7DBBF00D429E7 /* Client.swift */,
+			);
+			name = Networking;
+			sourceTree = "<group>";
+		};
+		01B952B619D89196009D7EDA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				01422D2419D0B04A00B4B3B8 /* Relationship.swift */,
+				019506BF19CC61AB006F3596 /* Node.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
 		01FB2CB619C7DAB800D429E7 = {
 			isa = PBXGroup;
 			children = (
@@ -83,13 +102,10 @@
 		01FB2CC219C7DAB800D429E7 /* Theo */ = {
 			isa = PBXGroup;
 			children = (
-				01FB2D1219C7DB5D00D429E7 /* Request.swift */,
-				01FB2D1319C7DB5D00D429E7 /* Session.swift */,
 				01FB2CC519C7DAB800D429E7 /* Theo.h */,
+				01B952B619D89196009D7EDA /* Models */,
+				01B952B519D8918E009D7EDA /* Networking */,
 				01FB2CC319C7DAB800D429E7 /* Supporting Files */,
-				01FB2D1819C7DBBF00D429E7 /* Client.swift */,
-				01422D2419D0B04A00B4B3B8 /* Relationship.swift */,
-				019506BF19CC61AB006F3596 /* Node.swift */,
 			);
 			path = Theo;
 			sourceTree = "<group>";
