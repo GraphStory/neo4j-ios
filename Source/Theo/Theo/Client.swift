@@ -12,6 +12,7 @@ typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> 
 typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
 typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
 typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
+typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
 
 struct DBMeta: Printable {
   
@@ -175,7 +176,7 @@ class Client {
     }
     
     func saveNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
-    
+        
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
         let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
@@ -212,6 +213,57 @@ class Client {
                 if (completionBlock != nil) {
                     completionBlock!(node: nil, error: error)
                 }
+        })
+    }
+    
+    // You have to call this method explicitly or else you'll get a recursion 
+    // of the saveNode
+    func saveNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+
+        let nodeSaveDispatchGroup: dispatch_group_t = dispatch_group_create()
+        var createdNodeWithoutLabels: Node?
+
+        dispatch_group_enter(nodeSaveDispatchGroup)
+
+        self.saveNode(node, completionBlock: {(node, error) in
+        
+            if let returnedNode: Node = node {
+                createdNodeWithoutLabels = returnedNode
+            }
+            
+            dispatch_group_leave(nodeSaveDispatchGroup)
+        })
+        
+        dispatch_group_notify(nodeSaveDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+
+            if let nodeWithLabels: Node = createdNodeWithoutLabels {
+            
+                let nodeID: String = nodeWithLabels.meta!.nodeID()
+                let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
+                
+                let nodeURL: NSURL = NSURL(string: nodeResource)
+                let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+                
+                nodeRequest.postResource(labels, forUpdate: false,
+                    successBlock: {(data, response) in
+                        
+                        if (completionBlock != nil) {
+                            completionBlock!(node: nil, error: nil)
+                        }
+                    },
+                    errorBlock: {(error, response) in
+                        
+                        if (completionBlock != nil) {
+                            completionBlock!(node: nil, error: error)
+                        }
+                    })
+            } else {
+                
+                if (completionBlock != nil) {
+                    println("nothing to fucking see here")
+                    completionBlock!(node: nil, error: nil)
+                }
+            }
         })
     }
     
@@ -260,12 +312,11 @@ class Client {
     //TODO: Need to add in check for relationships
     func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
-        let nodeResource: String = self.baseURL + "/db/data/node"
+        let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
         let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
         
-        nodeRequest.deleteResource(nodeID,
-            {(data, response) in
+        nodeRequest.deleteResource({(data, response) in
                 
                 if (completionBlock != nil) {
                     
@@ -282,13 +333,67 @@ class Client {
         })
     }
     
+    func fetchRelationshipsForNode(nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
+        
+        var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
+        
+        if let relationshipQuery: String = direction {
+
+            relationshipResource += "/relationships/" + relationshipQuery
+
+            if let relationshipTypes: [String] = types {
+                
+                if (relationshipTypes.count == 1) {
+                    
+                    relationshipResource += "/" + relationshipTypes[0]
+                    
+                } else {
+                    
+                    for (index, relationship) in enumerate(relationshipTypes) {
+                        relationshipResource += index == 0 ? "/" + relationshipTypes[0] : "&" + relationship
+                    }
+                }
+            }
+
+        } else {
+
+            relationshipResource += "/relationships/" + RelationshipDirection.ALL
+        }
+        
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        
+        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        var relationshipsForNode: [Relationship] = [Relationship]()
+        
+        relationshipRequest.getResource(
+            {(data, response) in
+            
+                if (completionBlock != nil) {
+                    
+                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                    let jsonAsArray: [[String:AnyObject]]! = JSON as [[String:AnyObject]]
+                    
+                    for relationshipDictionary: [String:AnyObject] in jsonAsArray {
+                        let newRelationship = Relationship(data: relationshipDictionary)
+                        relationshipsForNode.append(newRelationship)
+                    }
+
+                    completionBlock!(relationships: relationshipsForNode, error: nil)
+                }
+                
+            }, errorBlock: {(error, response) in
+        
+                if (completionBlock != nil) {
+                    completionBlock!(relationships: relationshipsForNode, error: error)
+                }
+            })
+    }
+    
     func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
-        let relationshipResource = "\(relationship.fromNode)"
+        let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
-
-        println("relationshipResource " + relationshipResource)
         
         relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
                                          successBlock: {(data, response) in
@@ -315,12 +420,11 @@ class Client {
     
     func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
-        let relationshipResource = self.baseURL + "/db/data/relationship"
+        let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
-        
-        relationshipRequest.deleteResource(relationshipID,
-                                           successBlock: {(data, response) in
+
+        relationshipRequest.deleteResource({(data, response) in
 
                                             if (completionBlock != nil) {
                                                 
