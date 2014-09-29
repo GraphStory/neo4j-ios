@@ -42,6 +42,21 @@ public class Configuration {
     }
 }
 
+// TODO: Move all session request to utilize this delegate.
+// Right now this will handle the authentication
+private class TheoTaskSessionDelegate: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate {
+    
+    // For Session based challenges
+    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+        println("session based challenge")
+    }
+    
+    // For Session Task based challenges
+    func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+        println("session task based challenge")    
+    }
+}
+
 class Session {
   
     private let sessionDescription = "com.graphstory.session"
@@ -49,37 +64,37 @@ class Session {
         static var token : dispatch_once_t = 0
         static var instance : Session?
     }
-  
+    private let sessionDelegate: TheoTaskSessionDelegate = TheoTaskSessionDelegate()
+
     var session: NSURLSession
     var sessionDelegateQueue: NSOperationQueue = NSOperationQueue.mainQueue()
     var configuration: Configuration = Configuration()
   
     struct SessionParams {
-        static var delegate: NSURLSessionDelegate?
         static var queue: NSOperationQueue?
     }
   
     class var sharedInstance: Session {
     
         dispatch_once(&Static.token) {
-            Static.instance = Session(sessionDelegate: SessionParams.delegate, queue: SessionParams.queue)
+            Static.instance = Session(queue: SessionParams.queue)
         }
 
         return Static.instance!
     }
   
-    required init(sessionDelegate: NSURLSessionDelegate?, queue: NSOperationQueue?) {
+    required init(queue: NSOperationQueue?) {
 
         if let operationQueue = queue {
             self.sessionDelegateQueue = operationQueue
         }
 
-        self.session = NSURLSession(configuration: configuration.sessionConfiguration, delegate: sessionDelegate, delegateQueue: self.sessionDelegateQueue)
+        self.session = NSURLSession(configuration: configuration.sessionConfiguration, delegate: nil, delegateQueue: self.sessionDelegateQueue)
 
         self.session.sessionDescription = sessionDescription
     }
   
     convenience init() {
-        self.init(sessionDelegate: nil, queue: nil);
+        self.init(queue: nil);
     }
 }
