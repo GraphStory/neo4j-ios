@@ -12,6 +12,15 @@ let RelationshipDataFromNodeKey = "fromNode"
 let RelationshipDataToNodeKey   = "toNode"
 let RelationshipDataTypeKey     = "type"
 
+let TheoRelationshipExtensionsKey: String = "extensions"
+let TheoRelationshipStartKey: String      = "start"
+let TheoRelationshipPropertyKey: String   = "property"
+let TheoRelationshipSelfKey: String       = "self"
+let TheoRelationshipPropertiesKey: String = "properties"
+let TheoRelationshipTypeKey: String       = "type"
+let TheoRelationshipEndKey: String        = "end"
+let TheoRelationshipDataKey: String       = "data"
+
 struct RelationshipMeta: Printable {
 
     let extensions: [String: AnyObject] = [String: AnyObject]()
@@ -35,21 +44,21 @@ struct RelationshipMeta: Printable {
         for (key: String, value: AnyObject) in dictionary {
             
             switch key {
-            case "extensions":
+            case TheoRelationshipExtensionsKey:
                 self.extensions = value as Dictionary
-            case "start":
+            case TheoRelationshipStartKey:
                 self.start = value as String
-            case "property":
+            case TheoRelationshipPropertyKey:
                 self.property = value as String
-            case "self":
+            case TheoRelationshipSelfKey:
                 self.relationship_self = value as String
-            case "properties":
+            case TheoRelationshipPropertiesKey:
                 self.properties = value as String
-            case "type":
+            case TheoRelationshipTypeKey:
                 self.type = value as String
-            case "end":
+            case TheoRelationshipEndKey:
                 self.end = value as String
-            case "data":
+            case TheoRelationshipDataKey:
                 self.data = value as Dictionary
             default:
                 ""
