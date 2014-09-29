@@ -56,28 +56,8 @@ class Theo_000_RequestTestsTests: XCTestCase {
           XCTAssertNil(error, "\(error)")
         })
     }
-  
-    func test_001_denyAnonymousFetchDBMeta() {
-
-        let theo: Client = Client(baseURL: configuration.host, user: "", pass: "")
-        let exp = self.expectationWithDescription("test_001_denyAnonymousFetchDBMeta")
-
-        theo.metaDescription({(meta, error) in
-          
-            println("meta in deny \(meta) error \(error)")
-
-            XCTAssert(meta == nil, "Meta must be nil")
-            XCTAssert(error != nil, "Error must not be nil \(error?.description)")
-
-            exp.fulfill()
-        })
-
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval){ error in
-            XCTAssertNil(error, "\(error)")
-        }
-    }
     
-    func test_002_successfullyFetchNode() {
+    func test_001_successfullyFetchNode() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_002_successfullyFetchNode")
@@ -98,7 +78,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_003_successfullyAccessProperty() {
+    func test_002_successfullyAccessProperty() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_003_successfullyAccessProperty")
@@ -124,7 +104,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_004_successfullyHandleNonExistantAccessProperty() {
+    func test_003_successfullyHandleNonExistantAccessProperty() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_004_successfullyHandleNonExistantAccessProperty")
@@ -151,7 +131,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_005_successfullyAddNodeWithOutLabels() {
+    func test_004_successfullyAddNodeWithOutLabels() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
@@ -177,7 +157,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_006_successfullyAddRelationship() {
+    func test_005_successfullyAddRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_006_successfullyAddRelationship")
@@ -260,7 +240,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_008_succesfullyUpdateNodeWithProperties() {
+    func test_006_succesfullyUpdateNodeWithProperties() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_008_succesfullyUpdateNodeWithProperties")
@@ -320,7 +300,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_009_successfullyDeleteRelationship() {
+    func test_007_successfullyDeleteRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_009_successfullyDeleteRelationship")
@@ -389,7 +369,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_010_succesfullyAddNodeWithLabel() {
+    func test_008_succesfullyAddNodeWithLabel() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
@@ -412,7 +392,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_011_successfullyDeleteExistingNode() {
+    func test_009_successfullyDeleteExistingNode() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_010_successfullyDeleteExistingNode")
