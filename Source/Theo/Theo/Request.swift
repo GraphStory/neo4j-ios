@@ -21,11 +21,10 @@ public struct AllowedHTTPMethods {
     static var DELETE: String = "DELETE"
 }
 
-class Request: NSObject, NSURLSessionDelegate {
+class Request: NSObject {
   
     lazy var httpSession: Session = {
 
-        Session.SessionParams.delegate = self
         Session.SessionParams.queue = NSOperationQueue.mainQueue()
 
         return Session.sharedInstance;
@@ -40,16 +39,17 @@ class Request: NSObject, NSURLSessionDelegate {
     }()
   
     let sessionURL: NSURL
-  
+    
     private var httpRequest: NSURLRequest
+
     
     deinit {
 //        self.httpSession.session.invalidateAndCancel()
     }
   
-    required init(url: NSURL?, additionalHeaders:[String:String]?) {
+    required init(url: NSURL, credentials: NSURLCredential?, additionalHeaders:[String:String]?) {
     
-        self.sessionURL  = url!
+        self.sessionURL  = url
         self.httpRequest = NSURLRequest(URL: self.sessionURL)
     
         super.init()
@@ -73,15 +73,33 @@ class Request: NSObject, NSURLSessionDelegate {
       
         } else {
       
-            self.sessionURL = url!
+            self.sessionURL = url
+        }
+        
+        if let creds: NSURLCredential = credentials {
+            
+            let realm: String       = "neo4j graphdb"
+            let host: String        = url.host!
+            let port: Int           = url.port!.integerValue
+            let urlProtocol: String = url.scheme!
+            
+            let credStorage: NSURLCredentialStorage = NSURLCredentialStorage.sharedCredentialStorage()
+            var protectionSpace: NSURLProtectionSpace = NSURLProtectionSpace(host: host, port: port, `protocol`: urlProtocol, realm: realm,authenticationMethod: NSURLAuthenticationMethodHTTPBasic);
+            credStorage.setCredential(creds, forProtectionSpace: protectionSpace)
+
+            self.sessionConfiguration.URLCredentialStorage = credStorage
         }
     }
   
+    convenience init(url: NSURL, credential: NSURLCredential?) {
+        self.init(url: url, credentials: credential, additionalHeaders: nil)
+    }
+    
     convenience override init() {
-        self.init(url: nil, additionalHeaders: nil)
+        self.init(url: NSURL(), credentials: nil, additionalHeaders: nil)
     }
   
-    // MARK: Public Methods
+// MARK: Public Methods
 
     /// Method makes a basic HTTP get request
     ///
