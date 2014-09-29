@@ -13,6 +13,21 @@ typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Voi
 typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
 typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
 typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
+typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
+
+let TheoDBMetaExtensionsKey: String        = "extensions"
+let TheoDBMetaNodeKey: String              = "node"
+let TheoDBMetaNodeIndexKey: String         = "node_index"
+let TheoDBMetaRelationshipIndexKey: String = "relationship_index"
+let TheoDBMetaExtensionsInfoKey: String    = "extensions_info"
+let TheoDBMetaRelationshipTypesKey: String = "relationship_types"
+let TheoDBMetaBatchKey: String             = "batch"
+let TheoDBMetaCypherKey: String            = "cypher"
+let TheoDBMetaIndexesKey: String           = "indexes"
+let TheoDBMetaConstraintsKey: String       = "constraints"
+let TheoDBMetaTransactionKey: String       = "transaction"
+let TheoDBMetaNodeLabelsKey: String        = "node_labels"
+let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
 struct DBMeta: Printable {
   
@@ -30,36 +45,36 @@ struct DBMeta: Printable {
     let node_labels: String             = ""
     let neo4j_version: String           = ""
 
-    init(dictionaryResponse: Dictionary<String, AnyObject>!) {
+    init(dictionary: Dictionary<String, AnyObject>!) {
 
-        for (key: String, value: AnyObject) in dictionaryResponse {
+        for (key: String, value: AnyObject) in dictionary {
           
             switch key {
-                case "extensions":
+                case TheoDBMetaExtensionsKey:
                     self.extensions = value as Dictionary
-                case "node":
+                case TheoDBMetaNodeKey:
                     self.node = value as String
-                case "node_index":
+                case TheoDBMetaNodeIndexKey:
                     self.node_index = value as String
-                case "relationship_index":
+                case TheoDBMetaRelationshipIndexKey:
                     self.relationship_index = value as String
-                case "extensions_info":
+                case TheoDBMetaExtensionsInfoKey:
                     self.extensions_info = value as String
-                case "relationship_types":
+                case TheoDBMetaRelationshipTypesKey:
                     self.relationship_types = value as String
-                case "batch":
+                case TheoDBMetaBatchKey:
                     self.batch = value as String
-                case "cypher":
+                case TheoDBMetaCypherKey:
                     self.cypher = value as String
-                case "indexes":
+                case TheoDBMetaIndexesKey:
                     self.indexes = value as String
-                case "constraints":
+                case TheoDBMetaConstraintsKey:
                     self.constraints = value as String
-                case "transaction":
+                case TheoDBMetaTransactionKey:
                     self.transaction = value as String
-                case "node_labels":
+                case TheoDBMetaNodeLabelsKey:
                     self.node_labels = value as String
-                case "neo4j_version":
+                case TheoDBMetaNeo4JVersionKey:
                     self.neo4j_version = value as String
                 default:
                     ""
@@ -77,16 +92,14 @@ class Client {
     let baseURL: String
     let username: String?
     let password: String?
-    var authHeaders: [String:String]?
-  
-    private lazy var authHeaderString: String = {
-
-        let userPasswordString: String = "\(self.username!):\(self.password!)"
-        let userPasswordData: NSData = userPasswordString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
-        let credentialEncoding: String = userPasswordData.base64EncodedStringWithOptions(.Encoding64CharacterLineLength)
-        let authString: String = "Basic \(credentialEncoding)"
-
-        return authString
+    
+    lazy private var credentials: NSURLCredential? = {
+        
+        if (self.username != nil && self.password != nil) {
+            return NSURLCredential(user: self.username!, password: self.password!, persistence: NSURLCredentialPersistence.ForSession);
+        }
+        
+        return nil
     }()
   
     required init(baseURL: String, user: String?, pass: String?) {
@@ -102,10 +115,6 @@ class Client {
         }
 
         self.baseURL = baseURL
-
-        if (self.username != nil && self.password != nil) {
-            self.authHeaders = ["Authorization" : self.authHeaderString]
-        }
     }
   
     convenience init(baseURL: String) {
@@ -122,7 +131,7 @@ class Client {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: NSURL = NSURL(string: metaResource)
-        let metaRequest: Request = Request(url: metaURL, additionalHeaders: self.authHeaders)
+        let metaRequest: Request = Request(url: metaURL, credentials: self.credentials, additionalHeaders: nil)
 
         metaRequest.getResource({(data, response) in
       
@@ -132,7 +141,7 @@ class Client {
               
                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    let meta: DBMeta = DBMeta(dictionaryResponse: jsonAsDictionary)
+                    let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
               
                     completionBlock!(metaData: meta, error: nil)
                 }
@@ -149,8 +158,8 @@ class Client {
     func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
-        let nodeRL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeRL, additionalHeaders: self.authHeaders)
+        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
         
         nodeRequest.getResource(
             {(data, response) in
@@ -179,7 +188,7 @@ class Client {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
         
         nodeRequest.postResource(node.nodeData, forUpdate: false,
             {(data, response) in
@@ -242,7 +251,7 @@ class Client {
                 let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                 
                 let nodeURL: NSURL = NSURL(string: nodeResource)
-                let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+                let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
                 
                 nodeRequest.postResource(labels, forUpdate: false,
                     successBlock: {(data, response) in
@@ -272,7 +281,7 @@ class Client {
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
         
         nodeRequest.postResource(properties, forUpdate: true,
             successBlock: {(data, response) in
@@ -314,7 +323,7 @@ class Client {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, additionalHeaders: self.authHeaders)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
         
         nodeRequest.deleteResource({(data, response) in
                 
@@ -362,7 +371,7 @@ class Client {
         
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         
-        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
         var relationshipsForNode: [Relationship] = [Relationship]()
         
         relationshipRequest.getResource(
@@ -393,7 +402,7 @@ class Client {
         
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
-        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
         
         relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
                                          successBlock: {(data, response) in
@@ -422,7 +431,7 @@ class Client {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
-        let relationshipRequest: Request = Request(url: relationshipURL, additionalHeaders: self.authHeaders)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
 
         relationshipRequest.deleteResource({(data, response) in
 
@@ -440,5 +449,32 @@ class Client {
                                                 completionBlock!(error: error)
                                             }
                                            })
+    }
+    
+    func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+        
+        let queryResource: String = self.baseURL + "/db/data" + uri
+        let queryURL: NSURL = NSURL(string: queryResource)
+        let queryRequest: Request = Request(url: queryURL, credentials: self.credentials, additionalHeaders: nil)
+        
+        queryRequest.getResource(
+                {(data, response) in
+                    
+                    if (completionBlock != nil) {
+                        
+                        if let responseData: NSData = data {
+                            
+                            let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
+                            
+                            completionBlock!(response: JSON, error: nil)
+                        }
+                    }
+                    
+                }, errorBlock: {(error, response) in
+                    
+                    if (completionBlock != nil) {
+                        completionBlock!(response: nil, error: error)
+                    }
+            })
     }
 }
