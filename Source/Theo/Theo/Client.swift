@@ -318,7 +318,6 @@ class Client {
             } else {
                 
                 if (completionBlock != nil) {
-                    println("nothing to fucking see here")
                     completionBlock!(node: nil, error: nil)
                 }
             }
