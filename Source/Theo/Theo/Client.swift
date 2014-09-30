@@ -88,7 +88,7 @@ struct DBMeta: Printable {
     }
 }
 
-class Client {
+public class Client {
   
     // MARK: Public properties
 
@@ -118,7 +118,7 @@ class Client {
     /// :returns: Client
     
     // TODO: Move the user/password to a tuple since you can't have one w/o the other
-    required init(baseURL: String, user: String?, pass: String?) {
+    required public init(baseURL: String, user: String?, pass: String?) {
 
         assert(!baseURL.isEmpty, "Base url must be set")
 
@@ -139,7 +139,7 @@ class Client {
     ///
     /// :param: String baseURL
     /// :returns: Client
-    convenience init(baseURL: String) {
+    convenience public init(baseURL: String) {
         self.init(baseURL: baseURL, user: nil, pass: nil)
     }
 
@@ -149,7 +149,7 @@ class Client {
     ///
     /// :param: String baseURL
     /// :throws: Exception
-    convenience init() {
+    convenience public init() {
         self.init(baseURL: "", user: nil, pass: nil)
     }
   
