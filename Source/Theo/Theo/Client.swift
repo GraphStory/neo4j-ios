@@ -14,6 +14,7 @@ typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
 typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
 typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
 typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
+typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
 
 let TheoDBMetaExtensionsKey: String        = "extensions"
 let TheoDBMetaNodeKey: String              = "node"
@@ -449,6 +450,34 @@ class Client {
                                                 completionBlock!(error: error)
                                             }
                                            })
+    }
+    
+    func executeTransaction(statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
+        
+        let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
+        let transactionResource = self.baseURL + "/db/data/transaction/commit"
+        let transactionURL: NSURL = NSURL(string: transactionResource)
+        let transactionRequest: Request = Request(url: transactionURL, credential: self.credentials)
+        
+        transactionRequest.postResource(transactionPayload, forUpdate: false, successBlock: {(data, response) in
+            
+            if (completionBlock != nil) {
+                
+                if let responseData: NSData = data {
+                    
+                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                    
+                    completionBlock!(response: jsonAsDictionary, error: nil)
+                }
+            }
+            
+            }, errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(response: [String:AnyObject](), error: error)
+                }
+        })
     }
     
     func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
