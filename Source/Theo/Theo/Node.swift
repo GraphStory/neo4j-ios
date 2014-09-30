@@ -8,6 +8,23 @@
 
 import Foundation
 
+let TheoNodeExtensions: String                 = "extensions"
+let TheoNodePagedTraverse: String              = "paged_traverse"
+let TheoNodeLabels: String                     = "labels"
+let TheoNodeOutGoingRelationships: String      = "outgoing_relationships"
+let TheoNodeTraverse: String                   = "traverse"
+let TheoNodeAllTypedRelationships: String      = "all_typed_relationships"
+let TheoNodeProperty: String                   = "property"
+let TheoNodeAllRelationships: String           = "all_relationships"
+let TheoNodeSelf: String                       = "self"
+let TheoNodeOutGoingTypedRelationships: String = "outgoing_typed_relationships"
+let TheoNodeProperties: String                 = "properties"
+let TheoNodeIncomingRelationships: String      = "incoming_relationships"
+let TheoNodeIncomingTypedRelationships: String = "incoming_typed_relationships"
+let TheoNodeCreateRelationship: String         = "create_relationship"
+let TheoNodeData: String                       = "data"
+let TheoNodeMetaData: String                   = "metadata"
+
 struct NodeMeta: Printable {
     
     let extensions: [String: AnyObject]      = [String: AnyObject]()
@@ -25,6 +42,7 @@ struct NodeMeta: Printable {
     let incoming_typed_relationships: String = ""
     let create_relationship: String          = ""
     let data: [String: AnyObject]            = [String: AnyObject]()
+    let metadata: [String: AnyObject]        = [String: AnyObject]()
 
     func nodeID() -> String {
 
@@ -38,36 +56,38 @@ struct NodeMeta: Printable {
         for (key: String, value: AnyObject) in dictionary {
             
             switch key {
-            case "extensions":
+            case TheoNodeExtensions:
                 self.extensions = value as Dictionary
-            case "page_traverse":
+            case TheoNodePagedTraverse:
                 self.page_traverse = value as String
-            case "labels":
+            case TheoNodeLabels:
                 self.labels = value as String
-            case "outgoing_relationships":
+            case TheoNodeOutGoingRelationships:
                 self.outgoing_relationships = value as String
-            case "traverse":
+            case TheoNodeTraverse:
                 self.traverse = value as String
-            case "all_relationships":
+            case TheoNodeAllRelationships:
                 self.all_relationships = value as String
-            case "property":
+            case TheoNodeProperty:
                 self.property = value as String
-            case "all_relationships":
+            case TheoNodeAllRelationships:
                 self.all_relationships = value as String
-            case "self":
+            case TheoNodeSelf:
                 self.node_self = value as String
-            case "outgoing_typed_relationships":
+            case TheoNodeOutGoingTypedRelationships:
                 self.outgoing_typed_relationships = value as String
-            case "properties":
+            case TheoNodeProperties:
                 self.properties = value as String
-            case "incoming_relationships":
+            case TheoNodeIncomingRelationships:
                 self.incoming_relationships = value as String
-            case "incoming_typed_relationships":
+            case TheoNodeIncomingTypedRelationships:
                 self.incoming_typed_relationships = value as String
-            case "create_relationship":
+            case TheoNodeCreateRelationship:
                 self.create_relationship = value as String
-            case "data":
+            case TheoNodeData:
                 self.data = value as Dictionary
+            case TheoNodeMetaData:
+                self.metadata = value as Dictionary
             default:
                 ""
             }
@@ -75,7 +95,7 @@ struct NodeMeta: Printable {
     }
     
     var description: String {
-        return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data), nodeID \(self.nodeID())"
+        return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data), metadata \(self.metadata), nodeID \(self.nodeID())"
     }
 }
 
