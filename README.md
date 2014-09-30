@@ -154,6 +154,17 @@ theo.executeTransaction(statements, completionBlock: {(response, error) in
 })
 ```
 
+## Unit Tests
+
+### Setup
+
+There is a file called, `TheoConfig.json.example` which you should copy to `TheoConfig.json`. You can add your `username`, `password` and `baseUrl` to this config and the test classes use these instead of having to modify any *actual* class files. `TheoConfig.json` is in the `.gitignore` so you don't have to worry about creds being committed.
+
+### Execution
+
+* Select the unit test target
+* Hit `CMD-U`
+
 ## Creator
 
 [Cory Wiles](http://www.corywiles.com/) ([@kwylez](https://twitter.com/kwylez))
