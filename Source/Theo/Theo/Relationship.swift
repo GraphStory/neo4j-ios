@@ -91,10 +91,14 @@ struct RelationshipDirection {
 
 class Relationship {
 
+    // MARK: Private Properties
+
     private (set) var relationshipMeta: RelationshipMeta?
     private (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
     private (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
 
+    // MARK: Lazy Properties
+    
     lazy var relationshipInfo: [String:AnyObject] = {
         var info: [String:AnyObject] = [String:AnyObject]()
         
@@ -135,10 +139,16 @@ class Relationship {
         return ""
     }()
 
+    // MARK: Constructors
+
+    /// Designated Initializer
+    ///
+    /// :param: Dictionary<String,AnyObject> data
+    /// :returns: Relationship
     required init(data: Dictionary<String,AnyObject>?) {
         
         self.relationshipCreateMeta = [String:AnyObject]()
-        self.relationshipData       = [String: AnyObject]()
+        self.relationshipData       = [String:AnyObject]()
         
         if let dictionaryData: [String:AnyObject] = data {
 
@@ -150,17 +160,32 @@ class Relationship {
         }
     }
     
+    /// Convenience initializer
+    ///
+    /// calls init(data:) with the param value as nil
+    ///
+    /// :returns: Relationship
     convenience init() {
         self.init(data: nil)
     }
     
-    func relate(fromNode: Node, toNode: Node, type: String) {
+    /// Sets the relationship between two nodes
+    ///
+    /// :param: Node fromNode
+    /// :param: Node toNode
+    /// :param: String type (see RelationshipDirection)
+    /// :returns: Void
+    func relate(fromNode: Node, toNode: Node, type: String) -> Void {
     
         self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship
         self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID()
         self.relationshipCreateMeta[RelationshipDataTypeKey]     = type
     }
     
+    /// Gets a specified property for the Relationship
+    ///
+    /// :param: String propertyName
+    /// :returns: AnyObject?
     func getProp(propertyName: String) -> AnyObject? {
         
         if let object: AnyObject = self.relationshipData[propertyName] {
@@ -170,6 +195,11 @@ class Relationship {
         return nil
     }
     
+    /// Sets the property for the relationship
+    ///
+    /// :param: String propertyName
+    /// :param: String propertyValue
+    /// :returns: Void
     func setProp(propertyName: String, propertyValue: String) -> Void {
         
         var objectValue: AnyObject = propertyValue as AnyObject
@@ -177,6 +207,13 @@ class Relationship {
         self.relationshipData[propertyName] = objectValue
     }
     
+    /// Determine whether the relationship data is empty.
+    ///
+    /// This is done by checking whether or not the dictionary keys are empty
+    ///
+    /// :param: String propertyName
+    /// :param: String propertyValue
+    /// :returns: Bool
     func isDataEmpty() -> Bool {
         return self.relationshipData.keys.isEmpty
     }

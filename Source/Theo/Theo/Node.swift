@@ -81,11 +81,21 @@ struct NodeMeta: Printable {
 
 class Node {
 
+    // MARK: Private Setters and Public Getters
+
     private (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
     private (set) var labels: [String] = [String]()
+
+    // MARK: Public Properties
     
     var meta: NodeMeta?
     
+    // MARK: Constructors
+    
+    /// Designated Initializer
+    ///
+    /// :param: Dictionary<String,AnyObject>? data
+    /// :returns: Node
     required init(data: Dictionary<String,AnyObject>?) {
         
         if let dictionaryData: [String:AnyObject] = data {
@@ -98,10 +108,19 @@ class Node {
         }
     }
     
+    /// Convenience initializer
+    ///
+    /// calls init(data:) with the param value as nil
+    ///
+    /// :returns: Node
     convenience init() {
         self.init(data: nil)
     }
     
+    /// Gets a specified property for the Node
+    ///
+    /// :param: String propertyName
+    /// :returns: AnyObject?
     func getProp(propertyName: String) -> AnyObject? {
 
         if let object: AnyObject = self.nodeData[propertyName] {
@@ -111,6 +130,11 @@ class Node {
         return nil
     }
     
+    /// Sets the property for the relationship
+    ///
+    /// :param: String propertyName
+    /// :param: String propertyValue
+    /// :returns: Void
     func setProp(propertyName: String, propertyValue: String) -> Void {
         
         var objectValue: AnyObject = propertyValue as AnyObject
@@ -118,14 +142,26 @@ class Node {
         self.nodeData[propertyName] = objectValue
     }
     
+    /// Adds label to array of labels for the node
+    ///
+    /// :param: String label
+    /// :returns: Void
     func addLabel(label:String) -> Void {
         self.labels.append(label)
     }
     
+    /// Returns whether or not the nodeData is empty
+    ///
+    /// This is done by checking for empty keys array
+    ///
+    /// :returns: Bool
     func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
-    
+
+    /// Returns whether the current node has labels
+    ///
+    /// :returns: Bool
     func hasLabels() -> Bool {
         return self.labels.isEmpty
     }

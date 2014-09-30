@@ -12,6 +12,7 @@ typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
 typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
 
 let TheoNetworkErrorDomain: String = "com.theo.network.error"
+let TheoRequestRealm: String       = "neo4j graphdb"
 
 public struct AllowedHTTPMethods {
   
@@ -21,8 +22,10 @@ public struct AllowedHTTPMethods {
     static var DELETE: String = "DELETE"
 }
 
-class Request: NSObject {
+class Request {
   
+    // MARK: Lazy properties
+
     lazy var httpSession: Session = {
 
         Session.SessionParams.queue = NSOperationQueue.mainQueue()
@@ -40,20 +43,31 @@ class Request: NSObject {
   
     let sessionURL: NSURL
     
+    // MARK: Private properties
+
     private var httpRequest: NSURLRequest
 
-    
     deinit {
 //        self.httpSession.session.invalidateAndCancel()
     }
-  
+
+    // MARK: Constructors
+    
+    /// Designated initializer
+    ///
+    /// :param: NSURL url
+    /// :param: NSURLCredential? credentials
+    /// :param: Array<String,String>? additionalHeaders
+    /// :returns: Request
     required init(url: NSURL, credentials: NSURLCredential?, additionalHeaders:[String:String]?) {
     
         self.sessionURL  = url
         self.httpRequest = NSURLRequest(URL: self.sessionURL)
     
-        super.init()
-    
+        // If the additional headers aren't nil then we have to fake a mutable 
+        // copy of the sessionHTTPAdditionsalHeaders (they are immutable), add 
+        // out new ones and then set the values again
+
         if additionalHeaders != nil {
 
             var newHeaders: [String:String] = [:]
@@ -76,32 +90,53 @@ class Request: NSObject {
             self.sessionURL = url
         }
         
+        // More than likely your instance of Neo4j will require a username/pass.
+        // If the credentials param is set the the storage and protection space 
+        // are set and passed to the configuration. This is set for all session
+        // requests. This _might_ change in the future by utililizng the delegate
+        // methods so that you can set whether or not requests should handle auth
+        // at a session or task level.
+
         if let creds: NSURLCredential = credentials {
-            
-            let realm: String       = "neo4j graphdb"
+
             let host: String        = url.host!
             let port: Int           = url.port!.integerValue
             let urlProtocol: String = url.scheme!
             
             let credStorage: NSURLCredentialStorage = NSURLCredentialStorage.sharedCredentialStorage()
-            var protectionSpace: NSURLProtectionSpace = NSURLProtectionSpace(host: host, port: port, `protocol`: urlProtocol, realm: realm,authenticationMethod: NSURLAuthenticationMethodHTTPBasic);
+            var protectionSpace: NSURLProtectionSpace = NSURLProtectionSpace(host: host, port: port, `protocol`: urlProtocol, realm: TheoRequestRealm, authenticationMethod: NSURLAuthenticationMethodHTTPBasic);
             credStorage.setCredential(creds, forProtectionSpace: protectionSpace)
 
             self.sessionConfiguration.URLCredentialStorage = credStorage
         }
     }
   
+    /// Convenience initializer
+    ///
+    /// The additionalHeaders property is set to nil
+    ///
+    /// :param: NSURL url
+    /// :param: NSURLCredential? credentials
+    /// :returns: Request
+
     convenience init(url: NSURL, credential: NSURLCredential?) {
         self.init(url: url, credentials: credential, additionalHeaders: nil)
     }
     
-    convenience override init() {
+    /// Convenience initializer
+    ///
+    /// The additionalHeaders and credentials properties are set to nil
+    ///
+    /// :param: NSURL url
+    /// :returns: Request
+    
+    convenience init() {
         self.init(url: NSURL(), credentials: nil, additionalHeaders: nil)
     }
   
-// MARK: Public Methods
+    // MARK: Public Methods
 
-    /// Method makes a basic HTTP get request
+    /// Method makes a HTTP GET request
     ///
     /// :param: RequestSuccessBlock successBlock
     /// :param: RequestErrorBlock errorBlock
@@ -156,6 +191,11 @@ class Request: NSObject {
         task.resume()
     }
 
+    /// Method makes a HTTP POST request
+    ///
+    /// :param: RequestSuccessBlock successBlock
+    /// :param: RequestErrorBlock errorBlock
+    /// :returns: Void
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
         var request: NSURLRequest = {
@@ -208,6 +248,11 @@ class Request: NSObject {
         task.resume()
     }
     
+    /// Method makes a HTTP DELETE request
+    ///
+    /// :param: RequestSuccessBlock successBlock
+    /// :param: RequestErrorBlock errorBlock
+    /// :returns: Void
     func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
         var request: NSURLRequest = {
@@ -261,6 +306,7 @@ class Request: NSObject {
     }
   
     /// Defines and range of acceptable HTTP response codes. 200 thru 300 inclusive
+    ///
     /// :returns: NSIndexSet
     class func acceptableStatusCodes() -> NSIndexSet {
     

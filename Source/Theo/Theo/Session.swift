@@ -43,7 +43,8 @@ public class Configuration {
 }
 
 // TODO: Move all session request to utilize this delegate.
-// Right now this will handle the authentication
+// Right now these are NOT called because I'm setting the URLCredential on the 
+// session configuration
 private class TheoTaskSessionDelegate: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate {
     
     // For Session based challenges
@@ -59,6 +60,8 @@ private class TheoTaskSessionDelegate: NSObject, NSURLSessionDelegate, NSURLSess
 
 class Session {
   
+    // MARK: Private methods
+
     private let sessionDescription = "com.graphstory.session"
     private struct Static {
         static var token : dispatch_once_t = 0
@@ -66,10 +69,14 @@ class Session {
     }
     private let sessionDelegate: TheoTaskSessionDelegate = TheoTaskSessionDelegate()
 
+    // MARK: Public properties
+
     var session: NSURLSession
     var sessionDelegateQueue: NSOperationQueue = NSOperationQueue.mainQueue()
     var configuration: Configuration = Configuration()
   
+    // MARK: Structs and class vars
+
     struct SessionParams {
         static var queue: NSOperationQueue?
     }
@@ -83,6 +90,15 @@ class Session {
         return Static.instance!
     }
   
+    // MARK: Constructors
+    
+    /// Designated initializer
+    ///
+    /// The session delegate is set to nil and will use the "system" provided
+    /// delegate
+    ///
+    /// :param: NSOperationQueue? queue
+    /// :returns: Session
     required init(queue: NSOperationQueue?) {
 
         if let operationQueue = queue {
@@ -94,6 +110,12 @@ class Session {
         self.session.sessionDescription = sessionDescription
     }
   
+    /// Convenience initializer
+    ///
+    /// The operation queue param is set to nil which translates to using 
+    /// NSOperationQueue.mainQueue
+    ///
+    /// :returns: Session
     convenience init() {
         self.init(queue: nil);
     }

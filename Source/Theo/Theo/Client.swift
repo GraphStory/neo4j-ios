@@ -90,10 +90,14 @@ struct DBMeta: Printable {
 
 class Client {
   
+    // MARK: Public properties
+
     let baseURL: String
     let username: String?
     let password: String?
     
+    // MARK: Lazy properties
+
     lazy private var credentials: NSURLCredential? = {
         
         if (self.username != nil && self.password != nil) {
@@ -103,6 +107,17 @@ class Client {
         return nil
     }()
   
+    // MARK: Constructors
+    
+    /// Designated initializer
+    ///
+    /// An expection will be thrown if the baseURL isn't passed in
+    /// :param: String baseURL
+    /// :param: String? user
+    /// :param: String? pass
+    /// :returns: Client
+    
+    // TODO: Move the user/password to a tuple since you can't have one w/o the other
     required init(baseURL: String, user: String?, pass: String?) {
 
         assert(!baseURL.isEmpty, "Base url must be set")
@@ -118,16 +133,32 @@ class Client {
         self.baseURL = baseURL
     }
   
+    /// Convenience initializer
+    ///
+    /// user and pass are nil
+    ///
+    /// :param: String baseURL
+    /// :returns: Client
     convenience init(baseURL: String) {
         self.init(baseURL: baseURL, user: nil, pass: nil)
     }
-  
+
+    /// Convenience initializer
+    ///
+    /// baseURL, user and pass are nil thus throwing an exception
+    ///
+    /// :param: String baseURL
+    /// :throws: Exception
     convenience init() {
         self.init(baseURL: "", user: nil, pass: nil)
     }
   
-// MARK: Public Methods
+    // MARK: Public Methods
   
+    /// Fetches meta information for the Neo4j instance
+    ///
+    /// :param: TheoMetaDataCompletionBlock? completionBlock
+    /// :returns: Void
     func metaDescription(completionBlock: TheoMetaDataCompletionBlock?) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
@@ -156,6 +187,11 @@ class Client {
        })
     }
     
+    /// Fetches node for a given ID
+    ///
+    /// :param: String nodeID
+    /// :param: TheoMetaDataCompletionBlock? completionBlock
+    /// :returns: Void
     func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
@@ -185,6 +221,11 @@ class Client {
         })
     }
     
+    /// Saves a new node instance that doesn't have labels
+    ///
+    /// :param: Node node
+    /// :param: TheoMetaDataCompletionBlock? completionBlock
+    /// :returns: Void
     func saveNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
@@ -226,8 +267,15 @@ class Client {
         })
     }
     
-    // You have to call this method explicitly or else you'll get a recursion 
-    // of the saveNode
+    /// Saves a new node instance with labels
+    ///
+    /// You have to call this method explicitly or else you'll get a recursion
+    /// of the saveNode.
+    ///
+    /// :param: Node node
+    /// :param: Array<String> labels
+    /// :param: TheoMetaDataCompletionBlock? completionBlock
+    /// :returns: Void
     func saveNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeSaveDispatchGroup: dispatch_group_t = dispatch_group_create()
@@ -277,7 +325,13 @@ class Client {
         })
     }
     
-    func updateNode(node: Node, properties: [String:String], completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    /// Update a node for a given set of properties
+    ///
+    /// :param: Node node
+    /// :param: Dictionary<String,String> properties
+    /// :param: TheoMetaDataCompletionBlock? completionBlock
+    /// :returns: Void
+    func updateNode(node: Node, properties: Dictionary<String,String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
@@ -320,6 +374,12 @@ class Client {
     }
     
     //TODO: Need to add in check for relationships
+    
+    /// Delete node instance. This will fail if there is a set relationship
+    ///
+    /// :param: Node nodeID
+    /// :param: TheoNodeRequestDeleteCompletionBlock? completionBlock
+    /// :returns: Void
     func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
@@ -343,6 +403,13 @@ class Client {
         })
     }
     
+    /// Fetches the relationships for a a node
+    ///
+    /// :param: String nodeID
+    /// :param: String? direction
+    /// :param: Array<String>? types
+    /// :param: TheoRelationshipRequestCompletionBlock? completionBlock
+    /// :returns: Void
     func fetchRelationshipsForNode(nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
         
         var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
@@ -399,6 +466,12 @@ class Client {
             })
     }
     
+    
+    /// Creates a relationship instance
+    ///
+    /// :param: Relationship relationship
+    /// :param: TheoNodeRequestCompletionBlock? completionBlock
+    /// :returns: Void
     func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
@@ -428,6 +501,11 @@ class Client {
                                          })
     }
     
+    /// Deletes a relationship instance for a given ID
+    ///
+    /// :param: String relationshipID
+    /// :param: TheoNodeRequestDeleteCompletionBlock? completionBlock
+    /// :returns: Void
     func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
@@ -452,6 +530,11 @@ class Client {
                                            })
     }
     
+    /// Executes raw Neo4j statements
+    ///
+    /// :param: Array<Dictionary<String, AnyObject>> statements
+    /// :param: TheoTransactionCompletionBlock? completionBlock
+    /// :returns: Void
     func executeTransaction(statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
         
         let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
@@ -480,6 +563,11 @@ class Client {
         })
     }
     
+    /// Executes a get request for a given endpoint
+    ///
+    /// :param: String uri
+    /// :param: TheoRawRequestCompletionBlock? completionBlock
+    /// :returns: Void
     func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
