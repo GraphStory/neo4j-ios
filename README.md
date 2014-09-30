@@ -42,7 +42,7 @@ let theo: Client = Client(baseURL: "hostname.com")
 **With authentication**
 
 ```Swift
-let theo: Client = Client(baseURL: "hostname.com")
+let theo: Client = Client(baseURL: "hostname.com", user: "username", pass: "password")
 ```
 
 ### Fetch meta for a graph
