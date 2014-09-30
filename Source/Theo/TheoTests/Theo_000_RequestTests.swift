@@ -434,4 +434,27 @@ class Theo_000_RequestTestsTests: XCTestCase {
             XCTAssertNil(error, "\(error)")
         })
     }
+    
+    func test_010_successfullyCommitTransaction() {
+
+        let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
+        let resultDataContents: Array<String> = ["row", "graph"]
+        let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, "resultDataContents" : resultDataContents]
+        let statements: Array<Dictionary <String, AnyObject>> = [statement]
+        
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let exp = self.expectationWithDescription("test_010_successfullyCommitTransaction")
+        
+        theo.executeTransaction(statements, completionBlock: {(response, error) in
+        
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
+            XCTAssertFalse(response.keys.isEmpty, "Response dictionary must not be empty \(response)")
+            
+            exp.fulfill()
+        })
+        
+        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+            XCTAssertNil(error, "\(error)")
+        })
+    }
 }
