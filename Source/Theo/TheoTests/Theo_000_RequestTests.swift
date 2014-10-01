@@ -490,9 +490,9 @@ class Theo_000_RequestTestsTests: XCTestCase {
         let node = Node()
         let randomString: String = NSUUID.UUID().UUIDString
 
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let createDispatchGroup: dispatch_group_t = dispatch_group_create()
 
-        dispatch_group_enter(fetchDispatchGroup)
+        dispatch_group_enter(createDispatchGroup)
 
         node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
         node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
@@ -504,10 +504,10 @@ class Theo_000_RequestTestsTests: XCTestCase {
 
             nodeIDForDeletion = savedNode!.meta?.nodeID()
 
-            dispatch_group_leave(fetchDispatchGroup)
+            dispatch_group_leave(createDispatchGroup)
         })
 
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        dispatch_group_notify(createDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
 
             XCTAssertNotNil(nodeIDForDeletion, "nodeIDForDeletion must NOT be nil")
 
