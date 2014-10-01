@@ -464,8 +464,7 @@ public class Client {
                 }
             })
     }
-    
-    
+
     /// Creates a relationship instance
     ///
     /// :param: Relationship relationship
@@ -500,11 +499,19 @@ public class Client {
                                          })
     }
     
+    /// Updates a relationship instance with a set of properties
+    ///
+    /// :param: Relationship relationship
+    /// :param: Dictionary<String,AnyObject> properties
+    /// :param: TheoNodeRequestRelationshipCompletionBlock? completionBlock
+    /// :returns: Void
     func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        
+        relationship.updatingProperties = true
         
         for (name, value) in properties {
             relationship.setProp(name, propertyValue: value)
@@ -518,7 +525,7 @@ public class Client {
                     if let responseData: NSData = data {
                         
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        println("JSON that is empty \(JSON)")
+
                         // If the update is successfull then you'll receive a 204 with an empty body
                         completionBlock!(relationship: nil, error: nil)
                     }
