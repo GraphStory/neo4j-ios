@@ -202,7 +202,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
             
             println("meta in success \(node!.meta) node \(node) error \(error)")
             
-            XCTAssert(node!.meta != nil, "Meta data can't be nil")
+            XCTAssert(node?.meta != nil, "Meta data can't be nil")
             XCTAssert(node != nil, "Node data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
           
@@ -225,10 +225,10 @@ class Theo_000_RequestTestsTests: XCTestCase {
             relationship.relate(parentNode!, toNode: relatedNode!, type: RelationshipType.KNOWS)
             relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
 
-            theo.saveRelationship(relationship, completionBlock: {(node, error) in
+            theo.saveRelationship(relationship, completionBlock: {(rel, error) in
             
-                XCTAssert(node!.meta != nil, "Meta data can't be nil")
-                XCTAssert(node != nil, "Node data can't be nil")
+                XCTAssert(rel?.relationshipMeta != nil, "Meta data can't be nil")
+                XCTAssert(rel != nil, "Node data can't be nil")
                 XCTAssert(error == nil, "Error must be nil \(error?.description)")
                 
                 exp.fulfill()
@@ -392,50 +392,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         })
     }
     
-    func test_009_successfullyDeleteExistingNode() {
-    
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_010_successfullyDeleteExistingNode")
-
-        var nodeIDForDeletion: String?
-        let node = Node()
-        let randomString: String = NSUUID.UUID().UUIDString
-        
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
-        
-        dispatch_group_enter(fetchDispatchGroup)
-
-        node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
-        node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
-
-        theo.saveNode(node, completionBlock: {(savedNode, error) in
-
-            XCTAssertNil(error, "Error must be nil \(error?.description)")
-            XCTAssertNotNil(savedNode, "Saved node can't be nil")
-
-            nodeIDForDeletion = savedNode!.meta?.nodeID()
-            
-            dispatch_group_leave(fetchDispatchGroup)
-        })
-        
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
-            
-            XCTAssertNotNil(nodeIDForDeletion, "nodeIDForDeletion must NOT be nil")
-            
-            theo.deleteNode(nodeIDForDeletion!, completionBlock: {error in
-                
-                XCTAssertNil(error, "Error should be nil \(error)")
-                
-                exp.fulfill()
-            })
-        })
-        
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
-            XCTAssertNil(error, "\(error)")
-        })
-    }
-    
-    func test_010_successfullyCommitTransaction() {
+    func test_009_successfullyCommitTransaction() {
 
         let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
         let resultDataContents: Array<String> = ["row", "graph"]
@@ -453,6 +410,115 @@ class Theo_000_RequestTestsTests: XCTestCase {
             exp.fulfill()
         })
         
+        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+            XCTAssertNil(error, "\(error)")
+        })
+    }
+    
+    func test_011_succesfullyUpdateRelationshipWithProperties() {
+        
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let exp = self.expectationWithDescription("test_011_succesfullyUpdateRelationshipWithProperties")
+        
+        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        
+        var relationshipIDToUpdate: String?
+        var nodeIDWithRelationships: String?
+        
+        // Fetch relationship for main RUD node
+        
+        dispatch_group_enter(fetchDispatchGroup)
+        theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
+            
+            println("test_009_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
+            
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
+            
+            if let nodeObject: Node = node {
+                
+                XCTAssert(node?.meta != nil, "Meta data can't be nil")
+                
+                nodeIDWithRelationships = nodeObject.meta!.nodeID()
+                
+                XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil");
+            }
+            
+            dispatch_group_leave(fetchDispatchGroup)
+        })
+        
+        // Delete the relationship
+        
+        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+            
+            theo.fetchRelationshipsForNode(nodeIDWithRelationships!, direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
+                
+                XCTAssert(relationships.count >= 1, "Relationships must be exist")
+                XCTAssertNil(error, "Error should be nil \(error)")
+                
+                if let foundRelationship: Relationship = relationships[0] as Relationship! {
+                    
+                    let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
+                    
+                    theo.updateRelationship(foundRelationship, properties: updatedProperties, completionBlock: {(_, error) in
+
+                        XCTAssertNil(error, "Error should be nil \(error)")
+                        
+                        exp.fulfill()
+                    })
+                    
+                } else {
+
+                    XCTFail("no relationships where found")
+                    
+                    exp.fulfill()
+                }
+            })
+        })
+        
+        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+            XCTAssertNil(error, "\(error)")
+        })
+    }
+    
+    func test_999_successfullyDeleteExistingNode() {
+
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let exp = self.expectationWithDescription("test_010_successfullyDeleteExistingNode")
+
+        var nodeIDForDeletion: String?
+        let node = Node()
+        let randomString: String = NSUUID.UUID().UUIDString
+
+        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+
+        dispatch_group_enter(fetchDispatchGroup)
+
+        node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
+        node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
+
+        theo.saveNode(node, completionBlock: {(savedNode, error) in
+
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(savedNode, "Saved node can't be nil")
+
+            nodeIDForDeletion = savedNode!.meta?.nodeID()
+
+            dispatch_group_leave(fetchDispatchGroup)
+        })
+
+        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+
+            XCTAssertNotNil(nodeIDForDeletion, "nodeIDForDeletion must NOT be nil")
+
+            theo.deleteNode(nodeIDForDeletion!, completionBlock: {error in
+
+                XCTAssertNil(error, "Error should be nil \(error)")
+
+                exp.fulfill()
+            })
+        })
+
         self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
