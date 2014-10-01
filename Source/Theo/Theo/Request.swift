@@ -60,7 +60,7 @@ class Request {
     /// :param: Array<String,String>? additionalHeaders
     /// :returns: Request
     required init(url: NSURL, credential: NSURLCredential?, additionalHeaders:[String:String]?) {
-        println("url for request \(url.absoluteString!)")
+
         self.sessionURL  = url
         self.httpRequest = NSURLRequest(URL: self.sessionURL)
     
@@ -288,8 +288,6 @@ class Request {
                 }
                 
                 if (!containsStatusCode) {
-                    
-                    println("response \(response)")
                     
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
