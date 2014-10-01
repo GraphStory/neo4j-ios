@@ -72,7 +72,7 @@ let randomString: String = NSUUID.UUID().UUIDString
 node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
 node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
 
-theo.saveNode(node, completionBlock: {(node, error) in
+theo.createNode(node, completionBlock: {(node, error) in
     println("new node \(node)")
 });
 ```
@@ -87,7 +87,7 @@ node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
 node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
 node.addLabel("customLabelForNode_" + randomString)
 
-theo.saveNode(node, completionBlock: {(node, error) in
+theo.createNode(node, completionBlock: {(node, error) in
     println("new node \(node)")
 });
 ```
@@ -116,9 +116,11 @@ theo.deleteNode("IDForDeletion", completionBlock: {error in
 var relationship: Relationship = Relationship()
 
 relationship.relate(parentNodeInstance, toNode: relatedNodeInstance, type: RelationshipType.KNOWS)
+
+// setting properties is optional
 relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
 
-theo.saveRelationship(relationship, completionBlock: {(node, error) in
+theo.createRelationship(relationship, completionBlock: {(node, error) in
     println("meta in success \(node!.meta) node \(node) error \(error)")
 })
 ```
@@ -139,6 +141,17 @@ theo.fetchRelationshipsForNode("nodeIDWithRelationships", direction: Relationshi
         })
     }
 })
+```
+
+### Update a relationship
+
+```Swift
+let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
+
+theo.updateRelationship(foundRelationshipInstance, properties: updatedProperties, completionBlock: {(_, error) in
+
+})
+
 ```
 
 ### Execute a transaction
