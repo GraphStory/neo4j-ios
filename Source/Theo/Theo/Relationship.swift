@@ -20,6 +20,7 @@ let TheoRelationshipPropertiesKey: String = "properties"
 let TheoRelationshipTypeKey: String       = "type"
 let TheoRelationshipEndKey: String        = "end"
 let TheoRelationshipDataKey: String       = "data"
+let TheoRelationshipMetaDataKey: String   = "metadata"
 
 struct RelationshipMeta: Printable {
 
@@ -31,6 +32,7 @@ struct RelationshipMeta: Printable {
     let type: String                    = ""//TODO: add custom function so it will return RelationshipType
     let end: String                     = ""
     let data: [String: AnyObject]       = [String: AnyObject]()
+    let metadata: [String: AnyObject]       = [String: AnyObject]()
     
     func relationshipID() -> String {
         
@@ -60,6 +62,8 @@ struct RelationshipMeta: Printable {
                 self.end = value as String
             case TheoRelationshipDataKey:
                 self.data = value as Dictionary
+            case TheoRelationshipMetaDataKey:
+                self.metadata = value as Dictionary
             default:
                 ""
             }
@@ -67,7 +71,7 @@ struct RelationshipMeta: Printable {
     }
     
     var description: String {
-        return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data), relationshipID \(self.relationshipID()))"
+        return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data), relationshipID \(self.relationshipID()), metadata \(self.metadata)"
     }
 }
 
@@ -91,6 +95,33 @@ struct RelationshipDirection {
 
 class Relationship {
 
+    // MARK: Public Properties
+    
+    // TODO: MUST find a better way to handle this
+    // This is a very unfortunate flag that I need to come back ripping out, but
+    // due to the different ways relationship properties are set depending on
+    // whether you are creating or updating this becomes a necessary evil
+    //
+    // The basic gist of it is when you create a relationship, with or without 
+    // properties then your payload has a parent node of "data"...something like
+    //    {
+    //      "to" : "http://localhost:7474/db/data/node/10",
+    //      "type" : "LOVES",
+    //      "data" : {
+    //      "foo" : "bar"
+    //      }
+    //    }
+    //
+    // however when you are updating a relationship with properties then you don't
+    // include the "data" node. Something like:
+    //    {
+    //      "happy" : false
+    //    }
+    // This is initalized to false, but if you are upating then you'll have to 
+    // toggle it. If you forget then the update will fail with a 400
+
+    var updatingProperties: Bool
+    
     // MARK: Private Properties
 
     private (set) var relationshipMeta: RelationshipMeta?
@@ -100,13 +131,19 @@ class Relationship {
     // MARK: Lazy Properties
     
     lazy var relationshipInfo: [String:AnyObject] = {
+
         var info: [String:AnyObject] = [String:AnyObject]()
         
         info["to"]   = self.relationshipCreateMeta[RelationshipDataToNodeKey]
         info["type"] = self.relationshipCreateMeta[RelationshipDataTypeKey]
 
         if (!self.isDataEmpty()) {
-            info["data"] = self.relationshipData
+            
+            if (self.updatingProperties) {
+                
+            } else {
+                info["data"] = self.relationshipData
+            }
         }
         
         return info
@@ -149,6 +186,7 @@ class Relationship {
         
         self.relationshipCreateMeta = [String:AnyObject]()
         self.relationshipData       = [String:AnyObject]()
+        self.updatingProperties     = false
         
         if let dictionaryData: [String:AnyObject] = data {
 
@@ -200,9 +238,9 @@ class Relationship {
     /// :param: String propertyName
     /// :param: String propertyValue
     /// :returns: Void
-    func setProp(propertyName: String, propertyValue: String) -> Void {
+    func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
-        var objectValue: AnyObject = propertyValue as AnyObject
+        var objectValue: AnyObject = propertyValue
         
         self.relationshipData[propertyName] = objectValue
     }
