@@ -59,8 +59,8 @@ class Request {
     /// :param: NSURLCredential? credentials
     /// :param: Array<String,String>? additionalHeaders
     /// :returns: Request
-    required init(url: NSURL, credentials: NSURLCredential?, additionalHeaders:[String:String]?) {
-    
+    required init(url: NSURL, credential: NSURLCredential?, additionalHeaders:[String:String]?) {
+        println("url for request \(url.absoluteString!)")
         self.sessionURL  = url
         self.httpRequest = NSURLRequest(URL: self.sessionURL)
     
@@ -97,7 +97,7 @@ class Request {
         // methods so that you can set whether or not requests should handle auth
         // at a session or task level.
 
-        if let creds: NSURLCredential = credentials {
+        if let creds: NSURLCredential = credential {
 
             let host: String        = url.host!
             let port: Int           = url.port!.integerValue
@@ -120,7 +120,7 @@ class Request {
     /// :returns: Request
 
     convenience init(url: NSURL, credential: NSURLCredential?) {
-        self.init(url: url, credentials: credential, additionalHeaders: nil)
+        self.init(url: url, credential: credential, additionalHeaders: nil)
     }
     
     /// Convenience initializer
@@ -131,7 +131,7 @@ class Request {
     /// :returns: Request
     
     convenience init() {
-        self.init(url: NSURL(), credentials: nil, additionalHeaders: nil)
+        self.init(url: NSURL(), credential: nil, additionalHeaders: nil)
     }
   
     // MARK: Public Methods
