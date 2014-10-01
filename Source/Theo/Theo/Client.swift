@@ -11,7 +11,7 @@ import Foundation
 typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
 typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
 typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
-typealias TheoNodeRequestRelationshipCompletionBlock = (relationshipMeta: RelationshipMeta?, error: NSError?) -> Void
+typealias TheoNodeRequestRelationshipCompletionBlock = (relationship: Relationship?, error: NSError?) -> Void
 typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
 typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
 typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
@@ -163,7 +163,7 @@ public class Client {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: NSURL = NSURL(string: metaResource)
-        let metaRequest: Request = Request(url: metaURL, credentials: self.credentials, additionalHeaders: nil)
+        let metaRequest: Request = Request(url: metaURL, credential: self.credentials)
 
         metaRequest.getResource({(data, response) in
       
@@ -196,7 +196,7 @@ public class Client {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
+        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
         nodeRequest.getResource(
             {(data, response) in
@@ -230,7 +230,7 @@ public class Client {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
+        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
         nodeRequest.postResource(node.nodeData, forUpdate: false,
             {(data, response) in
@@ -300,7 +300,7 @@ public class Client {
                 let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                 
                 let nodeURL: NSURL = NSURL(string: nodeResource)
-                let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
+                let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
                 
                 nodeRequest.postResource(labels, forUpdate: false,
                     successBlock: {(data, response) in
@@ -335,7 +335,7 @@ public class Client {
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
+        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
         nodeRequest.postResource(properties, forUpdate: true,
             successBlock: {(data, response) in
@@ -383,7 +383,7 @@ public class Client {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
-        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials, additionalHeaders: nil)
+        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
         nodeRequest.deleteResource({(data, response) in
                 
@@ -438,7 +438,7 @@ public class Client {
         
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         
-        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
+        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         var relationshipsForNode: [Relationship] = [Relationship]()
         
         relationshipRequest.getResource(
@@ -469,13 +469,13 @@ public class Client {
     /// Creates a relationship instance
     ///
     /// :param: Relationship relationship
-    /// :param: TheoNodeRequestCompletionBlock? completionBlock
+    /// :param: TheoNodeRequestRelationshipCompletionBlock? completionBlock
     /// :returns: Void
-    func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
-        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
+        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         
         relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
                                          successBlock: {(data, response) in
@@ -486,18 +486,51 @@ public class Client {
 
                                                     let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                                                     let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                                                    let node: Node = Node(data: jsonAsDictionary)
+                                                    let relationship: Relationship = Relationship(data: jsonAsDictionary)
                                                     
-                                                    completionBlock!(node: node, error: nil)
+                                                    completionBlock!(relationship: relationship, error: nil)
                                                 }
                                             }
                                          
                                          }, errorBlock: {(error, response) in
 
                                                 if (completionBlock != nil) {
-                                                    completionBlock!(node: nil, error: error)
+                                                    completionBlock!(relationship: nil, error: error)
                                                 }
                                          })
+    }
+    
+    func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    
+        let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
+//        let relationshipResource = self.baseURL + "/db/data/relationship/6136/properties"
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        
+        for (name, value) in properties {
+            relationship.setProp(name, propertyValue: value)
+        }
+        
+        relationshipRequest.postResource(properties, forUpdate: true,
+            successBlock: {(data, response) in
+                
+                if (completionBlock != nil) {
+                    
+                    if let responseData: NSData = data {
+                        
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                        println("JSON that is empty \(JSON)")
+                        // If the update is successfull then you'll receive a 204 with an empty body
+                        completionBlock!(relationship: nil, error: nil)
+                    }
+                }
+                
+            }, errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(relationship: nil, error: error)
+                }
+        })
     }
     
     /// Deletes a relationship instance for a given ID
@@ -509,7 +542,7 @@ public class Client {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
-        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials, additionalHeaders: nil)
+        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
 
         relationshipRequest.deleteResource({(data, response) in
 
@@ -571,7 +604,7 @@ public class Client {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
         let queryURL: NSURL = NSURL(string: queryResource)
-        let queryRequest: Request = Request(url: queryURL, credentials: self.credentials, additionalHeaders: nil)
+        let queryRequest: Request = Request(url: queryURL, credential: self.credentials)
         
         queryRequest.getResource(
                 {(data, response) in
