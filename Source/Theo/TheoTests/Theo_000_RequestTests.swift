@@ -141,7 +141,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         node.setProp("unitTestKey_1", propertyValue: "unitTestValue_1" + randomString)
         node.setProp("unitTestKey_2", propertyValue: "unitTestValue_2" + randomString)
         
-        theo.saveNode(node, completionBlock: {(node, error) in
+        theo.createNode(node, completionBlock: {(node, error) in
         
             println("new node \(node)")
             
@@ -225,7 +225,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
             relationship.relate(parentNode!, toNode: relatedNode!, type: RelationshipType.KNOWS)
             relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
 
-            theo.saveRelationship(relationship, completionBlock: {(rel, error) in
+            theo.createRelationship(relationship, completionBlock: {(rel, error) in
             
                 XCTAssert(rel?.relationshipMeta != nil, "Meta data can't be nil")
                 XCTAssert(rel != nil, "Node data can't be nil")
@@ -380,7 +380,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
         node.addLabel("test_010_succesfullyAddNodeWithLabel_" + randomString)
 
-        theo.saveNode(node, labels: node.labels, completionBlock: {(_, error) in
+        theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
             
             XCTAssertNil(error, "Error must be nil \(error?.description)")
             
@@ -497,7 +497,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
         node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
 
-        theo.saveNode(node, completionBlock: {(savedNode, error) in
+        theo.createNode(node, completionBlock: {(savedNode, error) in
 
             XCTAssertNil(error, "Error must be nil \(error?.description)")
             XCTAssertNotNil(savedNode, "Saved node can't be nil")

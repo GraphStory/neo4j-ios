@@ -226,7 +226,7 @@ public class Client {
     /// :param: Node node
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func saveNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    func createNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
@@ -276,14 +276,14 @@ public class Client {
     /// :param: Array<String> labels
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func saveNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeSaveDispatchGroup: dispatch_group_t = dispatch_group_create()
         var createdNodeWithoutLabels: Node?
 
         dispatch_group_enter(nodeSaveDispatchGroup)
 
-        self.saveNode(node, completionBlock: {(node, error) in
+        self.createNode(node, completionBlock: {(node, error) in
         
             if let returnedNode: Node = node {
                 createdNodeWithoutLabels = returnedNode
@@ -470,7 +470,7 @@ public class Client {
     /// :param: Relationship relationship
     /// :param: TheoNodeRequestRelationshipCompletionBlock? completionBlock
     /// :returns: Void
-    func saveRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    func createRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
