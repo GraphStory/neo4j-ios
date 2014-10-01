@@ -503,7 +503,6 @@ public class Client {
     func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
-//        let relationshipResource = self.baseURL + "/db/data/relationship/6136/properties"
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         
