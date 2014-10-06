@@ -330,7 +330,7 @@ public class Client {
     /// :param: Dictionary<String,String> properties
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func updateNode(node: Node, properties: Dictionary<String,String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    func updateNode(node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"

@@ -155,9 +155,9 @@ class Node {
     /// :param: String propertyName
     /// :param: String propertyValue
     /// :returns: Void
-    func setProp(propertyName: String, propertyValue: String) -> Void {
+    func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
-        var objectValue: AnyObject = propertyValue as AnyObject
+        var objectValue: AnyObject = propertyValue
         
         self.nodeData[propertyName] = objectValue
     }

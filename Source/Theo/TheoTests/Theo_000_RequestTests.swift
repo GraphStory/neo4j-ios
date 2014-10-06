@@ -378,6 +378,7 @@ class Theo_000_RequestTestsTests: XCTestCase {
         
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
+        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
         node.addLabel("test_010_succesfullyAddNodeWithLabel_" + randomString)
 
         theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
