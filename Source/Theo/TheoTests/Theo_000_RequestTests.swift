@@ -25,7 +25,7 @@ class ConfigLoader: NSObject {
     }
 }
 
-class Theo_000_RequestTestsTests: XCTestCase {
+class Theo_000_RequestTests: XCTestCase {
   
     let configuration: Config = ConfigLoader.loadConfig()
 
@@ -475,6 +475,28 @@ class Theo_000_RequestTestsTests: XCTestCase {
                     exp.fulfill()
                 }
             })
+        })
+        
+        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+            XCTAssertNil(error, "\(error)")
+        })
+    }
+    
+    func test_012_successfullyExecuteCyperRequest() {
+
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let exp = self.expectationWithDescription("test_012_successfullyExecuteCyperRequest")
+        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->f WITH DISTINCT f,u MATCH f-[:LASTPOST]-lp-[:NEXTPOST*0..3]-p RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
+        let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
+
+        theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(response, error) in
+        
+            println("response from cyper \(response)")
+            
+            XCTAssertNil(error, "Error should be nil \(error)")
+            XCTAssertNotNil(response, "Response can't be nil")
+            
+            exp.fulfill()
         })
         
         self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
