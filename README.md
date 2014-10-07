@@ -167,6 +167,17 @@ theo.executeTransaction(statements, completionBlock: {(response, error) in
 })
 ```
 
+### Execute a cypher query
+
+```Swift
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->f WITH DISTINCT f,u MATCH f-[:LASTPOST]-lp-[:NEXTPOST*0..3]-p RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
+        let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
+
+        theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(response, error) in
+            println("response from cyper \(response)")
+        })
+```
 ## Unit Tests
 
 ### Setup
