@@ -632,4 +632,38 @@ public class Client {
                     }
             })
     }
+    
+    /// Executes a cypher query
+    ///
+    /// :param: String query
+    /// :param: Dictionary<String,AnyObject> params
+    /// :param: TheoRawRequestCompletionBlock completionBlock
+    /// :returns: Void
+    func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+        
+        let cypherPayload: Dictionary<String, AnyObject> = ["query" : query, "params" : params]
+        let cypherResource: String = self.baseURL + "/db/data/cypher"
+        let cypherURL: NSURL = NSURL(string: cypherResource)
+        let cypherRequest: Request = Request(url: cypherURL, credential: self.credentials)
+        
+        cypherRequest.postResource(cypherPayload, forUpdate: false, successBlock: {(data, response) in
+            
+            if (completionBlock != nil) {
+                
+                if let responseData: NSData = data {
+                    
+                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                    
+                    completionBlock!(response: jsonAsDictionary, error: nil)
+                }
+            }
+            
+        }, errorBlock: {(error, response) in
+                
+                if (completionBlock != nil) {
+                    completionBlock!(response: [String:AnyObject](), error: error)
+                }
+        })
+    }
 }
