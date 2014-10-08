@@ -15,6 +15,7 @@ typealias TheoNodeRequestRelationshipCompletionBlock = (relationship: Relationsh
 typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
 typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
 typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
+typealias TheoCypherQueryCompletionBlock = (cypher: Cypher?, error: NSError?) -> Void
 
 let TheoDBMetaExtensionsKey: String        = "extensions"
 let TheoDBMetaNodeKey: String              = "node"
@@ -639,7 +640,7 @@ public class Client {
     /// :param: Dictionary<String,AnyObject> params
     /// :param: TheoRawRequestCompletionBlock completionBlock
     /// :returns: Void
-    func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+    func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoCypherQueryCompletionBlock?) -> Void {
         
         let cypherPayload: Dictionary<String, AnyObject> = ["query" : query, "params" : params]
         let cypherResource: String = self.baseURL + "/db/data/cypher"
@@ -651,18 +652,20 @@ public class Client {
             if (completionBlock != nil) {
                 
                 if let responseData: NSData = data {
-                    
-                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    
-                    completionBlock!(response: jsonAsDictionary, error: nil)
+
+                    let JSON: AnyObject! = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
+
+                    let jsonAsDictionary: [String:[AnyObject]]! = JSON as [String:[AnyObject]]
+                    let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
+
+                    completionBlock!(cypher: cypher, error: nil)
                 }
             }
             
         }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(response: [String:AnyObject](), error: error)
+                    completionBlock!(cypher: nil, error: error)
                 }
         })
     }
