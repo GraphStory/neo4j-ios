@@ -14,9 +14,9 @@ let TheoCypherData: String = "data"
 struct CypherMeta: Printable {
     
     let columns: Array<String> = Array<String>()
-    let data: Array<Any>    = Array<Any>()
+    let data: Array<AnyObject> = Array<AnyObject>()
     
-    init(dictionary: Dictionary<String, Array<Any>>) {
+    init(dictionary: Dictionary<String, AnyObject>) {
         
         for (key, value) in dictionary {
             
@@ -39,11 +39,11 @@ struct CypherMeta: Printable {
 class Cypher {
 
     var meta: CypherMeta?
-    private(set) var data: Array<Dictionary<String, Any>> = Array<Dictionary<String, Any>>()
+    private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
     
-    required init(metaData: Dictionary<String, Array<Any>>?) {
+    required init(metaData: Dictionary<String, Array<AnyObject>>?) {
     
-        if let dictionaryData: [String:[Any]] = metaData {
+        if let dictionaryData: [String:[AnyObject]] = metaData {
 
             self.meta = CypherMeta(dictionary: dictionaryData)
             
@@ -51,11 +51,11 @@ class Cypher {
                 
                 let keys = metaForCypher.columns
 
-                for arrayValues in metaForCypher.data as Array<Array<Any>> {
+                for arrayValues in metaForCypher.data as Array<Array<AnyObject>> {
                     
                     for (index, value) in enumerate(arrayValues) {
 
-                        var cypherDictionary: Dictionary<String, Any> = Dictionary<String, Any>()
+                        var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                         let cypherDictionaryKey: String = metaForCypher.columns[index]
 
                         cypherDictionary[cypherDictionaryKey] = value
@@ -69,5 +69,28 @@ class Cypher {
     
     convenience init() {
         self.init(metaData: nil)
+    }
+}
+
+// MARK: - Printable
+
+extension Cypher: Printable {
+    
+    var description: String {
+        
+        var returnString: String = ""
+            
+            for value: Dictionary<String, AnyObject> in self.data {
+                
+                for (returnStringKey, returnKeyValue) in value {
+                    returnString += " \(returnStringKey): \(returnKeyValue)"
+                }
+            }
+            
+            if let meta: CypherMeta = self.meta {
+                returnString += "meta description " + meta.description
+            }
+            
+            return returnString
     }
 }
