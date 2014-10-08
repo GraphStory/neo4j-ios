@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
 		01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
+		017BB6E519E427A9007C57FD /* TheoConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 017BB6E419E427A9007C57FD /* TheoConfig.json */; };
+		017BB6E719E436E7007C57FD /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BB6E619E436E7007C57FD /* Cypher.swift */; };
+		017BB6E819E436E7007C57FD /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BB6E619E436E7007C57FD /* Cypher.swift */; };
 		019506C019CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C119CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */ = {isa = PBXBuildFile; fileRef = 019506C219CF4C7A006F3596 /* TheoConfig.json.example */; };
 		019506C619CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
 		019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
-		019506C919CF4CA0006F3596 /* TheoConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 019506C819CF4CA0006F3596 /* TheoConfig.json */; };
 		019506CD19CF555E006F3596 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506CC19CF555E006F3596 /* Config.swift */; };
 		01FB2CC619C7DAB800D429E7 /* Theo.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FB2CC519C7DAB800D429E7 /* Theo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */; };
@@ -28,10 +30,11 @@
 
 /* Begin PBXFileReference section */
 		01422D2419D0B04A00B4B3B8 /* Relationship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
+		017BB6E419E427A9007C57FD /* TheoConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TheoConfig.json; sourceTree = "<group>"; };
+		017BB6E619E436E7007C57FD /* Cypher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
 		019506BF19CC61AB006F3596 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		019506C219CF4C7A006F3596 /* TheoConfig.json.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheoConfig.json.example; sourceTree = "<group>"; };
 		019506C319CF4C7A006F3596 /* TemplateIcon2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TemplateIcon2x.png; sourceTree = "<group>"; };
-		019506C819CF4CA0006F3596 /* TheoConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TheoConfig.json; sourceTree = "<group>"; };
 		019506CC19CF555E006F3596 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		01FB2CC019C7DAB800D429E7 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FB2CC419C7DAB800D429E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -77,6 +80,7 @@
 			children = (
 				01422D2419D0B04A00B4B3B8 /* Relationship.swift */,
 				019506BF19CC61AB006F3596 /* Node.swift */,
+				017BB6E619E436E7007C57FD /* Cypher.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -121,8 +125,8 @@
 		01FB2CCC19C7DAB800D429E7 /* TheoTests */ = {
 			isa = PBXGroup;
 			children = (
+				017BB6E419E427A9007C57FD /* TheoConfig.json */,
 				019506CC19CF555E006F3596 /* Config.swift */,
-				019506C819CF4CA0006F3596 /* TheoConfig.json */,
 				01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */,
 				01FB2CCD19C7DAB800D429E7 /* Supporting Files */,
 				019506C219CF4C7A006F3596 /* TheoConfig.json.example */,
@@ -237,7 +241,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */,
-				019506C919CF4CA0006F3596 /* TheoConfig.json in Resources */,
+				017BB6E519E427A9007C57FD /* TheoConfig.json in Resources */,
 				019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,6 +255,7 @@
 			files = (
 				01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1619C7DB5D00D429E7 /* Session.swift in Sources */,
+				017BB6E719E436E7007C57FD /* Cypher.swift in Sources */,
 				01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */,
 				019506C019CC61AB006F3596 /* Node.swift in Sources */,
@@ -263,6 +268,7 @@
 			files = (
 				01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */,
 				019506C119CC61AB006F3596 /* Node.swift in Sources */,
+				017BB6E819E436E7007C57FD /* Cypher.swift in Sources */,
 				01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1519C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */,
