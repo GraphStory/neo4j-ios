@@ -8,15 +8,6 @@
 
 import Foundation
 
-typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
-typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
-typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
-typealias TheoNodeRequestRelationshipCompletionBlock = (relationship: Relationship?, error: NSError?) -> Void
-typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
-typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
-typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
-typealias TheoCypherQueryCompletionBlock = (cypher: Cypher?, error: NSError?) -> Void
-
 let TheoDBMetaExtensionsKey: String        = "extensions"
 let TheoDBMetaNodeKey: String              = "node"
 let TheoDBMetaNodeIndexKey: String         = "node_index"
@@ -31,7 +22,7 @@ let TheoDBMetaTransactionKey: String       = "transaction"
 let TheoDBMetaNodeLabelsKey: String        = "node_labels"
 let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
-struct DBMeta: Printable {
+public struct DBMeta: Printable {
   
     let extensions: [String: AnyObject] = [String: AnyObject]()
     let node: String                    = ""
@@ -84,7 +75,7 @@ struct DBMeta: Printable {
         }
     }
   
-    var description: String {
+    public var description: String {
         return "Extensions: \(self.extensions) node: \(self.node) node_index: \(self.node_index) relationship_index: \(self.relationship_index) extensions_info : \(self.extensions_info), relationship_types: \(self.relationship_types) batch: \(self.batch) cypher: \(self.cypher) indexes: \(self.indexes) constraints: \(self.constraints) transaction: \(self.transaction) node_labels: \(self.node_labels) neo4j_version: \(self.neo4j_version)"
     }
 }
@@ -93,9 +84,18 @@ public class Client {
   
     // MARK: Public properties
 
-    let baseURL: String
-    let username: String?
-    let password: String?
+    public let baseURL: String
+    public let username: String?
+    public let password: String?
+    
+    public typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
+    public typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
+    public typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
+    public typealias TheoNodeRequestRelationshipCompletionBlock = (relationship: Relationship?, error: NSError?) -> Void
+    public typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
+    public typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
+    public typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
+    public typealias TheoCypherQueryCompletionBlock = (cypher: Cypher?, error: NSError?) -> Void
     
     // MARK: Lazy properties
 
@@ -160,7 +160,7 @@ public class Client {
     ///
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func metaDescription(completionBlock: TheoMetaDataCompletionBlock?) -> Void {
+    public func metaDescription(completionBlock: TheoMetaDataCompletionBlock?) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: NSURL = NSURL(string: metaResource)
@@ -193,7 +193,7 @@ public class Client {
     /// :param: String nodeID
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    public func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
@@ -227,7 +227,7 @@ public class Client {
     /// :param: Node node
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func createNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    public func createNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)
@@ -277,7 +277,7 @@ public class Client {
     /// :param: Array<String> labels
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    public func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeSaveDispatchGroup: dispatch_group_t = dispatch_group_create()
         var createdNodeWithoutLabels: Node?
@@ -331,7 +331,7 @@ public class Client {
     /// :param: Dictionary<String,String> properties
     /// :param: TheoMetaDataCompletionBlock? completionBlock
     /// :returns: Void
-    func updateNode(node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    public func updateNode(node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
@@ -380,7 +380,7 @@ public class Client {
     /// :param: Node nodeID
     /// :param: TheoNodeRequestDeleteCompletionBlock? completionBlock
     /// :returns: Void
-    func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    public func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)
@@ -410,7 +410,7 @@ public class Client {
     /// :param: Array<String>? types
     /// :param: TheoRelationshipRequestCompletionBlock? completionBlock
     /// :returns: Void
-    func fetchRelationshipsForNode(nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
+    public func fetchRelationshipsForNode(nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
         
         var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
         
@@ -471,7 +471,7 @@ public class Client {
     /// :param: Relationship relationship
     /// :param: TheoNodeRequestRelationshipCompletionBlock? completionBlock
     /// :returns: Void
-    func createRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    public func createRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
@@ -506,7 +506,7 @@ public class Client {
     /// :param: Dictionary<String,AnyObject> properties
     /// :param: TheoNodeRequestRelationshipCompletionBlock? completionBlock
     /// :returns: Void
-    func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    public func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
@@ -545,7 +545,7 @@ public class Client {
     /// :param: String relationshipID
     /// :param: TheoNodeRequestDeleteCompletionBlock? completionBlock
     /// :returns: Void
-    func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    public func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: NSURL = NSURL(string: relationshipResource)
@@ -574,7 +574,7 @@ public class Client {
     /// :param: Array<Dictionary<String, AnyObject>> statements
     /// :param: TheoTransactionCompletionBlock? completionBlock
     /// :returns: Void
-    func executeTransaction(statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
+    public func executeTransaction(statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
         
         let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
@@ -607,7 +607,7 @@ public class Client {
     /// :param: String uri
     /// :param: TheoRawRequestCompletionBlock? completionBlock
     /// :returns: Void
-    func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+    public func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
         let queryURL: NSURL = NSURL(string: queryResource)
@@ -640,7 +640,7 @@ public class Client {
     /// :param: Dictionary<String,AnyObject> params
     /// :param: TheoRawRequestCompletionBlock completionBlock
     /// :returns: Void
-    func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoCypherQueryCompletionBlock?) -> Void {
+    public func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoCypherQueryCompletionBlock?) -> Void {
         
         let cypherPayload: Dictionary<String, AnyObject> = ["query" : query, "params" : params]
         let cypherResource: String = self.baseURL + "/db/data/cypher"
