@@ -9,7 +9,7 @@
 import Foundation
 
 let TheoCypherColumns: String = "columns"
-let TheoCypherData: String = "data"
+let TheoCypherData: String    = "data"
 
 struct CypherMeta: Printable {
     
