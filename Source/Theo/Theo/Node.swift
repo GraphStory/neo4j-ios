@@ -25,7 +25,7 @@ let TheoNodeCreateRelationship: String         = "create_relationship"
 let TheoNodeData: String                       = "data"
 let TheoNodeMetaData: String                   = "metadata"
 
-struct NodeMeta: Printable {
+public struct NodeMeta: Printable {
     
     let extensions: [String: AnyObject]      = [String: AnyObject]()
     let page_traverse: String                = ""
@@ -44,14 +44,14 @@ struct NodeMeta: Printable {
     let data: [String: AnyObject]            = [String: AnyObject]()
     let metadata: [String: AnyObject]        = [String: AnyObject]()
 
-    func nodeID() -> String {
+    public func nodeID() -> String {
 
         let pathComponents: Array<String> = self.node_self.componentsSeparatedByString("/")
 
         return pathComponents.last!
     }
     
-    init(dictionary: Dictionary<String, AnyObject>!) {
+    public init(dictionary: Dictionary<String, AnyObject>!) {
         
         for (key: String, value: AnyObject) in dictionary {
             
@@ -94,12 +94,12 @@ struct NodeMeta: Printable {
         }
     }
     
-    var description: String {
+    public var description: String {
         return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data), metadata \(self.metadata), nodeID \(self.nodeID())"
     }
 }
 
-class Node {
+public class Node {
 
     // MARK: Private Setters and Public Getters
 
@@ -108,7 +108,7 @@ class Node {
 
     // MARK: Public Properties
     
-    var meta: NodeMeta?
+    public var meta: NodeMeta?
     
     // MARK: Constructors
     
@@ -116,7 +116,7 @@ class Node {
     ///
     /// :param: Dictionary<String,AnyObject>? data
     /// :returns: Node
-    required init(data: Dictionary<String,AnyObject>?) {
+    public required init(data: Dictionary<String,AnyObject>?) {
         
         if let dictionaryData: [String:AnyObject] = data {
 
@@ -133,7 +133,7 @@ class Node {
     /// calls init(data:) with the param value as nil
     ///
     /// :returns: Node
-    convenience init() {
+    public convenience init() {
         self.init(data: nil)
     }
     
@@ -141,7 +141,7 @@ class Node {
     ///
     /// :param: String propertyName
     /// :returns: AnyObject?
-    func getProp(propertyName: String) -> AnyObject? {
+    public func getProp(propertyName: String) -> AnyObject? {
 
         if let object: AnyObject = self.nodeData[propertyName] {
             return object
@@ -155,7 +155,7 @@ class Node {
     /// :param: String propertyName
     /// :param: String propertyValue
     /// :returns: Void
-    func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
+    public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
         var objectValue: AnyObject = propertyValue
         
@@ -166,7 +166,7 @@ class Node {
     ///
     /// :param: String label
     /// :returns: Void
-    func addLabel(label:String) -> Void {
+    public func addLabel(label:String) -> Void {
         self.labels.append(label)
     }
     
@@ -175,14 +175,14 @@ class Node {
     /// This is done by checking for empty keys array
     ///
     /// :returns: Bool
-    func isEmpty() -> Bool {
+    public func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
 
     /// Returns whether the current node has labels
     ///
     /// :returns: Bool
-    func hasLabels() -> Bool {
+    public func hasLabels() -> Bool {
         return self.labels.isEmpty
     }
 }
@@ -191,7 +191,7 @@ class Node {
 
 extension Node: Printable {
     
-    var description: String {
+    public var description: String {
         
         var returnString: String = ""
             

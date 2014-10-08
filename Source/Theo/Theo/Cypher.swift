@@ -11,7 +11,7 @@ import Foundation
 let TheoCypherColumns: String = "columns"
 let TheoCypherData: String    = "data"
 
-struct CypherMeta: Printable {
+public struct CypherMeta: Printable {
     
     let columns: Array<String> = Array<String>()
     let data: Array<AnyObject> = Array<AnyObject>()
@@ -31,17 +31,17 @@ struct CypherMeta: Printable {
         }
     }
     
-    var description: String {
+    public var description: String {
         return "Columns: \(columns), data \(data)"
     }
 }
 
-class Cypher {
+public class Cypher {
 
     var meta: CypherMeta?
     private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
     
-    required init(metaData: Dictionary<String, Array<AnyObject>>?) {
+    public required init(metaData: Dictionary<String, Array<AnyObject>>?) {
     
         if let dictionaryData: [String:[AnyObject]] = metaData {
 
@@ -67,7 +67,7 @@ class Cypher {
         }
     }
     
-    convenience init() {
+    public convenience init() {
         self.init(metaData: nil)
     }
 }
@@ -76,7 +76,7 @@ class Cypher {
 
 extension Cypher: Printable {
     
-    var description: String {
+    public var description: String {
         
         var returnString: String = ""
             

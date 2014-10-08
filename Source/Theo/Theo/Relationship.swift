@@ -22,7 +22,7 @@ let TheoRelationshipEndKey: String        = "end"
 let TheoRelationshipDataKey: String       = "data"
 let TheoRelationshipMetaDataKey: String   = "metadata"
 
-struct RelationshipMeta: Printable {
+public struct RelationshipMeta: Printable {
 
     let extensions: [String: AnyObject] = [String: AnyObject]()
     let start: String                   = ""
@@ -70,12 +70,12 @@ struct RelationshipMeta: Printable {
         }
     }
     
-    var description: String {
+    public var description: String {
         return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data), relationshipID \(self.relationshipID()), metadata \(self.metadata)"
     }
 }
 
-struct RelationshipType {
+public struct RelationshipType {
 
     static var KNOWS: String   = "KNOWS"
     static var know: String    = "know"
@@ -86,14 +86,14 @@ struct RelationshipType {
     static var LOVES: String   = "LOVES"
 }
 
-struct RelationshipDirection {
+public struct RelationshipDirection {
     
     static var ALL: String = "all"
     static var IN: String  = "in"
     static var OUT: String = "out"
 }
 
-class Relationship {
+public class Relationship {
 
     // MARK: Public Properties
     
@@ -182,7 +182,7 @@ class Relationship {
     ///
     /// :param: Dictionary<String,AnyObject> data
     /// :returns: Relationship
-    required init(data: Dictionary<String,AnyObject>?) {
+    public required init(data: Dictionary<String,AnyObject>?) {
         
         self.relationshipCreateMeta = [String:AnyObject]()
         self.relationshipData       = [String:AnyObject]()
@@ -203,7 +203,7 @@ class Relationship {
     /// calls init(data:) with the param value as nil
     ///
     /// :returns: Relationship
-    convenience init() {
+    public convenience init() {
         self.init(data: nil)
     }
     
@@ -213,7 +213,7 @@ class Relationship {
     /// :param: Node toNode
     /// :param: String type (see RelationshipDirection)
     /// :returns: Void
-    func relate(fromNode: Node, toNode: Node, type: String) -> Void {
+    public func relate(fromNode: Node, toNode: Node, type: String) -> Void {
     
         self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship
         self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID()
@@ -224,7 +224,7 @@ class Relationship {
     ///
     /// :param: String propertyName
     /// :returns: AnyObject?
-    func getProp(propertyName: String) -> AnyObject? {
+    public func getProp(propertyName: String) -> AnyObject? {
         
         if let object: AnyObject = self.relationshipData[propertyName] {
             return object
@@ -238,7 +238,7 @@ class Relationship {
     /// :param: String propertyName
     /// :param: String propertyValue
     /// :returns: Void
-    func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
+    public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
         var objectValue: AnyObject = propertyValue
         
@@ -252,7 +252,7 @@ class Relationship {
     /// :param: String propertyName
     /// :param: String propertyValue
     /// :returns: Bool
-    func isDataEmpty() -> Bool {
+    public func isDataEmpty() -> Bool {
         return self.relationshipData.keys.isEmpty
     }
 }
