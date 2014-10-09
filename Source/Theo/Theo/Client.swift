@@ -642,6 +642,8 @@ public class Client {
     /// :returns: Void
     public func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoCypherQueryCompletionBlock?) -> Void {
         
+        // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
+        
         let cypherPayload: Dictionary<String, AnyObject> = ["query" : query, "params" : params]
         let cypherResource: String = self.baseURL + "/db/data/cypher"
         let cypherURL: NSURL = NSURL(string: cypherResource)
