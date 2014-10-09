@@ -108,7 +108,15 @@ public class Node {
 
     // MARK: Public Properties
     
-    public var meta: NodeMeta?
+    public var meta: NodeMeta? = nil {
+
+        didSet {
+        
+            if let metaForNode = self.meta {
+                self.nodeData = metaForNode.data
+            }
+        }
+    }
     
     // MARK: Constructors
     
