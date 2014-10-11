@@ -96,7 +96,8 @@ public class Client {
     public typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
     public typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
     public typealias TheoCypherQueryCompletionBlock = (cypher: Cypher?, error: NSError?) -> Void
-    
+
+
     // MARK: Lazy properties
 
     lazy private var credentials: NSURLCredential? = {
@@ -640,7 +641,7 @@ public class Client {
     /// :param: Dictionary<String,AnyObject> params
     /// :param: TheoRawRequestCompletionBlock completionBlock
     /// :returns: Void
-    public func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: TheoCypherQueryCompletionBlock?) -> Void {
+    public func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
         
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
         
