@@ -8,6 +8,8 @@
 
 import Foundation
 
+
+
 typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
 typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
 
@@ -154,7 +156,7 @@ class Request {
     
         self.httpRequest = request
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
       
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
@@ -211,7 +213,7 @@ class Request {
         
         self.httpRequest = request
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
@@ -266,7 +268,7 @@ class Request {
         
         self.httpRequest = request
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
