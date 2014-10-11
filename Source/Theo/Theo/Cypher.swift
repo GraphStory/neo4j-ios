@@ -39,7 +39,7 @@ public struct CypherMeta: Printable {
 public class Cypher {
 
     var meta: CypherMeta?
-    private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
+    public private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
     
     public required init(metaData: Dictionary<String, Array<AnyObject>>?) {
     
@@ -52,16 +52,17 @@ public class Cypher {
                 let keys = metaForCypher.columns
 
                 for arrayValues in metaForCypher.data as Array<Array<AnyObject>> {
+
+                    var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                     
                     for (index, value) in enumerate(arrayValues) {
 
-                        var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                         let cypherDictionaryKey: String = metaForCypher.columns[index]
-
+                        
                         cypherDictionary[cypherDictionaryKey] = value
-
-                        self.data.append(cypherDictionary)
                     }
+                    
+                    self.data.append(cypherDictionary)
                 }
             }
         }
