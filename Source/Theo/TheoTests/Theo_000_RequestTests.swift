@@ -396,7 +396,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_009_successfullyCommitTransaction() {
 
         let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
-        let resultDataContents: Array<String> = ["row", "graph"]
+        let resultDataContents: Array<String> = ["REST"]
         let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, "resultDataContents" : resultDataContents]
         let statements: Array<Dictionary <String, AnyObject>> = [statement]
         
@@ -404,7 +404,7 @@ class Theo_000_RequestTests: XCTestCase {
         let exp = self.expectationWithDescription("test_010_successfullyCommitTransaction")
         
         theo.executeTransaction(statements, completionBlock: {(response, error) in
-        
+            
             XCTAssertNil(error, "Error must be nil \(error?.description)")
             XCTAssertFalse(response.keys.isEmpty, "Response dictionary must not be empty \(response)")
             
@@ -490,8 +490,6 @@ class Theo_000_RequestTests: XCTestCase {
         let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
-        
-            println("response from cyper \(cypher)")
             
             XCTAssertNil(error, "Error should be nil \(error)")
             XCTAssertNotNil(cypher, "Response can't be nil")
