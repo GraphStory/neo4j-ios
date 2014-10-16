@@ -641,11 +641,16 @@ public class Client {
     /// :param: Dictionary<String,AnyObject> params
     /// :param: TheoRawRequestCompletionBlock completionBlock
     /// :returns: Void
-    public func executeCypher(query: String, params: Dictionary<String,AnyObject>, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
+    public func executeCypher(query: String, params: Dictionary<String,AnyObject>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
         
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
+
+        var cypherPayload: Dictionary<String, AnyObject> = ["query" : query]
         
-        let cypherPayload: Dictionary<String, AnyObject> = ["query" : query, "params" : params]
+        if let unwrappedParams: Dictionary<String, AnyObject> = params {
+           cypherPayload["params"] = unwrappedParams
+        }
+        
         let cypherResource: String = self.baseURL + "/db/data/cypher"
         let cypherURL: NSURL = NSURL(string: cypherResource)
         let cypherRequest: Request = Request(url: cypherURL, credential: self.credentials)
