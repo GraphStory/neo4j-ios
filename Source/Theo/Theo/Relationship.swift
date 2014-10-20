@@ -32,7 +32,8 @@ public struct RelationshipMeta: Printable {
     let type: String                    = ""//TODO: add custom function so it will return RelationshipType
     let end: String                     = ""
     let data: [String: AnyObject]       = [String: AnyObject]()
-    let metadata: [String: AnyObject]       = [String: AnyObject]()
+
+    public let metadata: [String: AnyObject] = [String: AnyObject]()
     
     func relationshipID() -> String {
         
@@ -77,20 +78,20 @@ public struct RelationshipMeta: Printable {
 
 public struct RelationshipType {
 
-    static var KNOWS: String   = "KNOWS"
-    static var know: String    = "know"
-    static var FRIENDS: String = "FRIENDS"
-    static var likes: String   = "likes"
-    static var has: String     = "has"
-    static var knows: String   = "knows"
-    static var LOVES: String   = "LOVES"
+    public static var KNOWS: String   = "KNOWS"
+    public static var know: String    = "know"
+    public static var FRIENDS: String = "FRIENDS"
+    public static var likes: String   = "likes"
+    public static var has: String     = "has"
+    public static var knows: String   = "knows"
+    public static var LOVES: String   = "LOVES"
 }
 
 public struct RelationshipDirection {
     
-    static var ALL: String = "all"
-    static var IN: String  = "in"
-    static var OUT: String = "out"
+    public static var ALL: String = "all"
+    public static var IN: String  = "in"
+    public static var OUT: String = "out"
 }
 
 public class Relationship {
@@ -124,7 +125,7 @@ public class Relationship {
     
     // MARK: Private Properties
 
-    private (set) var relationshipMeta: RelationshipMeta?
+    public private (set) var relationshipMeta: RelationshipMeta?
     private (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
     private (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
 
