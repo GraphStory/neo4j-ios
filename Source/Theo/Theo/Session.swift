@@ -33,7 +33,7 @@ public class Configuration {
         let additionalHeaders: [String:String] = ["Accept": "application/json", "Content-Type": "application/json; charset=UTF-8"]
 
         self.sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
-
+        
         self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
         self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
         self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
