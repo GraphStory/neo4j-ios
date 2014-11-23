@@ -34,7 +34,9 @@ public class Configuration {
 
         self.sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
 
-        self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
+        // using cache causes that after the change request in the code after the launch ios uses old query text
+        // self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
+        self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
         self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
         self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
         self.sessionConfiguration.HTTPAdditionalHeaders      = additionalHeaders
