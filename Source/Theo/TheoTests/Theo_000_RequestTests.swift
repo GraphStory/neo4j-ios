@@ -81,7 +81,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_002_successfullyAccessProperty() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_003_successfullyAccessProperty")
+        let exp = self.expectationWithDescription("test_002_successfullyAccessProperty")
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
@@ -107,7 +107,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_003_successfullyHandleNonExistantAccessProperty() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_004_successfullyHandleNonExistantAccessProperty")
+        let exp = self.expectationWithDescription("test_003_successfullyHandleNonExistantAccessProperty")
         let randomString: String = NSUUID().UUIDString
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
@@ -134,7 +134,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_004_successfullyAddNodeWithOutLabels() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
+        let exp = self.expectationWithDescription("test_004_successfullyAddNodeWithOutLabels")
         let node = Node()
         let randomString: String = NSUUID().UUIDString
 
@@ -160,7 +160,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_005_successfullyAddRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_006_successfullyAddRelationship")
+        let exp = self.expectationWithDescription("test_005_successfullyAddRelationship")
         
         /**
          * Setup dispatch group since you to make a 2 part transation
@@ -243,7 +243,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_006_succesfullyUpdateNodeWithProperties() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_008_succesfullyUpdateNodeWithProperties")
+        let exp = self.expectationWithDescription("test_006_succesfullyUpdateNodeWithProperties")
         
        /**
         * Setup dispatch group since you to make a 2 part transation
@@ -303,7 +303,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_007_successfullyDeleteRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_009_successfullyDeleteRelationship")
+        let exp = self.expectationWithDescription("test_007_successfullyDeleteRelationship")
 
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
 
@@ -317,7 +317,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("test_009_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
+            println("test_007_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
             
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
@@ -369,17 +369,17 @@ class Theo_000_RequestTests: XCTestCase {
         })
     }
     
-    func test_008_succesfullyAddNodeWithLabel() {
+    func test_008_succesfullyAddNodeWithLabels() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
+        let exp = self.expectationWithDescription("test_008_succesfullyAddNodeWithLabel")
         let node = Node()
         let randomString: String = NSUUID().UUIDString
         
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
-        node.addLabel("test_010_succesfullyAddNodeWithLabel_" + randomString)
+        node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
 
         theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
             
@@ -505,7 +505,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_999_successfullyDeleteExistingNode() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_010_successfullyDeleteExistingNode")
+        let exp = self.expectationWithDescription("test_999_successfullyDeleteExistingNode")
 
         var nodeIDForDeletion: String?
         let node = Node()
