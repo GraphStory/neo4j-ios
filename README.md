@@ -13,7 +13,7 @@
 ## Requirements
 
 * iOS7+
-* Xcode 6.0
+* Xcode 6.1.1
 
 ## Feedback
 
