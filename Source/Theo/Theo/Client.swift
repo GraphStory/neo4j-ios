@@ -8,6 +8,7 @@
 
 import Foundation
 
+let TheoParsingQueueName: String           = "com.theo.client"
 let TheoDBMetaExtensionsKey: String        = "extensions"
 let TheoDBMetaNodeKey: String              = "node"
 let TheoDBMetaNodeIndexKey: String         = "node_index"
@@ -87,6 +88,8 @@ public class Client {
     public let baseURL: String
     public let username: String?
     public let password: String?
+
+    public var parsingQueue: dispatch_queue_t = dispatch_queue_create(TheoParsingQueueName, DISPATCH_QUEUE_CONCURRENT)
     
     public typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
     public typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
@@ -108,6 +111,7 @@ public class Client {
         
         return nil
     }()
+    
   
     // MARK: Constructors
     
@@ -164,7 +168,7 @@ public class Client {
     public func metaDescription(completionBlock: TheoMetaDataCompletionBlock?) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
-        let metaURL: NSURL = NSURL(string: metaResource)
+        let metaURL: NSURL = NSURL(string: metaResource)!
         let metaRequest: Request = Request(url: metaURL, credential: self.credentials)
 
         metaRequest.getResource({(data, response) in
@@ -172,12 +176,21 @@ public class Client {
             if (completionBlock != nil) {
             
                 if let responseData: NSData = data {
-              
-                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
-              
-                    completionBlock!(metaData: meta, error: nil)
+
+                    dispatch_async(self.parsingQueue, {
+
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                        let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            completionBlock!(metaData: meta, error: nil)
+                        })
+                    });
+
+                } else {
+
+                    completionBlock!(metaData: nil, error: self.unknownEmptyResponseBodyError(response))
                 }
             }
 
@@ -197,21 +210,29 @@ public class Client {
     public func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
-        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeURL: NSURL = NSURL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
-        nodeRequest.getResource(
-            {(data, response) in
+        nodeRequest.getResource({(data, response) in
             
                 if (completionBlock != nil) {
                     
                     if let responseData: NSData = data {
                         
-                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                        let node: Node = Node(data: jsonAsDictionary)
+                        dispatch_async(self.parsingQueue, {
                         
-                        completionBlock!(node: node, error: nil)
+                            let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                            let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                            let node: Node = Node(data: jsonAsDictionary)
+
+                            dispatch_async(dispatch_get_main_queue(), {
+                                completionBlock!(node: node, error: nil)
+                            })
+                        })
+
+                    } else {
+
+                        completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
                     }
                 }
             
@@ -231,33 +252,39 @@ public class Client {
     public func createNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
-        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeURL: NSURL = NSURL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
-        nodeRequest.postResource(node.nodeData, forUpdate: false,
-            {(data, response) in
+        nodeRequest.postResource(node.nodeData, forUpdate: false, {(data, response) in
 
             if (completionBlock != nil) {
                 
                 if let responseData: NSData = data {
                     
-                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    
-                    if let JSONObject: AnyObject = JSON {
+                    dispatch_async(self.parsingQueue, {
+
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
                         
-                        let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
-                        let node: Node = Node(data:jsonAsDictionary)
-                        
-                        completionBlock!(node: node, error: nil)
-                        
-                    } else {
-                        
-                        completionBlock!(node: nil, error: nil)
-                    }
+                        if let JSONObject: AnyObject = JSON {
+                            
+                            let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                            let node: Node = Node(data:jsonAsDictionary)
+                            
+                            dispatch_async(dispatch_get_main_queue(), {
+                                completionBlock!(node: node, error: nil)
+                            })
+                            
+                        } else {
+
+                            dispatch_async(dispatch_get_main_queue(), {
+                                completionBlock!(node: nil, error: nil)
+                            })
+                        }
+                    })
                     
                 } else {
-                    
-                    completionBlock!(node: nil, error: nil)
+
+                    completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
                 }
             }
             
@@ -266,7 +293,7 @@ public class Client {
                 if (completionBlock != nil) {
                     completionBlock!(node: nil, error: error)
                 }
-        })
+            })
     }
     
     /// Saves a new node instance with labels
@@ -301,7 +328,7 @@ public class Client {
                 let nodeID: String = nodeWithLabels.meta!.nodeID()
                 let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                 
-                let nodeURL: NSURL = NSURL(string: nodeResource)
+                let nodeURL: NSURL = NSURL(string: nodeResource)!
                 let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
                 
                 nodeRequest.postResource(labels, forUpdate: false,
@@ -336,33 +363,39 @@ public class Client {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
-        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeURL: NSURL = NSURL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
-        nodeRequest.postResource(properties, forUpdate: true,
-            successBlock: {(data, response) in
+        nodeRequest.postResource(properties, forUpdate: true, successBlock: {(data, response) in
             
                 if (completionBlock != nil) {
                     
                     if let responseData: NSData = data {
                         
-                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        
-                        if let JSONObject: AnyObject = JSON {
-
-                            let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
-                            let node: Node = Node(data:jsonAsDictionary)
+                        dispatch_async(self.parsingQueue, {
                             
-                            completionBlock!(node: node, error: nil)
+                            let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                            
+                            if let JSONObject: AnyObject = JSON {
 
-                        } else {
+                                let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                                let node: Node = Node(data:jsonAsDictionary)
 
-                            completionBlock!(node: nil, error: nil)
-                        }
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    completionBlock!(node: node, error: nil)
+                                })
+                                
+                            } else {
+
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    completionBlock!(node: nil, error: nil)
+                                })
+                            }
+                        })
 
                     } else {
 
-                        completionBlock!(node: nil, error: nil)
+                        completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
                     }
                 }
             },
@@ -384,7 +417,7 @@ public class Client {
     public func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
-        let nodeURL: NSURL = NSURL(string: nodeResource)
+        let nodeURL: NSURL = NSURL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
         nodeRequest.deleteResource({(data, response) in
@@ -438,25 +471,29 @@ public class Client {
             relationshipResource += "/relationships/" + RelationshipDirection.ALL
         }
         
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
         
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         var relationshipsForNode: [Relationship] = [Relationship]()
         
-        relationshipRequest.getResource(
-            {(data, response) in
+        relationshipRequest.getResource({(data, response) in
             
                 if (completionBlock != nil) {
-                    
-                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    let jsonAsArray: [[String:AnyObject]]! = JSON as [[String:AnyObject]]
-                    
-                    for relationshipDictionary: [String:AnyObject] in jsonAsArray {
-                        let newRelationship = Relationship(data: relationshipDictionary)
-                        relationshipsForNode.append(newRelationship)
-                    }
 
-                    completionBlock!(relationships: relationshipsForNode, error: nil)
+                    dispatch_async(self.parsingQueue, {
+                    
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                        let jsonAsArray: [[String:AnyObject]]! = JSON as [[String:AnyObject]]
+                        
+                        for relationshipDictionary: [String:AnyObject] in jsonAsArray {
+                            let newRelationship = Relationship(data: relationshipDictionary)
+                            relationshipsForNode.append(newRelationship)
+                        }
+
+                        dispatch_async(dispatch_get_main_queue(), {
+                            completionBlock!(relationships: relationshipsForNode, error: nil)
+                        })
+                    })
                 }
                 
             }, errorBlock: {(error, response) in
@@ -475,7 +512,7 @@ public class Client {
     public func createRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         
         relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
@@ -485,11 +522,19 @@ public class Client {
 
                                                 if let responseData: NSData = data {
 
-                                                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                                                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                                                    let relationship: Relationship = Relationship(data: jsonAsDictionary)
+                                                    dispatch_async(self.parsingQueue, {
                                                     
-                                                    completionBlock!(relationship: relationship, error: nil)
+                                                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                                                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                                                        let relationship: Relationship = Relationship(data: jsonAsDictionary)
+
+                                                        dispatch_async(dispatch_get_main_queue(), {
+                                                            completionBlock!(relationship: relationship, error: nil)
+                                                        })
+                                                    })
+
+                                                } else {
+                                                    completionBlock!(relationship: nil, error: self.unknownEmptyResponseBodyError(response))
                                                 }
                                             }
                                          
@@ -510,7 +555,7 @@ public class Client {
     public func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
         
         relationship.updatingProperties = true
@@ -526,10 +571,17 @@ public class Client {
                     
                     if let responseData: NSData = data {
                         
-                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-
-                        // If the update is successfull then you'll receive a 204 with an empty body
-                        completionBlock!(relationship: nil, error: nil)
+                        dispatch_async(self.parsingQueue, {
+                            
+                            let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                            
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                // If the update is successfull then you'll 
+                                // receive a 204 with an empty body
+                                completionBlock!(relationship: nil, error: nil)
+                            })
+                        })
                     }
                 }
                 
@@ -549,7 +601,7 @@ public class Client {
     public func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)
+        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
 
         relationshipRequest.deleteResource({(data, response) in
@@ -557,16 +609,21 @@ public class Client {
                                             if (completionBlock != nil) {
                                                 
                                                 if let responseData: NSData = data {
+                                                    
                                                     completionBlock!(error: nil)
+
+                                                } else {
+                                                    
+                                                    completionBlock!(error: self.unknownEmptyResponseBodyError(response))
                                                 }
                                             }
 
                                            },
                                            errorBlock: {(error, response) in
                                             
-                                            if (completionBlock != nil) {
-                                                completionBlock!(error: error)
-                                            }
+                                               if (completionBlock != nil) {
+                                                  completionBlock!(error: error)
+                                               }
                                            })
     }
     
@@ -579,7 +636,7 @@ public class Client {
         
         let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
-        let transactionURL: NSURL = NSURL(string: transactionResource)
+        let transactionURL: NSURL = NSURL(string: transactionResource)!
         let transactionRequest: Request = Request(url: transactionURL, credential: self.credentials)
         
         transactionRequest.postResource(transactionPayload, forUpdate: false, successBlock: {(data, response) in
@@ -587,11 +644,20 @@ public class Client {
             if (completionBlock != nil) {
                 
                 if let responseData: NSData = data {
+
+                    dispatch_async(self.parsingQueue, {
                     
-                    let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                    let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
-                    
-                    completionBlock!(response: jsonAsDictionary, error: nil)
+                        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
+                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            completionBlock!(response: jsonAsDictionary, error: nil)
+                        })
+                    })
+
+                } else {
+
+                    completionBlock!(response: [String:AnyObject](), error: self.unknownEmptyResponseBodyError(response))
                 }
             }
             
@@ -611,19 +677,27 @@ public class Client {
     public func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
-        let queryURL: NSURL = NSURL(string: queryResource)
+        let queryURL: NSURL = NSURL(string: queryResource)!
         let queryRequest: Request = Request(url: queryURL, credential: self.credentials)
         
-        queryRequest.getResource(
-                {(data, response) in
+        queryRequest.getResource({(data, response) in
                     
                     if (completionBlock != nil) {
                         
                         if let responseData: NSData = data {
                             
-                            let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
+                            dispatch_async(self.parsingQueue, {
+                                
+                                let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
+
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    completionBlock!(response: JSON, error: nil)
+                                })
+                            })
+
+                        } else {
                             
-                            completionBlock!(response: JSON, error: nil)
+                            completionBlock!(response: nil, error: self.unknownEmptyResponseBodyError(response))
                         }
                     }
                     
@@ -652,7 +726,7 @@ public class Client {
         }
         
         let cypherResource: String = self.baseURL + "/db/data/cypher"
-        let cypherURL: NSURL = NSURL(string: cypherResource)
+        let cypherURL: NSURL = NSURL(string: cypherResource)!
         let cypherRequest: Request = Request(url: cypherURL, credential: self.credentials)
         
         cypherRequest.postResource(cypherPayload, forUpdate: false, successBlock: {(data, response) in
@@ -660,13 +734,22 @@ public class Client {
             if (completionBlock != nil) {
                 
                 if let responseData: NSData = data {
+                    
+                    dispatch_async(self.parsingQueue, {
 
-                    let JSON: AnyObject! = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
+                        let JSON: AnyObject! = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
 
-                    let jsonAsDictionary: [String:[AnyObject]]! = JSON as [String:[AnyObject]]
-                    let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
+                        let jsonAsDictionary: [String:[AnyObject]]! = JSON as [String:[AnyObject]]
+                        let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
-                    completionBlock!(cypher: cypher, error: nil)
+                        dispatch_async(dispatch_get_main_queue(), {
+                            completionBlock!(cypher: cypher, error: nil)
+                        })
+                    })
+
+                } else {
+                    
+                    completionBlock!(cypher: nil, error: self.unknownEmptyResponseBodyError(response))
                 }
             }
             
@@ -677,4 +760,25 @@ public class Client {
                 }
         })
     }
+    
+    // MARK: Private Methods
+    
+    /// Creates NSError object for a given response.
+    /// This used when there should be a response body, but there isn't and for 
+    /// some reason the user gets back a non error code.
+    ///
+    /// :param: NSURLResponse response
+    /// :returns: NSError
+    private func unknownEmptyResponseBodyError(response: NSURLResponse) -> NSError {
+        
+        let statusCode: Int = {
+            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            return httpResponse.statusCode
+            }()
+        let localizedErrorString: String = "The response was empty, but you received at valid response code"
+        let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+        
+        return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorBadServerResponse, userInfo: errorDictionary)
+    }
 }
+
