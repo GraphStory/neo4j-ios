@@ -307,24 +307,29 @@ public class Client {
     /// :returns: Void
     public func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
-        let nodeSaveDispatchGroup: dispatch_group_t = dispatch_group_create()
         var createdNodeWithoutLabels: Node?
-
-        dispatch_group_enter(nodeSaveDispatchGroup)
-
-        self.createNode(node, completionBlock: {(node, error) in
+        let nodeSaveOperationQueue: NSOperationQueue = NSOperationQueue()
         
-            if let returnedNode: Node = node {
-                createdNodeWithoutLabels = returnedNode
-            }
-            
-            dispatch_group_leave(nodeSaveDispatchGroup)
+        nodeSaveOperationQueue.name = "com.theo.createnode.operationqueue"
+        nodeSaveOperationQueue.maxConcurrentOperationCount = 1
+        
+        let createNodeOperation: NSBlockOperation = NSBlockOperation({
+
+            self.createNode(node, completionBlock: {(node, error) in
+
+                NSOperationQueue.mainQueue().addOperationWithBlock({
+                    
+                    if let returnedNode: Node = node {
+                        createdNodeWithoutLabels = returnedNode
+                    }
+                })
+            })
         })
         
-        dispatch_group_notify(nodeSaveDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
-
-            if let nodeWithLabels: Node = createdNodeWithoutLabels {
+        let createNodeWithLabelsOperation: NSBlockOperation = NSBlockOperation({
             
+            if let nodeWithLabels: Node = createdNodeWithoutLabels {
+                
                 let nodeID: String = nodeWithLabels.meta!.nodeID()
                 let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                 
@@ -334,16 +339,20 @@ public class Client {
                 nodeRequest.postResource(labels, forUpdate: false,
                     successBlock: {(data, response) in
                         
-                        if (completionBlock != nil) {
-                            completionBlock!(node: nil, error: nil)
-                        }
+                        NSOperationQueue.mainQueue().addOperationWithBlock({
+                            if (completionBlock != nil) {
+                                completionBlock!(node: nil, error: nil)
+                            }
+                        })
                     },
                     errorBlock: {(error, response) in
-                        
-                        if (completionBlock != nil) {
-                            completionBlock!(node: nil, error: error)
-                        }
-                    })
+
+                        NSOperationQueue.mainQueue().addOperationWithBlock({
+                            if (completionBlock != nil) {
+                                completionBlock!(node: nil, error: error)
+                            }
+                        })
+                })
             } else {
                 
                 if (completionBlock != nil) {
@@ -351,6 +360,11 @@ public class Client {
                 }
             }
         })
+        
+        createNodeWithLabelsOperation.addDependency(createNodeOperation)
+        
+        nodeSaveOperationQueue.addOperation(createNodeOperation)
+        nodeSaveOperationQueue.addOperation(createNodeWithLabelsOperation)
     }
     
     /// Update a node for a given set of properties
