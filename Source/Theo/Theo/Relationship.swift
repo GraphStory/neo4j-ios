@@ -257,3 +257,27 @@ public class Relationship {
         return self.relationshipData.keys.isEmpty
     }
 }
+
+// MARK: - Printable
+
+extension Relationship: Printable {
+    
+    public var description: String {
+        
+        var returnString: String = ""
+        
+        for (key, value) in self.relationshipData {
+            returnString += "\(key): \(value) "
+        }
+        
+        if let meta: RelationshipMeta = self.relationshipMeta {
+            returnString += meta.description
+        }
+        
+        for (key, value) in self.relationshipCreateMeta {
+            returnString += "\(key): \(value) "
+        }
+        
+        return returnString
+    }
+}
