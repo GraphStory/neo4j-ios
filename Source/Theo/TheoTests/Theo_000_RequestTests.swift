@@ -458,7 +458,7 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTAssertNil(error, "Error should be nil \(error)")
                 
                 if let foundRelationship: Relationship = relationships[0] as Relationship! {
-                    println("foundRelationship!!!!!!!!!! \(foundRelationship)")
+
                     let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
                     
                     theo.updateRelationship(foundRelationship, properties: updatedProperties, completionBlock: {(_, error) in
