@@ -19,7 +19,7 @@ class ConfigLoader: NSObject {
     
     class func loadConfig() -> Config {
         
-        let filePath: String = NSBundle(forClass: ConfigLoader.classForKeyedArchiver()).pathForResource("TheoConfig", ofType: "json")!
+        let filePath: String = NSBundle(forClass: ConfigLoader.classForKeyedArchiver()!).pathForResource("TheoConfig", ofType: "json")!
         
         return Config(pathToFile: filePath)
     }
@@ -41,7 +41,7 @@ class Theo_000_RequestTests: XCTestCase {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_000_successfullyFetchDBMeta")
-
+        
         theo.metaDescription({(meta, error) in
           
           println("meta in success \(meta) error \(error)")
@@ -108,7 +108,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_004_successfullyHandleNonExistantAccessProperty")
-        let randomString: String = NSUUID.UUID().UUIDString
+        let randomString: String = NSUUID().UUIDString
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
@@ -136,7 +136,7 @@ class Theo_000_RequestTests: XCTestCase {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
         let node = Node()
-        let randomString: String = NSUUID.UUID().UUIDString
+        let randomString: String = NSUUID().UUIDString
 
         node.setProp("unitTestKey_1", propertyValue: "unitTestValue_1" + randomString)
         node.setProp("unitTestKey_2", propertyValue: "unitTestValue_2" + randomString)
@@ -374,7 +374,7 @@ class Theo_000_RequestTests: XCTestCase {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectationWithDescription("test_005_successfullyAddNodeWithOutLabels")
         let node = Node()
-        let randomString: String = NSUUID.UUID().UUIDString
+        let randomString: String = NSUUID().UUIDString
         
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
@@ -431,7 +431,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("test_009_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
+            println("test_011_succesfullyUpdateRelationshipWithProperties \(node!.meta) node \(node) error \(error)")
             
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description)")
@@ -458,7 +458,7 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTAssertNil(error, "Error should be nil \(error)")
                 
                 if let foundRelationship: Relationship = relationships[0] as Relationship! {
-                    
+                    println("foundRelationship!!!!!!!!!! \(foundRelationship)")
                     let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
                     
                     theo.updateRelationship(foundRelationship, properties: updatedProperties, completionBlock: {(_, error) in
@@ -509,7 +509,7 @@ class Theo_000_RequestTests: XCTestCase {
 
         var nodeIDForDeletion: String?
         let node = Node()
-        let randomString: String = NSUUID.UUID().UUIDString
+        let randomString: String = NSUUID().UUIDString
 
         let createDispatchGroup: dispatch_group_t = dispatch_group_create()
 
