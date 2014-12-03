@@ -34,11 +34,11 @@ public class Configuration {
 
         self.sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
 
-        self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReturnCacheDataElseLoad
+        self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
         self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
         self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
         self.sessionConfiguration.HTTPAdditionalHeaders      = additionalHeaders
-        self.sessionConfiguration.URLCache                   = self.cache
+//        self.sessionConfiguration.URLCache                   = self.cache
     }
 }
 
