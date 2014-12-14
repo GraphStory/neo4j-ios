@@ -122,6 +122,7 @@ class Request {
     /// :returns: Request
 
     convenience init(url: NSURL, credential: NSURLCredential?) {
+        println("url for init " + url.absoluteString!)
         self.init(url: url, credential: credential, additionalHeaders: nil)
     }
     
@@ -144,7 +145,7 @@ class Request {
     /// :param: RequestErrorBlock errorBlock
     /// :returns: Void
     func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
-    
+        println("original request for GET \(self.httpRequest)")
         var request: NSURLRequest = {
       
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
@@ -152,11 +153,10 @@ class Request {
             mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
       
             return mutableRequest.copy() as NSURLRequest
-            }()
-    
-        self.httpRequest = request
+        }()
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        println("httpRequest for get !!!!!!!! \(request)")
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
       
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
@@ -200,8 +200,10 @@ class Request {
     /// :returns: Void
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
+        println("original request \(self.httpRequest)")
+        
         var request: NSURLRequest = {
-            
+
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
             let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: NSJSONWritingOptions(0), error: nil)!
             
@@ -211,9 +213,11 @@ class Request {
             return mutableRequest.copy() as NSURLRequest
         }()
         
-        self.httpRequest = request
+        println("httpRequest for post !!!!!!!! \(request)")
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+
+            println("error \(error)")
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
