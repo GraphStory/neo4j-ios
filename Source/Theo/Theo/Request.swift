@@ -8,8 +8,6 @@
 
 import Foundation
 
-
-
 typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
 typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
 
@@ -122,7 +120,6 @@ class Request {
     /// :returns: Request
 
     convenience init(url: NSURL, credential: NSURLCredential?) {
-        println("url for init " + url.absoluteString!)
         self.init(url: url, credential: credential, additionalHeaders: nil)
     }
     
@@ -145,7 +142,7 @@ class Request {
     /// :param: RequestErrorBlock errorBlock
     /// :returns: Void
     func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
-        println("original request for GET \(self.httpRequest)")
+
         var request: NSURLRequest = {
       
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
@@ -155,14 +152,13 @@ class Request {
             return mutableRequest.copy() as NSURLRequest
         }()
 
-        println("httpRequest for get !!!!!!!! \(request)")
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
       
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
-      
+
             if (!containsStatusCode) {
                 dataResp = nil
             }
@@ -199,8 +195,6 @@ class Request {
     /// :param: RequestErrorBlock errorBlock
     /// :returns: Void
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
-    
-        println("original request \(self.httpRequest)")
         
         var request: NSURLRequest = {
 
@@ -212,13 +206,9 @@ class Request {
             
             return mutableRequest.copy() as NSURLRequest
         }()
-        
-        println("httpRequest for post !!!!!!!! \(request)")
 
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
 
-            println("error \(error)")
-            
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
@@ -263,11 +253,11 @@ class Request {
     
         var request: NSURLRequest = {
             
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
-            
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
-            
-            return mutableRequest.copy() as NSURLRequest
+                let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
+                
+                mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
+                
+                return mutableRequest.copy() as NSURLRequest
             }()
         
         self.httpRequest = request
@@ -299,7 +289,7 @@ class Request {
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
-                        }()
+                    }()
                     
                     errorBlock!(error: requestResponseError, response: httpResponse)
                 }
