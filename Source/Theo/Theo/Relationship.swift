@@ -35,7 +35,7 @@ public struct RelationshipMeta: Printable {
 
     public let metadata: [String: AnyObject] = [String: AnyObject]()
     
-    func relationshipID() -> String {
+    public func relationshipID() -> String {
         
         let pathComponents: Array<String> = self.relationship_self.componentsSeparatedByString("/")
         
