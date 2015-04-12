@@ -87,7 +87,7 @@ class Request {
       
         } else {
       
-            self.sessionURL = url
+           // self.sessionURL = url
         }
         
         // More than likely your instance of Neo4j will require a username/pass.
@@ -145,17 +145,17 @@ class Request {
 
         var request: NSURLRequest = {
       
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
+            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
       
             mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
       
-            return mutableRequest.copy() as NSURLRequest
+            return mutableRequest.copy() as! NSURLRequest
         }()
 
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
       
             var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
 
@@ -197,20 +197,21 @@ class Request {
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
         var request: NSURLRequest = {
-
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
-            let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: NSJSONWritingOptions(0), error: nil)!
+            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: nil, error: nil)!
             
             mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
             
-            return mutableRequest.copy() as NSURLRequest
+            return mutableRequest.copy() as! NSURLRequest
         }()
-
+        
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
 
+            var datastring = NSString(data: data, encoding: NSUTF8StringEncoding)
+            
             var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
             
@@ -253,11 +254,11 @@ class Request {
     
         var request: NSURLRequest = {
             
-                let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as NSMutableURLRequest
+                let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
                 
                 mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
                 
-                return mutableRequest.copy() as NSURLRequest
+                return mutableRequest.copy() as! NSURLRequest
             }()
         
         self.httpRequest = request
@@ -265,7 +266,7 @@ class Request {
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
             
             var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
             

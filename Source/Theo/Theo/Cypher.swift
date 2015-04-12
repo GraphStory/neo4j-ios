@@ -13,22 +13,13 @@ let TheoCypherData: String    = "data"
 
 public struct CypherMeta: Printable {
     
-    let columns: Array<String> = Array<String>()
-    let data: Array<AnyObject> = Array<AnyObject>()
+    let columns:    Array<String>// = Array<String>()
+    let data:       Array<AnyObject>// = Array<AnyObject>()
     
     init(dictionary: Dictionary<String, AnyObject>) {
         
-        for (key, value) in dictionary {
-            
-            switch key {
-                case TheoCypherColumns:
-                    self.columns = value as Array
-                case TheoCypherData:
-                    self.data = value as Array
-                default:
-                    ""
-            }
-        }
+        self.columns = dictionary[TheoCypherColumns] as! Array
+        self.data    = dictionary[TheoCypherData]    as! Array
     }
     
     public var description: String {
@@ -51,7 +42,7 @@ public class Cypher {
                 
                 let keys = metaForCypher.columns
 
-                for arrayValues in metaForCypher.data as Array<Array<AnyObject>> {
+                for arrayValues in metaForCypher.data as! Array<Array<AnyObject>> {
 
                     var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                     

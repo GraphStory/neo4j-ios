@@ -24,16 +24,16 @@ let TheoRelationshipMetaDataKey: String   = "metadata"
 
 public struct RelationshipMeta: Printable {
 
-    let extensions: [String: AnyObject] = [String: AnyObject]()
-    let start: String                   = ""
-    let property: String                = ""
-    let relationship_self: String       = ""
-    let properties: String              = ""
-    let type: String                    = ""//TODO: add custom function so it will return RelationshipType
-    let end: String                     = ""
-    let data: [String: AnyObject]       = [String: AnyObject]()
+    let extensions: [String: AnyObject] //= [String: AnyObject]()
+    let start: String                   //= ""
+    let property: String                //= ""
+    let relationship_self: String       //= ""
+    let properties: String              //= ""
+    let type: String                    //= ""//TODO: add custom function so it will return RelationshipType
+    let end: String                     //= ""
+    let data: [String: AnyObject]       //= [String: AnyObject]()
 
-    public let metadata: [String: AnyObject] = [String: AnyObject]()
+    public let metadata: [String: AnyObject] //= [String: AnyObject]()
     
     public func relationshipID() -> String {
         
@@ -44,31 +44,15 @@ public struct RelationshipMeta: Printable {
     
     init(dictionary: Dictionary<String, AnyObject>!) {
         
-        for (key: String, value: AnyObject) in dictionary {
-            
-            switch key {
-            case TheoRelationshipExtensionsKey:
-                self.extensions = value as Dictionary
-            case TheoRelationshipStartKey:
-                self.start = value as String
-            case TheoRelationshipPropertyKey:
-                self.property = value as String
-            case TheoRelationshipSelfKey:
-                self.relationship_self = value as String
-            case TheoRelationshipPropertiesKey:
-                self.properties = value as String
-            case TheoRelationshipTypeKey:
-                self.type = value as String
-            case TheoRelationshipEndKey:
-                self.end = value as String
-            case TheoRelationshipDataKey:
-                self.data = value as Dictionary
-            case TheoRelationshipMetaDataKey:
-                self.metadata = value as Dictionary
-            default:
-                ""
-            }
-        }
+        self.extensions         = dictionary[TheoRelationshipExtensionsKey] as! Dictionary
+        self.start              = dictionary[TheoRelationshipStartKey]      as! String
+        self.property           = dictionary[TheoRelationshipPropertyKey]   as! String
+        self.relationship_self  = dictionary[TheoRelationshipSelfKey]       as! String
+        self.properties         = dictionary[TheoRelationshipPropertiesKey] as! String
+        self.type               = dictionary[TheoRelationshipTypeKey]       as! String
+        self.end                = dictionary[TheoRelationshipEndKey]        as! String
+        self.data               = dictionary[TheoRelationshipDataKey]       as! Dictionary
+        self.metadata           = dictionary[TheoRelationshipMetaDataKey]   as! Dictionary
     }
     
     public var description: String {
@@ -153,7 +137,7 @@ public class Relationship {
     lazy var fromNode: String = {
         
         if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataFromNodeKey] {
-            return object as String
+            return object as! String
         }
 
         return ""
@@ -162,7 +146,7 @@ public class Relationship {
     lazy var toNode: String = {
         
         if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataToNodeKey] {
-            return object as String
+            return object as! String
         }
         
         return ""
@@ -171,7 +155,7 @@ public class Relationship {
     lazy var relationshipType: String = {
 
         if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataTypeKey] {
-            return object as String
+            return object as! String
         }
         
         return ""

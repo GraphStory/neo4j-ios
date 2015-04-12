@@ -27,22 +27,22 @@ let TheoNodeMetaData: String                   = "metadata"
 
 public struct NodeMeta: Printable {
     
-    let extensions: [String: AnyObject]      = [String: AnyObject]()
-    let page_traverse: String                = ""
-    let labels: String                       = ""
-    let outgoing_relationships: String       = ""
-    let traverse: String                     = ""
-    let all_typed_relationships: String      = ""
-    let property: String                     = ""
-    let all_relationships: String            = ""
-    let node_self: String                    = ""
-    let outgoing_typed_relationships: String = ""
-    let properties: String                   = ""
-    let incoming_relationships: String       = ""
-    let incoming_typed_relationships: String = ""
-    let create_relationship: String          = ""
-    let data: [String: AnyObject]            = [String: AnyObject]()
-    let metadata: [String: AnyObject]        = [String: AnyObject]()
+    let extensions: [String: AnyObject]//      = [String: AnyObject]()
+    let page_traverse: String          //      = ""
+    let labels: String                 //      = ""
+    let outgoing_relationships: String //      = ""
+    let traverse: String               //      = ""
+    let all_typed_relationships: String//     = ""
+    let property: String               //      = ""
+    let all_relationships: String      //      = ""
+    let node_self: String              //      = ""
+    let outgoing_typed_relationships: String //= ""
+    let properties: String             //      = ""
+    let incoming_relationships: String //      = ""
+    let incoming_typed_relationships: String //= ""
+    let create_relationship: String          //= ""
+    let data: [String: AnyObject]            //= [String: AnyObject]()
+    let metadata: [String: AnyObject]        //= [String: AnyObject]()
 
     public func nodeID() -> String {
 
@@ -53,45 +53,23 @@ public struct NodeMeta: Printable {
     
     public init(dictionary: Dictionary<String, AnyObject>!) {
         
-        for (key: String, value: AnyObject) in dictionary {
-            
-            switch key {
-            case TheoNodeExtensions:
-                self.extensions = value as Dictionary
-            case TheoNodePagedTraverse:
-                self.page_traverse = value as String
-            case TheoNodeLabels:
-                self.labels = value as String
-            case TheoNodeOutGoingRelationships:
-                self.outgoing_relationships = value as String
-            case TheoNodeTraverse:
-                self.traverse = value as String
-            case TheoNodeAllRelationships:
-                self.all_relationships = value as String
-            case TheoNodeProperty:
-                self.property = value as String
-            case TheoNodeAllRelationships:
-                self.all_relationships = value as String
-            case TheoNodeSelf:
-                self.node_self = value as String
-            case TheoNodeOutGoingTypedRelationships:
-                self.outgoing_typed_relationships = value as String
-            case TheoNodeProperties:
-                self.properties = value as String
-            case TheoNodeIncomingRelationships:
-                self.incoming_relationships = value as String
-            case TheoNodeIncomingTypedRelationships:
-                self.incoming_typed_relationships = value as String
-            case TheoNodeCreateRelationship:
-                self.create_relationship = value as String
-            case TheoNodeData:
-                self.data = value as Dictionary
-            case TheoNodeMetaData:
-                self.metadata = value as Dictionary
-            default:
-                ""
-            }
-        }
+        self.extensions                     = dictionary[TheoNodeExtensions]                    as! Dictionary
+        self.page_traverse                  = dictionary[TheoNodePagedTraverse]                 as! String
+        self.labels                         = dictionary[TheoNodeLabels]                        as! String
+        self.outgoing_relationships         = dictionary[TheoNodeOutGoingRelationships]         as! String
+        self.traverse                       = dictionary[TheoNodeTraverse]                      as! String
+        self.all_relationships              = dictionary[TheoNodeAllRelationships]              as! String
+        self.all_typed_relationships        = dictionary[TheoNodeAllTypedRelationships]         as! String
+        self.property                       = dictionary[TheoNodeProperty]                      as! String
+        self.node_self                      = dictionary[TheoNodeSelf]                          as! String
+        self.outgoing_typed_relationships   = dictionary[TheoNodeOutGoingTypedRelationships]    as! String
+        self.properties                     = dictionary[TheoNodeProperties]                    as! String
+        self.incoming_relationships         = dictionary[TheoNodeIncomingRelationships]         as! String
+        self.incoming_typed_relationships   = dictionary[TheoNodeIncomingTypedRelationships]    as! String
+        self.create_relationship            = dictionary[TheoNodeCreateRelationship]            as! String
+        self.data                           = dictionary[TheoNodeData]                          as! Dictionary
+        self.metadata                       = dictionary[TheoNodeMetaData]                      as! Dictionary
+
     }
     
     public var description: String {
