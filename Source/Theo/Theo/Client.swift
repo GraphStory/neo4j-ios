@@ -25,55 +25,35 @@ let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
 public struct DBMeta: Printable {
   
-    let extensions: [String: AnyObject] = [String: AnyObject]()
-    let node: String                    = ""
-    let node_index: String              = ""
-    let relationship_index: String      = ""
-    let extensions_info: String         = ""
-    let relationship_types: String      = ""
-    let batch: String                   = ""
-    let cypher: String                  = ""
-    let indexes: String                 = ""
-    let constraints: String             = ""
-    let transaction: String             = ""
-    let node_labels: String             = ""
-    let neo4j_version: String           = ""
+    let extensions: [String: AnyObject] //= [String: AnyObject]()
+    let node: String                    //= ""
+    let node_index: String              //= ""
+    let relationship_index: String      //= ""
+    let extensions_info: String         //= ""
+    let relationship_types: String      //= ""
+    let batch: String                   //= ""
+    let cypher: String                  //= ""
+    let indexes: String                 //= ""
+    let constraints: String             //= ""
+    let transaction: String             //= ""
+    let node_labels: String             //= ""
+    let neo4j_version: String           //= ""
 
     init(dictionary: Dictionary<String, AnyObject>!) {
 
-        for (key: String, value: AnyObject) in dictionary {
-          
-            switch key {
-                case TheoDBMetaExtensionsKey:
-                    self.extensions = value as Dictionary
-                case TheoDBMetaNodeKey:
-                    self.node = value as String
-                case TheoDBMetaNodeIndexKey:
-                    self.node_index = value as String
-                case TheoDBMetaRelationshipIndexKey:
-                    self.relationship_index = value as String
-                case TheoDBMetaExtensionsInfoKey:
-                    self.extensions_info = value as String
-                case TheoDBMetaRelationshipTypesKey:
-                    self.relationship_types = value as String
-                case TheoDBMetaBatchKey:
-                    self.batch = value as String
-                case TheoDBMetaCypherKey:
-                    self.cypher = value as String
-                case TheoDBMetaIndexesKey:
-                    self.indexes = value as String
-                case TheoDBMetaConstraintsKey:
-                    self.constraints = value as String
-                case TheoDBMetaTransactionKey:
-                    self.transaction = value as String
-                case TheoDBMetaNodeLabelsKey:
-                    self.node_labels = value as String
-                case TheoDBMetaNeo4JVersionKey:
-                    self.neo4j_version = value as String
-                default:
-                    ""
-            }
-        }
+        self.extensions             = dictionary[TheoDBMetaExtensionsKey]           as! Dictionary
+        self.node                   = dictionary[TheoDBMetaNodeKey]                 as! String
+        self.node_index             = dictionary[TheoDBMetaNodeIndexKey]            as! String
+        self.relationship_index     = dictionary[TheoDBMetaRelationshipIndexKey]    as! String
+        self.extensions_info        = dictionary[TheoDBMetaExtensionsInfoKey]       as! String
+        self.relationship_types     = dictionary[TheoDBMetaRelationshipTypesKey]    as! String
+        self.batch                  = dictionary[TheoDBMetaBatchKey]                as! String
+        self.cypher                 = dictionary[TheoDBMetaCypherKey]               as! String
+        self.indexes                = dictionary[TheoDBMetaIndexesKey]              as! String
+        self.constraints            = dictionary[TheoDBMetaConstraintsKey]          as! String
+        self.transaction            = dictionary[TheoDBMetaTransactionKey]          as! String
+        self.node_labels            = dictionary[TheoDBMetaNodeLabelsKey]           as! String
+        self.neo4j_version          = dictionary[TheoDBMetaNeo4JVersionKey]         as! String
     }
   
     public var description: String {
@@ -131,9 +111,17 @@ public class Client {
         if let u = user {
             self.username = user!
         }
+        else {
+            println("Something went wrong initializing username")
+            self.username = ""
+        }
 
         if let p = pass {
             self.password = pass!
+        }
+        else {
+            println("Something went wrong initializing password")
+            self.password = ""
         }
 
         self.baseURL = baseURL
@@ -180,7 +168,7 @@ public class Client {
                     dispatch_async(self.parsingQueue, {
 
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                         let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
                         
                         dispatch_async(dispatch_get_main_queue(), {
@@ -222,7 +210,7 @@ public class Client {
                         dispatch_async(self.parsingQueue, {
                         
                             let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                            let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                            let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                             let node: Node = Node(data: jsonAsDictionary)
 
                             dispatch_async(dispatch_get_main_queue(), {
@@ -255,7 +243,7 @@ public class Client {
         let nodeURL: NSURL = NSURL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
         
-        nodeRequest.postResource(node.nodeData, forUpdate: false, {(data, response) in
+        nodeRequest.postResource(node.nodeData, forUpdate: false, successBlock: {(data, response) in
 
             if (completionBlock != nil) {
                 
@@ -267,7 +255,7 @@ public class Client {
                         
                         if let JSONObject: AnyObject = JSON {
                             
-                            let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                            let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                             let node: Node = Node(data:jsonAsDictionary)
                             
                             dispatch_async(dispatch_get_main_queue(), {
@@ -313,7 +301,7 @@ public class Client {
         nodeSaveOperationQueue.name = "com.theo.createnode.operationqueue"
         nodeSaveOperationQueue.maxConcurrentOperationCount = 1
         
-        let createNodeOperation: NSBlockOperation = NSBlockOperation({
+        let createNodeOperation: NSBlockOperation = NSBlockOperation(block: {
 
             self.createNode(node, completionBlock: {(node, error) in
 
@@ -326,7 +314,7 @@ public class Client {
             })
         })
         
-        let createNodeWithLabelsOperation: NSBlockOperation = NSBlockOperation({
+        let createNodeWithLabelsOperation: NSBlockOperation = NSBlockOperation(block: {
             
             if let nodeWithLabels: Node = createdNodeWithoutLabels {
                 
@@ -392,7 +380,7 @@ public class Client {
                             
                             if let JSONObject: AnyObject = JSON {
 
-                                let jsonAsDictionary: [String:AnyObject] = JSONObject as [String:AnyObject]
+                                let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                                 let node: Node = Node(data:jsonAsDictionary)
 
                                 dispatch_async(dispatch_get_main_queue(), {
@@ -497,7 +485,7 @@ public class Client {
                     dispatch_async(self.parsingQueue, {
                     
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        let jsonAsArray: [[String:AnyObject]]! = JSON as [[String:AnyObject]]
+                        let jsonAsArray: [[String:AnyObject]]! = JSON as! [[String:AnyObject]]
                         
                         for relationshipDictionary: [String:AnyObject] in jsonAsArray {
                             let newRelationship = Relationship(data: relationshipDictionary)
@@ -539,7 +527,7 @@ public class Client {
                                                     dispatch_async(self.parsingQueue, {
                                                     
                                                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                                                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                                                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                                                         let relationship: Relationship = Relationship(data: jsonAsDictionary)
 
                                                         dispatch_async(dispatch_get_main_queue(), {
@@ -662,7 +650,7 @@ public class Client {
                     dispatch_async(self.parsingQueue, {
                     
                         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as [String:AnyObject]
+                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                         
                         dispatch_async(dispatch_get_main_queue(), {
                             completionBlock!(response: jsonAsDictionary, error: nil)
@@ -753,7 +741,7 @@ public class Client {
 
                         let JSON: AnyObject! = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments, error: nil)
 
-                        let jsonAsDictionary: [String:[AnyObject]]! = JSON as [String:[AnyObject]]
+                        let jsonAsDictionary: [String:[AnyObject]]! = JSON as! [String:[AnyObject]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
                         dispatch_async(dispatch_get_main_queue(), {
@@ -762,8 +750,8 @@ public class Client {
                     })
 
                 } else {
-                    
-                    completionBlock!(cypher: nil, error: self.unknownEmptyResponseBodyError(response))
+                    //TRAVIS EDIT: UNNECESSARY?
+                    //completionBlock!(cypher: nil, error: self.unknownEmptyResponseBodyError(response))
                 }
             }
             
@@ -786,7 +774,7 @@ public class Client {
     private func unknownEmptyResponseBodyError(response: NSURLResponse) -> NSError {
         
         let statusCode: Int = {
-            let httpResponse: NSHTTPURLResponse = response as NSHTTPURLResponse
+            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
             return httpResponse.statusCode
             }()
         let localizedErrorString: String = "The response was empty, but you received at valid response code"
