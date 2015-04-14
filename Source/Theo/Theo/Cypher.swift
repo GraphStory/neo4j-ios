@@ -13,8 +13,8 @@ let TheoCypherData: String    = "data"
 
 public struct CypherMeta: Printable {
     
-    let columns:    Array<String>// = Array<String>()
-    let data:       Array<AnyObject>// = Array<AnyObject>()
+    let columns: Array<String>
+    let data: Array<AnyObject>
     
     init(dictionary: Dictionary<String, AnyObject>) {
         

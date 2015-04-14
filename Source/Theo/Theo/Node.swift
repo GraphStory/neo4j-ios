@@ -27,22 +27,22 @@ let TheoNodeMetaData: String                   = "metadata"
 
 public struct NodeMeta: Printable {
     
-    let extensions: [String: AnyObject]//      = [String: AnyObject]()
-    let page_traverse: String          //      = ""
-    let labels: String                 //      = ""
-    let outgoing_relationships: String //      = ""
-    let traverse: String               //      = ""
-    let all_typed_relationships: String//     = ""
-    let property: String               //      = ""
-    let all_relationships: String      //      = ""
-    let node_self: String              //      = ""
-    let outgoing_typed_relationships: String //= ""
-    let properties: String             //      = ""
-    let incoming_relationships: String //      = ""
-    let incoming_typed_relationships: String //= ""
-    let create_relationship: String          //= ""
-    let data: [String: AnyObject]            //= [String: AnyObject]()
-    let metadata: [String: AnyObject]        //= [String: AnyObject]()
+    let extensions: [String: AnyObject]
+    let page_traverse: String
+    let labels: String
+    let outgoing_relationships: String
+    let traverse: String
+    let all_typed_relationships: String
+    let property: String
+    let all_relationships: String
+    let node_self: String
+    let outgoing_typed_relationships: String
+    let properties: String
+    let incoming_relationships: String
+    let incoming_typed_relationships: String
+    let create_relationship: String
+    let data: [String: AnyObject]
+    let metadata: [String: AnyObject]
 
     public func nodeID() -> String {
 

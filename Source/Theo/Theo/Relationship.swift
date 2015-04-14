@@ -24,16 +24,16 @@ let TheoRelationshipMetaDataKey: String   = "metadata"
 
 public struct RelationshipMeta: Printable {
 
-    let extensions: [String: AnyObject] //= [String: AnyObject]()
-    let start: String                   //= ""
-    let property: String                //= ""
-    let relationship_self: String       //= ""
-    let properties: String              //= ""
-    let type: String                    //= ""//TODO: add custom function so it will return RelationshipType
-    let end: String                     //= ""
-    let data: [String: AnyObject]       //= [String: AnyObject]()
+    let extensions: [String: AnyObject]
+    let start: String
+    let property: String
+    let relationship_self: String
+    let properties: String
+    let type: String //TODO: add custom function so it will return RelationshipType
+    let end: String
+    let data: [String: AnyObject]
 
-    public let metadata: [String: AnyObject] //= [String: AnyObject]()
+    public let metadata: [String: AnyObject]
     
     public func relationshipID() -> String {
         
