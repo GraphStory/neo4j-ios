@@ -64,7 +64,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            XCTAssert(node? != nil, "Node data can't be nil")
+            XCTAssert(node != nil, "Node data can't be nil")
             XCTAssert(node?.meta != nil, "Meta data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
             
