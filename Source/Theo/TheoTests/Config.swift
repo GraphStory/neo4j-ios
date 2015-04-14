@@ -19,7 +19,7 @@ struct Config {
         let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
         var jsonError: NSError?
         let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: NSJSONReadingOptions(0), error: &jsonError) as AnyObject!
-        let jsonConfig: [String:String]! = JSON as [String:String]
+        let jsonConfig: [String:String]! = JSON as! [String:String]
         
         self.username = jsonConfig["username"]!
         self.password = jsonConfig["password"]!
