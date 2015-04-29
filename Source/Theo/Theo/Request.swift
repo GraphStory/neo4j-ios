@@ -202,6 +202,7 @@ class Request {
             
             mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
+            mutableRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
             
             return mutableRequest.copy() as! NSURLRequest
         }()
