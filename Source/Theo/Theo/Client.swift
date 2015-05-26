@@ -300,7 +300,7 @@ public class Client {
         
         nodeSaveOperationQueue.name = "com.theo.createnode.operationqueue"
         nodeSaveOperationQueue.maxConcurrentOperationCount = 1
-        
+
         let createNodeOperation: NSBlockOperation = NSBlockOperation(block: {
 
             self.createNode(node, completionBlock: {(node, error) in
@@ -308,51 +308,74 @@ public class Client {
                 NSOperationQueue.mainQueue().addOperationWithBlock({
                     
                     if let returnedNode: Node = node {
+
                         createdNodeWithoutLabels = returnedNode
+                        
+                        if let nodeWithLabels: Node = createdNodeWithoutLabels {
+
+                            let nodeID: String = nodeWithLabels.meta!.nodeID()
+                            let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
+                            let nodeURL: NSURL = NSURL(string: nodeResource)!
+                            let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+                            
+                            nodeRequest.postResource(labels, forUpdate: false,
+                                successBlock: {(data, response) in
+                                    
+                                    let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+                                    let statusCode: Int = httpResponse.statusCode
+
+                                    NSOperationQueue.mainQueue().addOperationWithBlock({
+                                        
+                                        if (completionBlock != nil) {
+                                            completionBlock!(node: nil, error: nil)
+                                        }
+                                    })
+                                },
+                                errorBlock: {(error, response) in
+                                    
+                                    NSOperationQueue.mainQueue().addOperationWithBlock({
+                                        
+                                        if (completionBlock != nil) {
+                                            completionBlock!(node: nil, error: error)
+                                        }
+                                    })
+                            })
+                            
+                        } else {
+
+                            NSOperationQueue.mainQueue().addOperationWithBlock({
+                                
+                                // If the labels were sucessfully created then 
+                                // the response is a 204, BUT the resposne is empty.
+                                // If the error block is called then we need 
+                                // notify the completionBlock
+
+                                let localizedErrorString: String = "There was an error adding labels to the node"
+                                let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponse" : "The expected response is 204 but that is NOT what was received"]
+                                let requestResponseError: NSError = {
+                                    return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
+                                }()
+                                
+                                if (completionBlock != nil) {
+                                    completionBlock!(node: nil, error: requestResponseError)
+                                }
+                            })
+                        }
+                        
+                    } else {
+
+                        NSOperationQueue.mainQueue().addOperationWithBlock({
+                            
+                            if (completionBlock != nil) {
+                                completionBlock!(node: nil, error: nil)
+                            }
+                        })
                     }
                 })
             })
         })
         
-        let createNodeWithLabelsOperation: NSBlockOperation = NSBlockOperation(block: {
-            
-            if let nodeWithLabels: Node = createdNodeWithoutLabels {
-                
-                let nodeID: String = nodeWithLabels.meta!.nodeID()
-                let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
-                
-                let nodeURL: NSURL = NSURL(string: nodeResource)!
-                let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
-                
-                nodeRequest.postResource(labels, forUpdate: false,
-                    successBlock: {(data, response) in
-                        
-                        NSOperationQueue.mainQueue().addOperationWithBlock({
-                            if (completionBlock != nil) {
-                                completionBlock!(node: nil, error: nil)
-                            }
-                        })
-                    },
-                    errorBlock: {(error, response) in
-
-                        NSOperationQueue.mainQueue().addOperationWithBlock({
-                            if (completionBlock != nil) {
-                                completionBlock!(node: nil, error: error)
-                            }
-                        })
-                })
-            } else {
-                
-                if (completionBlock != nil) {
-                    completionBlock!(node: nil, error: nil)
-                }
-            }
-        })
-        
-        createNodeWithLabelsOperation.addDependency(createNodeOperation)
-        
         nodeSaveOperationQueue.addOperation(createNodeOperation)
-        nodeSaveOperationQueue.addOperation(createNodeWithLabelsOperation)
     }
     
     /// Update a node for a given set of properties
