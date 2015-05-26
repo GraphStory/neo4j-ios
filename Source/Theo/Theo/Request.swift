@@ -208,8 +208,6 @@ class Request {
         }()
         
         let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
-
-            var datastring = NSString(data: data, encoding: NSUTF8StringEncoding)
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
