@@ -69,7 +69,6 @@ public struct NodeMeta: Printable {
         self.create_relationship            = dictionary[TheoNodeCreateRelationship]            as! String
         self.data                           = dictionary[TheoNodeData]                          as! Dictionary
         self.metadata                       = dictionary[TheoNodeMetaData]                      as! Dictionary
-
     }
     
     public var description: String {
