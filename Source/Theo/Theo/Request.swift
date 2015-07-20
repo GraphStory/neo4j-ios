@@ -197,12 +197,12 @@ class Request {
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
         var request: NSURLRequest = {
+
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
             let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: nil, error: nil)!
             
             mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
-            mutableRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
             
             return mutableRequest.copy() as! NSURLRequest
         }()
