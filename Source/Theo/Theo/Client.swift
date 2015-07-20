@@ -83,15 +83,14 @@ public class Client {
 
     // MARK: Lazy properties
 
-    lazy private var credentials: NSURLCredential? = {
+    lazy private var credentials: (username: String, password: String)? = {
         
         if (self.username != nil && self.password != nil) {
-            return NSURLCredential(user: self.username!, password: self.password!, persistence: NSURLCredentialPersistence.ForSession);
+            return (username: self.username!, password: self.password!)
         }
         
         return nil
     }()
-    
   
     // MARK: Constructors
     
@@ -157,7 +156,7 @@ public class Client {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: NSURL = NSURL(string: metaResource)!
-        let metaRequest: Request = Request(url: metaURL, credential: self.credentials)
+        let metaRequest: Request = Request(url: metaURL, credentials: self.credentials)
 
         metaRequest.getResource({(data, response) in
       
@@ -199,7 +198,7 @@ public class Client {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)!
-        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.getResource({(data, response) in
             
@@ -241,7 +240,7 @@ public class Client {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: NSURL = NSURL(string: nodeResource)!
-        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.postResource(node.nodeData, forUpdate: false, successBlock: {(data, response) in
 
@@ -316,7 +315,7 @@ public class Client {
                             let nodeID: String = nodeWithLabels.meta!.nodeID()
                             let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                             let nodeURL: NSURL = NSURL(string: nodeResource)!
-                            let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+                            let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
                             
                             nodeRequest.postResource(labels, forUpdate: false,
                                 successBlock: {(data, response) in
@@ -389,7 +388,7 @@ public class Client {
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: NSURL = NSURL(string: nodeResource)!
-        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.postResource(properties, forUpdate: true, successBlock: {(data, response) in
             
@@ -443,7 +442,7 @@ public class Client {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: NSURL = NSURL(string: nodeResource)!
-        let nodeRequest: Request = Request(url: nodeURL, credential: self.credentials)
+        let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.deleteResource({(data, response) in
                 
@@ -498,7 +497,7 @@ public class Client {
         
         let relationshipURL: NSURL = NSURL(string: relationshipResource)!
         
-        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         var relationshipsForNode: [Relationship] = [Relationship]()
         
         relationshipRequest.getResource({(data, response) in
@@ -538,7 +537,7 @@ public class Client {
         
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: NSURL = NSURL(string: relationshipResource)!
-        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         
         relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
                                          successBlock: {(data, response) in
@@ -581,7 +580,7 @@ public class Client {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
         let relationshipURL: NSURL = NSURL(string: relationshipResource)!
-        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         
         relationship.updatingProperties = true
         
@@ -627,7 +626,7 @@ public class Client {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: NSURL = NSURL(string: relationshipResource)!
-        let relationshipRequest: Request = Request(url: relationshipURL, credential: self.credentials)
+        let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
 
         relationshipRequest.deleteResource({(data, response) in
 
@@ -662,7 +661,7 @@ public class Client {
         let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
         let transactionURL: NSURL = NSURL(string: transactionResource)!
-        let transactionRequest: Request = Request(url: transactionURL, credential: self.credentials)
+        let transactionRequest: Request = Request(url: transactionURL, credentials: self.credentials)
         
         transactionRequest.postResource(transactionPayload, forUpdate: false, successBlock: {(data, response) in
             
@@ -703,7 +702,7 @@ public class Client {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
         let queryURL: NSURL = NSURL(string: queryResource)!
-        let queryRequest: Request = Request(url: queryURL, credential: self.credentials)
+        let queryRequest: Request = Request(url: queryURL, credentials: self.credentials)
         
         queryRequest.getResource({(data, response) in
                     
@@ -752,7 +751,7 @@ public class Client {
         
         let cypherResource: String = self.baseURL + "/db/data/cypher"
         let cypherURL: NSURL = NSURL(string: cypherResource)!
-        let cypherRequest: Request = Request(url: cypherURL, credential: self.credentials)
+        let cypherRequest: Request = Request(url: cypherURL, credentials: self.credentials)
         
         cypherRequest.postResource(cypherPayload, forUpdate: false, successBlock: {(data, response) in
             
