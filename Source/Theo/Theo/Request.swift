@@ -11,8 +11,8 @@ import Foundation
 typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
 typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
 
-let TheoNetworkErrorDomain: String = "com.theo.network.error"
-let TheoRequestRealm: String       = "neo4j graphdb"
+let TheoNetworkErrorDomain: String  = "com.theo.network.error"
+let TheoAuthorizationHeader: String = "Authorization"
 
 public struct AllowedHTTPMethods {
   
@@ -46,10 +46,8 @@ class Request {
     // MARK: Private properties
 
     private var httpRequest: NSURLRequest
-
-    deinit {
-//        self.httpSession.session.invalidateAndCancel()
-    }
+    
+    private var userCredentials: (username: String, password: String)?
 
     // MARK: Constructors
     
@@ -59,7 +57,7 @@ class Request {
     /// :param: NSURLCredential? credentials
     /// :param: Array<String,String>? additionalHeaders
     /// :returns: Request
-    required init(url: NSURL, credential: NSURLCredential?, additionalHeaders:[String:String]?) {
+    required init(url: NSURL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
         self.httpRequest = NSURLRequest(URL: self.sessionURL)
@@ -97,18 +95,7 @@ class Request {
         // methods so that you can set whether or not requests should handle auth
         // at a session or task level.
 
-        if let creds: NSURLCredential = credential {
-
-            let host: String        = url.host!
-            let port: Int           = url.port!.integerValue
-            let urlProtocol: String = url.scheme!
-            
-            let credStorage: NSURLCredentialStorage = NSURLCredentialStorage.sharedCredentialStorage()
-            var protectionSpace: NSURLProtectionSpace = NSURLProtectionSpace(host: host, port: port, `protocol`: urlProtocol, realm: TheoRequestRealm, authenticationMethod: NSURLAuthenticationMethodHTTPBasic);
-            credStorage.setCredential(creds, forProtectionSpace: protectionSpace)
-
-            self.sessionConfiguration.URLCredentialStorage = credStorage
-        }
+        self.userCredentials = credentials
     }
   
     /// Convenience initializer
@@ -119,8 +106,8 @@ class Request {
     /// :param: NSURLCredential? credentials
     /// :returns: Request
 
-    convenience init(url: NSURL, credential: NSURLCredential?) {
-        self.init(url: url, credential: credential, additionalHeaders: nil)
+    convenience init(url: NSURL, credentials: (username: String, password: String)?) {
+        self.init(url: url, credentials: credentials, additionalHeaders: nil)
     }
     
     /// Convenience initializer
@@ -131,7 +118,7 @@ class Request {
     /// :returns: Request
     
     convenience init() {
-        self.init(url: NSURL(), credential: nil, additionalHeaders: nil)
+        self.init(url: NSURL(), credentials: (username: String(), password: String()), additionalHeaders: nil)
     }
   
     // MARK: Public Methods
@@ -148,6 +135,13 @@ class Request {
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
       
             mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
+            
+            if let userCreds = self.userCredentials {
+                
+                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
+                
+                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+            }
       
             return mutableRequest.copy() as! NSURLRequest
         }()
@@ -204,6 +198,13 @@ class Request {
             mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
             
+            if let userCreds = self.userCredentials {
+                
+                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
+                
+                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+            }
+            
             return mutableRequest.copy() as! NSURLRequest
         }()
         
@@ -253,12 +254,19 @@ class Request {
     
         var request: NSURLRequest = {
             
-                let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            
+            mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
+        
+            if let userCreds = self.userCredentials {
                 
-                mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
+                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
                 
-                return mutableRequest.copy() as! NSURLRequest
-            }()
+                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+            }
+            
+            return mutableRequest.copy() as! NSURLRequest
+        }()
         
         self.httpRequest = request
         
@@ -307,5 +315,22 @@ class Request {
         let nsRange = NSMakeRange(200, 100)
     
         return NSIndexSet(indexesInRange: nsRange)
+    }
+    
+    // MARK: Private Methods
+    
+    /// Creates the base64 encoded string used for basic authorization
+    ///
+    /// :param: String username
+    /// :param: String password
+    /// :returns: String
+    private func basicAuthString(username: String, password: String) -> String {
+    
+        let loginString = NSString(format: "%@:%@", username, password)
+        let loginData: NSData = loginString.dataUsingEncoding(NSUTF8StringEncoding)!
+        let base64LoginString = loginData.base64EncodedStringWithOptions(nil)
+        let authString = "Basic \(base64LoginString)"
+
+        return authString
     }
 }
