@@ -49,12 +49,12 @@ private class TheoTaskSessionDelegate: NSObject, NSURLSessionDelegate, NSURLSess
     
     // For Session based challenges
     func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
-        println("session based challenge")
+        print("session based challenge")
     }
     
     // For Session Task based challenges
     func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
-        println("session task based challenge")    
+        print("session task based challenge")    
     }
 }
 
@@ -97,8 +97,8 @@ class Session {
     /// The session delegate is set to nil and will use the "system" provided
     /// delegate
     ///
-    /// :param: NSOperationQueue? queue
-    /// :returns: Session
+    /// - parameter NSOperationQueue?: queue
+    /// - returns: Session
     required init(queue: NSOperationQueue?) {
 
         if let operationQueue = queue {
@@ -115,7 +115,7 @@ class Session {
     /// The operation queue param is set to nil which translates to using 
     /// NSOperationQueue.mainQueue
     ///
-    /// :returns: Session
+    /// - returns: Session
     convenience init() {
         self.init(queue: nil);
     }

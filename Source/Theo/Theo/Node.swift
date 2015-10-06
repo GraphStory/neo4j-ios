@@ -25,7 +25,7 @@ let TheoNodeCreateRelationship: String         = "create_relationship"
 let TheoNodeData: String                       = "data"
 let TheoNodeMetaData: String                   = "metadata"
 
-public struct NodeMeta: Printable {
+public struct NodeMeta: CustomStringConvertible {
     
     let extensions: [String: AnyObject]
     let page_traverse: String
@@ -99,8 +99,8 @@ public class Node {
     
     /// Designated Initializer
     ///
-    /// :param: Dictionary<String,AnyObject>? data
-    /// :returns: Node
+    /// - parameter Dictionary<String,AnyObject>?: data
+    /// - returns: Node
     public required init(data: Dictionary<String,AnyObject>?) {
         
         if let dictionaryData: [String:AnyObject] = data {
@@ -117,15 +117,15 @@ public class Node {
     ///
     /// calls init(data:) with the param value as nil
     ///
-    /// :returns: Node
+    /// - returns: Node
     public convenience init() {
         self.init(data: nil)
     }
     
     /// Gets a specified property for the Node
     ///
-    /// :param: String propertyName
-    /// :returns: AnyObject?
+    /// - parameter String: propertyName
+    /// - returns: AnyObject?
     public func getProp(propertyName: String) -> AnyObject? {
 
         if let object: AnyObject = self.nodeData[propertyName] {
@@ -137,20 +137,20 @@ public class Node {
     
     /// Sets the property for the relationship
     ///
-    /// :param: String propertyName
-    /// :param: String propertyValue
-    /// :returns: Void
+    /// - parameter String: propertyName
+    /// - parameter String: propertyValue
+    /// - returns: Void
     public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
-        var objectValue: AnyObject = propertyValue
+        let objectValue: AnyObject = propertyValue
         
         self.nodeData[propertyName] = objectValue
     }
     
     /// Adds label to array of labels for the node
     ///
-    /// :param: String label
-    /// :returns: Void
+    /// - parameter String: label
+    /// - returns: Void
     public func addLabel(label:String) -> Void {
         self.labels.append(label)
     }
@@ -159,14 +159,14 @@ public class Node {
     ///
     /// This is done by checking for empty keys array
     ///
-    /// :returns: Bool
+    /// - returns: Bool
     public func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
 
     /// Returns whether the current node has labels
     ///
-    /// :returns: Bool
+    /// - returns: Bool
     public func hasLabels() -> Bool {
         return self.labels.isEmpty
     }
@@ -174,7 +174,7 @@ public class Node {
 
 // MARK: - Printable
 
-extension Node: Printable {
+extension Node: CustomStringConvertible {
     
     public var description: String {
         

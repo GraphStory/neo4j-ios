@@ -53,10 +53,10 @@ class Request {
     
     /// Designated initializer
     ///
-    /// :param: NSURL url
-    /// :param: NSURLCredential? credentials
-    /// :param: Array<String,String>? additionalHeaders
-    /// :returns: Request
+    /// - parameter NSURL: url
+    /// - parameter NSURLCredential?: credentials
+    /// - parameter Array<String,String>?: additionalHeaders
+    /// - returns: Request
     required init(url: NSURL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
@@ -102,9 +102,9 @@ class Request {
     ///
     /// The additionalHeaders property is set to nil
     ///
-    /// :param: NSURL url
-    /// :param: NSURLCredential? credentials
-    /// :returns: Request
+    /// - parameter NSURL: url
+    /// - parameter NSURLCredential?: credentials
+    /// - returns: Request
 
     convenience init(url: NSURL, credentials: (username: String, password: String)?) {
         self.init(url: url, credentials: credentials, additionalHeaders: nil)
@@ -114,8 +114,8 @@ class Request {
     ///
     /// The additionalHeaders and credentials properties are set to nil
     ///
-    /// :param: NSURL url
-    /// :returns: Request
+    /// - parameter NSURL: url
+    /// - returns: Request
     
     convenience init() {
         self.init(url: NSURL(), credentials: (username: String(), password: String()), additionalHeaders: nil)
@@ -125,9 +125,9 @@ class Request {
 
     /// Method makes a HTTP GET request
     ///
-    /// :param: RequestSuccessBlock successBlock
-    /// :param: RequestErrorBlock errorBlock
-    /// :returns: Void
+    /// - parameter RequestSuccessBlock: successBlock
+    /// - parameter RequestErrorBlock: errorBlock
+    /// - returns: Void
     func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
 
         var request: NSURLRequest = {
@@ -146,7 +146,7 @@ class Request {
             return mutableRequest.copy() as! NSURLRequest
         }()
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
       
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
@@ -185,15 +185,15 @@ class Request {
 
     /// Method makes a HTTP POST request
     ///
-    /// :param: RequestSuccessBlock successBlock
-    /// :param: RequestErrorBlock errorBlock
-    /// :returns: Void
+    /// - parameter RequestSuccessBlock: successBlock
+    /// - parameter RequestErrorBlock: errorBlock
+    /// - returns: Void
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
         var request: NSURLRequest = {
 
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
-            let transformedJSONData: NSData = NSJSONSerialization.dataWithJSONObject(postData, options: nil, error: nil)!
+            let transformedJSONData: NSData = try! NSJSONSerialization.dataWithJSONObject(postData, options: [])
             
             mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             mutableRequest.HTTPBody   = transformedJSONData
@@ -208,7 +208,7 @@ class Request {
             return mutableRequest.copy() as! NSURLRequest
         }()
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
@@ -247,9 +247,9 @@ class Request {
     
     /// Method makes a HTTP DELETE request
     ///
-    /// :param: RequestSuccessBlock successBlock
-    /// :param: RequestErrorBlock errorBlock
-    /// :returns: Void
+    /// - parameter RequestSuccessBlock: successBlock
+    /// - parameter RequestErrorBlock: errorBlock
+    /// - returns: Void
     func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
         var request: NSURLRequest = {
@@ -270,7 +270,7 @@ class Request {
         
         self.httpRequest = request
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData!, response: NSURLResponse!, error: NSError!) -> Void in
+        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
             
             var dataResp: NSData? = data
             let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
@@ -309,7 +309,7 @@ class Request {
   
     /// Defines and range of acceptable HTTP response codes. 200 thru 300 inclusive
     ///
-    /// :returns: NSIndexSet
+    /// - returns: NSIndexSet
     class func acceptableStatusCodes() -> NSIndexSet {
     
         let nsRange = NSMakeRange(200, 100)
@@ -321,14 +321,14 @@ class Request {
     
     /// Creates the base64 encoded string used for basic authorization
     ///
-    /// :param: String username
-    /// :param: String password
-    /// :returns: String
+    /// - parameter String: username
+    /// - parameter String: password
+    /// - returns: String
     private func basicAuthString(username: String, password: String) -> String {
     
         let loginString = NSString(format: "%@:%@", username, password)
         let loginData: NSData = loginString.dataUsingEncoding(NSUTF8StringEncoding)!
-        let base64LoginString = loginData.base64EncodedStringWithOptions(nil)
+        let base64LoginString = loginData.base64EncodedStringWithOptions([])
         let authString = "Basic \(base64LoginString)"
 
         return authString

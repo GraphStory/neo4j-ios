@@ -22,7 +22,7 @@ let TheoRelationshipEndKey: String        = "end"
 let TheoRelationshipDataKey: String       = "data"
 let TheoRelationshipMetaDataKey: String   = "metadata"
 
-public struct RelationshipMeta: Printable {
+public struct RelationshipMeta: CustomStringConvertible {
 
     let extensions: [String: AnyObject]
     let start: String
@@ -165,8 +165,8 @@ public class Relationship {
 
     /// Designated Initializer
     ///
-    /// :param: Dictionary<String,AnyObject> data
-    /// :returns: Relationship
+    /// - parameter Dictionary<String,AnyObject>: data
+    /// - returns: Relationship
     public required init(data: Dictionary<String,AnyObject>?) {
         
         self.relationshipCreateMeta = [String:AnyObject]()
@@ -187,17 +187,17 @@ public class Relationship {
     ///
     /// calls init(data:) with the param value as nil
     ///
-    /// :returns: Relationship
+    /// - returns: Relationship
     public convenience init() {
         self.init(data: nil)
     }
     
     /// Sets the relationship between two nodes
     ///
-    /// :param: Node fromNode
-    /// :param: Node toNode
-    /// :param: String type (see RelationshipDirection)
-    /// :returns: Void
+    /// - parameter Node: fromNode
+    /// - parameter Node: toNode
+    /// - parameter String: type (see RelationshipDirection)
+    /// - returns: Void
     public func relate(fromNode: Node, toNode: Node, type: String) -> Void {
     
         self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship
@@ -207,8 +207,8 @@ public class Relationship {
     
     /// Gets a specified property for the Relationship
     ///
-    /// :param: String propertyName
-    /// :returns: AnyObject?
+    /// - parameter String: propertyName
+    /// - returns: AnyObject?
     public func getProp(propertyName: String) -> AnyObject? {
         
         if let object: AnyObject = self.relationshipData[propertyName] {
@@ -220,12 +220,12 @@ public class Relationship {
     
     /// Sets the property for the relationship
     ///
-    /// :param: String propertyName
-    /// :param: String propertyValue
-    /// :returns: Void
+    /// - parameter String: propertyName
+    /// - parameter String: propertyValue
+    /// - returns: Void
     public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
         
-        var objectValue: AnyObject = propertyValue
+        let objectValue: AnyObject = propertyValue
         
         self.relationshipData[propertyName] = objectValue
     }
@@ -234,9 +234,9 @@ public class Relationship {
     ///
     /// This is done by checking whether or not the dictionary keys are empty
     ///
-    /// :param: String propertyName
-    /// :param: String propertyValue
-    /// :returns: Bool
+    /// - parameter String: propertyName
+    /// - parameter String: propertyValue
+    /// - returns: Bool
     public func isDataEmpty() -> Bool {
         return self.relationshipData.keys.isEmpty
     }
@@ -244,7 +244,7 @@ public class Relationship {
 
 // MARK: - Printable
 
-extension Relationship: Printable {
+extension Relationship: CustomStringConvertible {
     
     public var description: String {
         

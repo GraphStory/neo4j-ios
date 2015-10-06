@@ -11,7 +11,7 @@ import Foundation
 let TheoCypherColumns: String = "columns"
 let TheoCypherData: String    = "data"
 
-public struct CypherMeta: Printable {
+public struct CypherMeta: CustomStringConvertible {
     
     let columns: Array<String>
     let data: Array<AnyObject>
@@ -46,7 +46,7 @@ public class Cypher {
 
                     var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                     
-                    for (index, value) in enumerate(arrayValues) {
+                    for (index, value) in arrayValues.enumerate() {
 
                         let cypherDictionaryKey: String = metaForCypher.columns[index]
                         
@@ -66,7 +66,7 @@ public class Cypher {
 
 // MARK: - Printable
 
-extension Cypher: Printable {
+extension Cypher: CustomStringConvertible {
     
     public var description: String {
         
