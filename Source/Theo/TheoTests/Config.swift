@@ -16,13 +16,24 @@ struct Config {
     
     init(pathToFile: String) {
 
-        let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
-        var jsonError: NSError?
-        let JSON: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: NSJSONReadingOptions(0), error: &jsonError) as AnyObject!
-        let jsonConfig: [String:String]! = JSON as! [String:String]
-        
-        self.username = jsonConfig["username"]!
-        self.password = jsonConfig["password"]!
-        self.host     = jsonConfig["host"]!
+        do {
+            
+            let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
+            let JSON: AnyObject? = try NSJSONSerialization.JSONObjectWithData(jsonData, options: []) as AnyObject!
+
+            let jsonConfig: [String:String]! = JSON as! [String:String]
+            
+            self.username = jsonConfig["username"]!
+            self.password = jsonConfig["password"]!
+            self.host     = jsonConfig["host"]!
+
+        } catch {
+
+            self.username = ""
+            self.password = ""
+            self.host     = ""
+
+            print("Fetch failed: \((error as NSError).localizedDescription)")
+        }
     }
 }
