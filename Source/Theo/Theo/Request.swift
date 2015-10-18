@@ -130,7 +130,7 @@ class Request {
     /// - returns: Void
     func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
 
-        var request: NSURLRequest = {
+        let request: NSURLRequest = {
       
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
       
@@ -164,13 +164,13 @@ class Request {
             if (errorBlock != nil) {
         
                 if (error != nil) {
-                    errorBlock!(error: error, response: httpResponse)
+                    errorBlock!(error: error!, response: httpResponse)
                 }
         
                 if (!containsStatusCode) {
 
                     let localizedErrorString: String = "There was an error processing the request"
-                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
@@ -190,7 +190,7 @@ class Request {
     /// - returns: Void
     func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
-        var request: NSURLRequest = {
+        let request: NSURLRequest = {
 
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
             let transformedJSONData: NSData = try! NSJSONSerialization.dataWithJSONObject(postData, options: [])
@@ -226,13 +226,13 @@ class Request {
             if (errorBlock != nil) {
                 
                 if (error != nil) {
-                    errorBlock!(error: error, response: httpResponse)
+                    errorBlock!(error: error!, response: httpResponse)
                 }
                 
                 if (!containsStatusCode) {
                     
                     let localizedErrorString: String = "There was an error processing the request"
-                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
@@ -252,7 +252,7 @@ class Request {
     /// - returns: Void
     func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
-        var request: NSURLRequest = {
+        let request: NSURLRequest = {
             
             let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
             
@@ -288,13 +288,13 @@ class Request {
             if (errorBlock != nil) {
                 
                 if (error != nil) {
-                    errorBlock!(error: error, response: httpResponse)
+                    errorBlock!(error: error!, response: httpResponse)
                 }
                 
                 if (!containsStatusCode) {
                     
                     let localizedErrorString: String = "There was an error processing the request"
-                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+                    let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
