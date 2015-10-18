@@ -39,8 +39,6 @@ public class Cypher {
             self.meta = CypherMeta(dictionary: dictionaryData)
             
             if let metaForCypher: CypherMeta = self.meta {
-                
-                let keys = metaForCypher.columns
 
                 for arrayValues in metaForCypher.data as! Array<Array<AnyObject>> {
 
