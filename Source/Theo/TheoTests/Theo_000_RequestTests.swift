@@ -44,7 +44,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         theo.metaDescription({(meta, error) in
           
-          println("meta in success \(meta) error \(error)")
+          print("meta in success \(meta) error \(error)")
           
           XCTAssert(meta != nil, "Meta can't be nil")
           XCTAssert(error == nil, "Error must be nil \(error?.description)")
@@ -68,7 +68,7 @@ class Theo_000_RequestTests: XCTestCase {
             XCTAssert(node?.meta != nil, "Meta data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
             
-            println("meta in success \(node!.meta) node \(node) error \(error)")
+            print("meta in success \(node!.meta) node \(node) error \(error)")
             
             exp.fulfill()
         })
@@ -85,7 +85,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("meta in success \(node!.meta) [node \(node)] error \(error)")
+            print("meta in success \(node!.meta) [node \(node)] error \(error)")
             
             XCTAssert(node!.meta != nil, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
@@ -112,7 +112,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("meta in success \(node!.meta) node \(node) error \(error)")
+            print("meta in success \(node!.meta) node \(node) error \(error)")
             
             XCTAssert(node!.meta != nil, "Meta data can't be nil")
             XCTAssert(node != nil, "Node data can't be nil")
@@ -143,7 +143,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         theo.createNode(node, completionBlock: {(node, error) in
         
-            println("new node \(node)")
+            print("new node \(node)")
             
             XCTAssert(node!.meta != nil, "Meta data can't be nil")
             XCTAssert(node != nil, "Node data can't be nil")
@@ -166,12 +166,11 @@ class Theo_000_RequestTests: XCTestCase {
          * Setup dispatch group since you to make a 2 part transation
          */
 
-        let nodeFetchQueueName: String           = "com.theo.node.fetch.queue"
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
         
         var parentNode: Node?
         var relatedNode: Node?
-        var relationship: Relationship = Relationship()
+        let relationship: Relationship = Relationship()
         
         /**
          * Fetch the parent node
@@ -180,7 +179,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("meta in success \(node!.meta) node \(node) error \(error)")
+            print("meta in success \(node!.meta) node \(node) error \(error)")
             
             XCTAssert(node!.meta != nil, "Meta data can't be nil")
             XCTAssert(node != nil, "Node data can't be nil")
@@ -200,7 +199,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeIDForRelationship, completionBlock: {(node, error) in
             
-            println("meta in success \(node!.meta) node \(node) error \(error)")
+            print("meta in success \(node!.meta) node \(node) error \(error)")
             
             XCTAssert(node?.meta != nil, "Meta data can't be nil")
             XCTAssert(node != nil, "Node data can't be nil")
@@ -248,8 +247,7 @@ class Theo_000_RequestTests: XCTestCase {
        /**
         * Setup dispatch group since you to make a 2 part transation
         */
-        
-        let nodeFetchQueueName: String           = "com.theo.node.fetch.queue"
+
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
         
         var updateNode: Node?
@@ -261,7 +259,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("test_008_succesfullyUpdateNodeWithProperties \(node!.meta) node \(node) error \(error)")
+            print("test_008_succesfullyUpdateNodeWithProperties \(node!.meta) node \(node) error \(error)")
 
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
@@ -317,7 +315,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("test_007_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
+            print("test_007_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
             
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
@@ -423,7 +421,6 @@ class Theo_000_RequestTests: XCTestCase {
         
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
         
-        var relationshipIDToUpdate: String?
         var nodeIDWithRelationships: String?
         
         // Fetch relationship for main RUD node
@@ -431,7 +428,7 @@ class Theo_000_RequestTests: XCTestCase {
         dispatch_group_enter(fetchDispatchGroup)
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
-            println("test_011_succesfullyUpdateRelationshipWithProperties \(node!.meta) node \(node) error \(error)")
+            print("test_011_succesfullyUpdateRelationshipWithProperties \(node!.meta) node \(node) error \(error)")
             
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description)")
