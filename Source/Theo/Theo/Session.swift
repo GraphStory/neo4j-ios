@@ -45,15 +45,15 @@ public class Configuration {
 // TODO: Move all session request to utilize this delegate.
 // Right now these are NOT called because I'm setting the URLCredential on the 
 // session configuration
-private class TheoTaskSessionDelegate: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate {
+private class TheoTaskSessionDelegate: NSObject {
     
     // For Session based challenges
-    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+    @objc func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
         print("session based challenge")
     }
     
     // For Session Task based challenges
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+    @objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
         print("session task based challenge")    
     }
 }
