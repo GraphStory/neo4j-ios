@@ -106,19 +106,23 @@ public class Client {
     required public init(baseURL: String, user: String?, pass: String?) {
 
         assert(!baseURL.isEmpty, "Base url must be set")
+        
+        if let user = user {
+            
+            self.username = user
 
-        if let u = user {
-            self.username = user!
-        }
-        else {
+        } else {
+          
             print("Something went wrong initializing username")
             self.username = ""
         }
 
-        if let p = pass {
-            self.password = pass!
-        }
-        else {
+        if let pass = pass {
+          
+            self.password = pass
+
+        } else {
+
             print("Something went wrong initializing password")
             self.password = ""
         }
@@ -319,9 +323,6 @@ public class Client {
                             
                             nodeRequest.postResource(labels, forUpdate: false,
                                 successBlock: {(data, response) in
-                                    
-                                    let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
-                                    let statusCode: Int = httpResponse.statusCode
 
                                     NSOperationQueue.mainQueue().addOperationWithBlock({
                                         
@@ -448,7 +449,7 @@ public class Client {
                 
                 if (completionBlock != nil) {
                     
-                    if let responseData: NSData = data {
+                    if let _: NSData = data {
                         completionBlock!(error: nil)
                     }
                 }
@@ -592,21 +593,13 @@ public class Client {
             successBlock: {(data, response) in
                 
                 if (completionBlock != nil) {
-                    
-                    if let responseData: NSData = data {
+
+                    dispatch_async(dispatch_get_main_queue(), {
                         
-                        dispatch_async(self.parsingQueue, {
-                            
-                            let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
-                            
-                            dispatch_async(dispatch_get_main_queue(), {
-                                
-                                // If the update is successfull then you'll 
-                                // receive a 204 with an empty body
-                                completionBlock!(relationship: nil, error: nil)
-                            })
-                        })
-                    }
+                        // If the update is successfull then you'll
+                        // receive a 204 with an empty body
+                        completionBlock!(relationship: nil, error: nil)
+                    })
                 }
                 
             }, errorBlock: {(error, response) in
@@ -632,7 +625,7 @@ public class Client {
 
                                             if (completionBlock != nil) {
                                                 
-                                                if let responseData: NSData = data {
+                                                if let _: NSData = data {
                                                     
                                                     completionBlock!(error: nil)
 
