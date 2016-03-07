@@ -34,6 +34,10 @@ find a bug please file an issue or issue a PR for any features or fixes.
 
 ### Initalization
 
+**PLEASE NOTE - DO NOT INCLUDE A TRAILING SLASH IN YOUR HOSTNAME**
+
+Example: `http://www.hostname.com` **not** `http://www.hostname.com/`
+
 **Without authentication**
 
 ```Swift
@@ -50,7 +54,7 @@ let theo: Client = Client(baseURL: "hostname.com", user: "username", pass: "pass
 
 ```Swift
 theo.metaDescription({(meta, error) in
-    println("meta in success \(meta) error \(error)")
+    print("meta in success \(meta) error \(error)")
 })
 ```
 
@@ -58,7 +62,7 @@ theo.metaDescription({(meta, error) in
 
 ```Swift
 theo.fetchNode("IDToFetch", completionBlock: {(node, error) in    
-    println("meta in success \(node!.meta) node \(node) error \(error)")
+    print("meta in success \(node!.meta) node \(node) error \(error)")
 })
 ```
 
@@ -68,13 +72,13 @@ theo.fetchNode("IDToFetch", completionBlock: {(node, error) in
 
 ```Swift
 let node = Node()
-let randomString: String = NSUUID.UUID().UUIDString
+let randomString: String = NSUUID().UUIDString
 
 node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
 node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
 
 theo.createNode(node, completionBlock: {(node, error) in
-    println("new node \(node)")
+    print("new node \(node)")
 });
 ```
 
@@ -82,14 +86,14 @@ theo.createNode(node, completionBlock: {(node, error) in
 
 ```Swift
 let node = Node()
-let randomString: String = NSUUID.UUID().UUIDString
+let randomString: String = NSUUID().UUIDString
 
 node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
 node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
 node.addLabel("customLabelForNode_" + randomString)
 
 theo.createNode(node, completionBlock: {(node, error) in
-    println("new node \(node)")
+    print("new node \(node)")
 });
 ```
 
@@ -107,7 +111,7 @@ theo.updateNode(updateNode!, properties: updatedPropertiesDictionary,
 
 ```Swift
 theo.deleteNode("IDForDeletion", completionBlock: {error in
-    println("error \(error?.description)")
+    print("error \(error?.description)")
 })
 ```
 
@@ -122,7 +126,7 @@ relationship.relate(parentNodeInstance, toNode: relatedNodeInstance, type: Relat
 relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
 
 theo.createRelationship(relationship, completionBlock: {(node, error) in
-    println("meta in success \(node!.meta) node \(node) error \(error)")
+    print("meta in success \(node!.meta) node \(node) error \(error)")
 })
 ```
 
@@ -164,7 +168,7 @@ let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, 
 let statements: Array<Dictionary <String, AnyObject>> = [statement]
 
 theo.executeTransaction(statements, completionBlock: {(response, error) in
-    println("response \(response) and error \(error?.description")
+    print("response \(response) and error \(error?.description")
 })
 ```
 
