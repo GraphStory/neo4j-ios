@@ -298,6 +298,10 @@ public class Client {
     /// - returns: Void
     public func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
+        /// Node creation returns node http://neo4j.com/docs/2.3.2/rest-api-nodes.html#rest-api-create-node
+        /// However, creating labels doesn't return anything http://neo4j.com/docs/2.3.2/rest-api-node-labels.html#rest-api-adding-a-label-to-a-node in the response, so in the completion block
+        /// we append the labels param values to the returned node
+        
         var createdNodeWithoutLabels: Node?
         let nodeSaveOperationQueue: NSOperationQueue = NSOperationQueue()
         
@@ -327,7 +331,10 @@ public class Client {
                                     NSOperationQueue.mainQueue().addOperationWithBlock({
                                         
                                         if (completionBlock != nil) {
-                                            completionBlock!(node: nil, error: nil)
+                                            
+                                            nodeWithLabels.addLabels(labels)
+                                            
+                                            completionBlock!(node: nodeWithLabels, error: nil)
                                         }
                                     })
                                 },
