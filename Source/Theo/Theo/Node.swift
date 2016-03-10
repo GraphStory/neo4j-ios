@@ -151,8 +151,18 @@ public class Node {
     ///
     /// - parameter String: label
     /// - returns: Void
-    public func addLabel(label:String) -> Void {
+    public func addLabel(label: String) -> Void {
         self.labels.append(label)
+    }
+    
+    /// Adds labels to existing array of labels for the node
+    ///
+    /// - parameter Array<String>: labels
+    /// - returns: Void
+    public func addLabels(labels: Array<String>) -> Void {
+
+        let newLabels = Array([self.labels, labels].flatten())
+        self.labels = newLabels
     }
     
     /// Returns whether or not the nodeData is empty
