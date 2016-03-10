@@ -379,10 +379,12 @@ class Theo_000_RequestTests: XCTestCase {
         node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
         node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
 
-        theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
-            
+        theo.createNode(node, labels: node.labels, completionBlock: {(savedNode, error) in
+
             XCTAssertNil(error, "Error must be nil \(error?.description)")
-            
+            XCTAssertNotNil(savedNode, "Node can't be nil")
+            XCTAssertFalse(savedNode!.labels.isEmpty, "Labels must be set")
+
             exp.fulfill()
         })
         
