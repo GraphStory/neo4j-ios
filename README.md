@@ -96,7 +96,21 @@ theo.createNode(node, completionBlock: {(node, error) in
     print("new node \(node)")
 });
 ```
+*or*
 
+```Swift
+let node = Node()
+let randomString: String = NSUUID().UUIDString        
+
+node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
+node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
+node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
+node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
+
+theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
+  print("new node \(node)")
+})
+```
 ### Update properties for a node
 
 ```Swift
