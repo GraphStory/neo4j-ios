@@ -198,10 +198,14 @@ class Request {
         let request: URLRequest = {
 
             let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
-            let transformedJSONData: Data = try! JSONSerialization.data(withJSONObject: postData, options: [])
+            
+            mutableRequest.httpBody = Data()
+            
+            if let transformedJSONData: Data = try? JSONSerialization.data(withJSONObject: postData, options: []) {
+                mutableRequest.httpBody   = transformedJSONData
+            }
             
             mutableRequest.httpMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
-            mutableRequest.httpBody   = transformedJSONData
             
             if let userCreds = self.userCredentials {
                 
