@@ -153,31 +153,36 @@ class Request {
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
 
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
       
-            if (successBlock != nil) {
-                successBlock!(dataResp, httpResponse)
-            }
-      
-            if (errorBlock != nil) {
-        
-                if (error != nil) {
-                    errorBlock!(error!, httpResponse)
+            /// Process Success Block
+            
+            successBlock?(dataResp, httpResponse)
+    
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
+                
+                if let error = error {
+                    
+                    errorCallBack(error, httpResponse)
+                    return
                 }
-        
-                if (!containsStatusCode) {
-
+                
+                if !containsStatusCode {
+                    
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
-          
-                    errorBlock!(requestResponseError, httpResponse)
+                    
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
+
         } as! (Data?, URLResponse?, Error?) -> Void)
     
         task.resume()
@@ -215,21 +220,25 @@ class Request {
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
+
+            /// Process Success Block
             
-            if (successBlock != nil) {
-                successBlock!(dataResp, httpResponse)
-            }
+            successBlock?(dataResp, httpResponse)
             
-            if (errorBlock != nil) {
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
                 
-                if (error != nil) {
-                    errorBlock!(error!, httpResponse)
+                if let error = error {
+                    
+                    errorCallBack(error, httpResponse)
+                    return
                 }
                 
-                if (!containsStatusCode) {
+                if !containsStatusCode {
                     
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
@@ -237,7 +246,7 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(requestResponseError, httpResponse)
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
         } as! (Data?, URLResponse?, Error?) -> Void)
@@ -277,21 +286,25 @@ class Request {
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
+
+            /// Process Success Block
             
-            if (successBlock != nil) {
-                successBlock!(dataResp, httpResponse)
-            }
+            successBlock?(dataResp, httpResponse)
             
-            if (errorBlock != nil) {
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
                 
-                if (error != nil) {
-                    errorBlock!(error!, httpResponse)
+                if let error = error {
+                    
+                    errorCallBack(error, httpResponse)
+                    return
                 }
                 
-                if (!containsStatusCode) {
+                if !containsStatusCode {
                     
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
@@ -299,7 +312,7 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(requestResponseError, httpResponse)
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
         } as! (Data?, URLResponse?, Error?) -> Void)
