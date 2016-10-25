@@ -59,12 +59,9 @@ private class TheoTaskSessionDelegate: NSObject {
 }
 
 class Session {
+
   
-    private static var __once: () = {
-            Static.instance = Session(queue: SessionParams.queue)
-        }()
-  
-    // MARK: Private methods
+    // MARK: Private properties
 
     fileprivate let sessionDescription = "com.graphstory.session"
     fileprivate struct Static {
@@ -78,18 +75,12 @@ class Session {
     var session: URLSession
     var sessionDelegateQueue: OperationQueue = OperationQueue.main
     var configuration: Configuration = Configuration()
+    static let sharedInstance: Session = Session(queue: SessionParams.queue)
   
     // MARK: Structs and class vars
 
     struct SessionParams {
         static var queue: OperationQueue?
-    }
-  
-    class var sharedInstance: Session {
-    
-        _ = Session.__once
-
-        return Static.instance!
     }
   
     // MARK: Constructors
