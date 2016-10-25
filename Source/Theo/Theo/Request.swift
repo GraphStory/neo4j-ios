@@ -8,8 +8,8 @@
 
 import Foundation
 
-typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
-typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
+typealias RequestSuccessBlock = (_ data: Data?, _ response: URLResponse) -> Void
+typealias RequestErrorBlock   = (_ error: NSError, _ response: URLResponse) -> Void
 
 let TheoNetworkErrorDomain: String  = "com.theo.network.error"
 let TheoAuthorizationHeader: String = "Authorization"
@@ -28,26 +28,26 @@ class Request {
 
     lazy var httpSession: Session = {
 
-        Session.SessionParams.queue = NSOperationQueue.mainQueue()
+        Session.SessionParams.queue = OperationQueue.main
 
         return Session.sharedInstance;
     }()
   
-    lazy var sessionConfiguration: NSURLSessionConfiguration = {
+    lazy var sessionConfiguration: URLSessionConfiguration = {
         return self.httpSession.configuration.sessionConfiguration
     }()
   
-    lazy var sessionHTTPAdditionalHeaders: [NSObject:AnyObject]? = {
-        return self.sessionConfiguration.HTTPAdditionalHeaders
+    lazy var sessionHTTPAdditionalHeaders: [AnyHashable: Any]? = {
+        return self.sessionConfiguration.httpAdditionalHeaders
     }()
   
-    let sessionURL: NSURL
+    let sessionURL: URL
     
     // MARK: Private properties
 
-    private var httpRequest: NSURLRequest
+    fileprivate var httpRequest: URLRequest
     
-    private var userCredentials: (username: String, password: String)?
+    fileprivate var userCredentials: (username: String, password: String)?
 
     // MARK: Constructors
     
@@ -57,10 +57,10 @@ class Request {
     /// - parameter NSURLCredential?: credentials
     /// - parameter Array<String,String>?: additionalHeaders
     /// - returns: Request
-    required init(url: NSURL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
+    required init(url: URL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
-        self.httpRequest = NSURLRequest(URL: self.sessionURL)
+        self.httpRequest = URLRequest(url: self.sessionURL)
     
         // If the additional headers aren't nil then we have to fake a mutable 
         // copy of the sessionHTTPAdditionsalHeaders (they are immutable), add 
@@ -81,7 +81,7 @@ class Request {
                 }
             }
       
-            self.sessionConfiguration.HTTPAdditionalHeaders = newHeaders as [NSObject:AnyObject]?
+            self.sessionConfiguration.httpAdditionalHeaders = newHeaders as [AnyHashable: Any]?
       
         } else {
       
@@ -106,7 +106,7 @@ class Request {
     /// - parameter NSURLCredential?: credentials
     /// - returns: Request
 
-    convenience init(url: NSURL, credentials: (username: String, password: String)?) {
+    convenience init(url: URL, credentials: (username: String, password: String)?) {
         self.init(url: url, credentials: credentials, additionalHeaders: nil)
     }
     
@@ -118,7 +118,7 @@ class Request {
     /// - returns: Request
     
     convenience init() {
-        self.init(url: NSURL(), credentials: (username: String(), password: String()), additionalHeaders: nil)
+        self.init(url: URL(string: "this will fail")!, credentials: (username: String(), password: String()), additionalHeaders: nil)
     }
   
     // MARK: Public Methods
@@ -128,13 +128,13 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func getResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
 
-        let request: NSURLRequest = {
+        let request: URLRequest = {
       
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
       
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
+            mutableRequest.httpMethod = AllowedHTTPMethods.GET
             
             if let userCreds = self.userCredentials {
                 
@@ -143,28 +143,28 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
       
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest.copy() as! URLRequest
         }()
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler: {(data: Data?, response: URLResponse?, error: NSError?) -> Void in
       
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+            var dataResp: Data? = data
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
 
             if (!containsStatusCode) {
                 dataResp = nil
             }
       
             if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
+                successBlock!(dataResp, httpResponse)
             }
       
             if (errorBlock != nil) {
         
                 if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+                    errorBlock!(error!, httpResponse)
                 }
         
                 if (!containsStatusCode) {
@@ -175,10 +175,10 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
           
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    errorBlock!(requestResponseError, httpResponse)
                 }
             }
-        })
+        } as! (Data?, URLResponse?, Error?) -> Void)
     
         task.resume()
     }
@@ -188,15 +188,15 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func postResource(_ postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
-        let request: NSURLRequest = {
+        let request: URLRequest = {
 
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
-            let transformedJSONData: NSData = try! NSJSONSerialization.dataWithJSONObject(postData, options: [])
+            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+            let transformedJSONData: Data = try! JSONSerialization.data(withJSONObject: postData, options: [])
             
-            mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
-            mutableRequest.HTTPBody   = transformedJSONData
+            mutableRequest.httpMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
+            mutableRequest.httpBody   = transformedJSONData
             
             if let userCreds = self.userCredentials {
                 
@@ -205,28 +205,28 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
             
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest.copy() as! URLRequest
         }()
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler: {(data: Data?, response: URLResponse?, error: NSError?) -> Void in
             
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+            var dataResp: Data? = data
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
             if (!containsStatusCode) {
                 dataResp = nil
             }
             
             if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
+                successBlock!(dataResp, httpResponse)
             }
             
             if (errorBlock != nil) {
                 
                 if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+                    errorBlock!(error!, httpResponse)
                 }
                 
                 if (!containsStatusCode) {
@@ -237,10 +237,10 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    errorBlock!(requestResponseError, httpResponse)
                 }
             }
-        })
+        } as! (Data?, URLResponse?, Error?) -> Void)
         
         task.resume()
     }
@@ -250,13 +250,13 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func deleteResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
-        let request: NSURLRequest = {
+        let request: URLRequest = {
             
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
             
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
+            mutableRequest.httpMethod = AllowedHTTPMethods.DELETE
         
             if let userCreds = self.userCredentials {
                 
@@ -265,30 +265,30 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
             
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest.copy() as! URLRequest
         }()
         
         self.httpRequest = request
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: self.httpRequest, completionHandler: {(data: Data?, response: URLResponse?, error: NSError?) -> Void in
             
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+            var dataResp: Data? = data
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
             if (!containsStatusCode) {
                 dataResp = nil
             }
             
             if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
+                successBlock!(dataResp, httpResponse)
             }
             
             if (errorBlock != nil) {
                 
                 if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+                    errorBlock!(error!, httpResponse)
                 }
                 
                 if (!containsStatusCode) {
@@ -299,10 +299,10 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    errorBlock!(requestResponseError, httpResponse)
                 }
             }
-        })
+        } as! (Data?, URLResponse?, Error?) -> Void)
         
         task.resume()
     }
@@ -310,11 +310,11 @@ class Request {
     /// Defines and range of acceptable HTTP response codes. 200 thru 300 inclusive
     ///
     /// - returns: NSIndexSet
-    class func acceptableStatusCodes() -> NSIndexSet {
+    class func acceptableStatusCodes() -> IndexSet {
     
         let nsRange = NSMakeRange(200, 100)
     
-        return NSIndexSet(indexesInRange: nsRange)
+        return IndexSet(integersIn: nsRange.toRange() ?? 0..<0)
     }
     
     // MARK: Private Methods
@@ -324,11 +324,11 @@ class Request {
     /// - parameter String: username
     /// - parameter String: password
     /// - returns: String
-    private func basicAuthString(username: String, password: String) -> String {
+    fileprivate func basicAuthString(_ username: String, password: String) -> String {
     
         let loginString = NSString(format: "%@:%@", username, password)
-        let loginData: NSData = loginString.dataUsingEncoding(NSUTF8StringEncoding)!
-        let base64LoginString = loginData.base64EncodedStringWithOptions([])
+        let loginData: Data = loginString.data(using: String.Encoding.utf8.rawValue)!
+        let base64LoginString = loginData.base64EncodedString(options: [])
         let authString = "Basic \(base64LoginString)"
 
         return authString

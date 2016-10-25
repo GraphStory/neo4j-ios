@@ -8,14 +8,14 @@
 
 import Foundation
 
-public class Configuration {
+open class Configuration {
   
-    private let requestTimeout: Double  = 10
-    private let resourceTimeout: Double = 20
+    fileprivate let requestTimeout: Double  = 10
+    fileprivate let resourceTimeout: Double = 20
 
-    var sessionConfiguration: NSURLSessionConfiguration
+    var sessionConfiguration: URLSessionConfiguration
 
-    lazy private var cache: NSURLCache = {
+    lazy fileprivate var cache: URLCache = {
 
     let memoryCacheLimit: Int = 10 * 1024 * 1024;
     let diskCapacity: Int = 50 * 1024 * 1024;
@@ -24,7 +24,7 @@ public class Configuration {
     * http://nsscreencast.com/episodes/91-afnetworking-2-0
     */
 
-    let cache:NSURLCache = NSURLCache(memoryCapacity: memoryCacheLimit, diskCapacity: diskCapacity, diskPath: nil)
+    let cache:URLCache = URLCache(memoryCapacity: memoryCacheLimit, diskCapacity: diskCapacity, diskPath: nil)
         return cache
     }()
 
@@ -32,12 +32,12 @@ public class Configuration {
 
         let additionalHeaders: [String:String] = ["Accept": "application/json", "Content-Type": "application/json; charset=UTF-8"]
 
-        self.sessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        self.sessionConfiguration = URLSessionConfiguration.default
         
-        self.sessionConfiguration.requestCachePolicy         = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
+        self.sessionConfiguration.requestCachePolicy         = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
         self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
-        self.sessionConfiguration.HTTPAdditionalHeaders      = additionalHeaders
+        self.sessionConfiguration.httpAdditionalHeaders      = additionalHeaders
 //        self.sessionConfiguration.URLCache                   = self.cache
     }
 }
@@ -48,44 +48,46 @@ public class Configuration {
 private class TheoTaskSessionDelegate: NSObject {
     
     // For Session based challenges
-    @objc func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+    @objc func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session based challenge")
     }
     
     // For Session Task based challenges
-    @objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential!) -> Void) {
+    @objc func URLSession(_ session: Foundation.URLSession, task: URLSessionTask, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session task based challenge")    
     }
 }
 
 class Session {
   
+    private static var __once: () = {
+            Static.instance = Session(queue: SessionParams.queue)
+        }()
+  
     // MARK: Private methods
 
-    private let sessionDescription = "com.graphstory.session"
-    private struct Static {
-        static var token : dispatch_once_t = 0
+    fileprivate let sessionDescription = "com.graphstory.session"
+    fileprivate struct Static {
+        static var token : Int = 0
         static var instance : Session?
     }
-    private let sessionDelegate: TheoTaskSessionDelegate = TheoTaskSessionDelegate()
+    fileprivate let sessionDelegate: TheoTaskSessionDelegate = TheoTaskSessionDelegate()
 
     // MARK: Public properties
 
-    var session: NSURLSession
-    var sessionDelegateQueue: NSOperationQueue = NSOperationQueue.mainQueue()
+    var session: URLSession
+    var sessionDelegateQueue: OperationQueue = OperationQueue.main
     var configuration: Configuration = Configuration()
   
     // MARK: Structs and class vars
 
     struct SessionParams {
-        static var queue: NSOperationQueue?
+        static var queue: OperationQueue?
     }
   
     class var sharedInstance: Session {
     
-        dispatch_once(&Static.token) {
-            Static.instance = Session(queue: SessionParams.queue)
-        }
+        _ = Session.__once
 
         return Static.instance!
     }
@@ -99,13 +101,13 @@ class Session {
     ///
     /// - parameter NSOperationQueue?: queue
     /// - returns: Session
-    required init(queue: NSOperationQueue?) {
+    required init(queue: OperationQueue?) {
 
         if let operationQueue = queue {
             self.sessionDelegateQueue = operationQueue
         }
 
-        self.session = NSURLSession(configuration: configuration.sessionConfiguration, delegate: nil, delegateQueue: self.sessionDelegateQueue)
+        self.session = URLSession(configuration: configuration.sessionConfiguration, delegate: nil, delegateQueue: self.sessionDelegateQueue)
 
         self.session.sessionDescription = sessionDescription
     }

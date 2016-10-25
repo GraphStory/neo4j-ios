@@ -46,7 +46,7 @@ public struct NodeMeta: CustomStringConvertible {
 
     public func nodeID() -> String {
 
-        let pathComponents: Array<String> = self.node_self.componentsSeparatedByString("/")
+        let pathComponents: Array<String> = self.node_self.components(separatedBy: "/")
 
         return pathComponents.last!
     }
@@ -76,16 +76,16 @@ public struct NodeMeta: CustomStringConvertible {
     }
 }
 
-public class Node {
+open class Node {
 
     // MARK: Private Setters and Public Getters
 
-    private (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
-    private (set) var labels: [String] = [String]()
+    fileprivate (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    fileprivate (set) var labels: [String] = [String]()
 
     // MARK: Public Properties
     
-    public var meta: NodeMeta? = nil {
+    open var meta: NodeMeta? = nil {
 
         didSet {
         
@@ -126,7 +126,7 @@ public class Node {
     ///
     /// - parameter String: propertyName
     /// - returns: AnyObject?
-    public func getProp(propertyName: String) -> AnyObject? {
+    open func getProp(_ propertyName: String) -> AnyObject? {
 
         if let object: AnyObject = self.nodeData[propertyName] {
             return object
@@ -140,7 +140,7 @@ public class Node {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: AnyObject) -> Void {
         
         let objectValue: AnyObject = propertyValue
         
@@ -151,7 +151,7 @@ public class Node {
     ///
     /// - parameter String: label
     /// - returns: Void
-    public func addLabel(label: String) -> Void {
+    open func addLabel(_ label: String) -> Void {
         self.labels.append(label)
     }
     
@@ -159,9 +159,9 @@ public class Node {
     ///
     /// - parameter Array<String>: labels
     /// - returns: Void
-    public func addLabels(labels: Array<String>) -> Void {
+    open func addLabels(_ labels: Array<String>) -> Void {
 
-        let newLabels = Array([self.labels, labels].flatten())
+        let newLabels = Array([self.labels, labels].joined())
         self.labels = newLabels
     }
     
@@ -170,14 +170,14 @@ public class Node {
     /// This is done by checking for empty keys array
     ///
     /// - returns: Bool
-    public func isEmpty() -> Bool {
+    open func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
 
     /// Returns whether the current node has labels
     ///
     /// - returns: Bool
-    public func hasLabels() -> Bool {
+    open func hasLabels() -> Bool {
         return self.labels.isEmpty
     }
 }

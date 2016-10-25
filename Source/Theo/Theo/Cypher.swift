@@ -27,16 +27,16 @@ public struct CypherMeta: CustomStringConvertible {
     }
 }
 
-public class Cypher {
+open class Cypher {
 
     var meta: CypherMeta?
-    public private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
+    open fileprivate(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
     
     public required init(metaData: Dictionary<String, Array<AnyObject>>?) {
     
         if let dictionaryData: [String:[AnyObject]] = metaData {
 
-            self.meta = CypherMeta(dictionary: dictionaryData)
+            self.meta = CypherMeta(dictionary: dictionaryData as Dictionary<String, AnyObject>)
             
             if let metaForCypher: CypherMeta = self.meta {
 
@@ -44,7 +44,7 @@ public class Cypher {
 
                     var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
                     
-                    for (index, value) in arrayValues.enumerate() {
+                    for (index, value) in arrayValues.enumerated() {
 
                         let cypherDictionaryKey: String = metaForCypher.columns[index]
                         
