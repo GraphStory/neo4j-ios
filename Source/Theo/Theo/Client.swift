@@ -23,7 +23,7 @@ let TheoDBMetaTransactionKey: String       = "transaction"
 let TheoDBMetaNodeLabelsKey: String        = "node_labels"
 let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
-public struct DBMeta: CustomStringConvertible {
+public struct DBMeta {
   
     let extensions: [String: AnyObject] //= [String: AnyObject]()
     let node: String                    //= ""
@@ -55,7 +55,10 @@ public struct DBMeta: CustomStringConvertible {
         self.node_labels            = dictionary[TheoDBMetaNodeLabelsKey]           as! String
         self.neo4j_version          = dictionary[TheoDBMetaNeo4JVersionKey]         as! String
     }
-  
+}
+
+extension DBMeta: CustomStringConvertible {
+    
     public var description: String {
         return "Extensions: \(self.extensions) node: \(self.node) node_index: \(self.node_index) relationship_index: \(self.relationship_index) extensions_info : \(self.extensions_info), relationship_types: \(self.relationship_types) batch: \(self.batch) cypher: \(self.cypher) indexes: \(self.indexes) constraints: \(self.constraints) transaction: \(self.transaction) node_labels: \(self.node_labels) neo4j_version: \(self.neo4j_version)"
     }
@@ -162,34 +165,42 @@ open class Client {
         let metaURL: URL = URL(string: metaResource)!
         let metaRequest: Request = Request(url: metaURL, credentials: self.credentials)
 
-        metaRequest.getResource({(data, response) in
-      
-            if (completionBlock != nil) {
+        metaRequest.getResource({data, response in
             
-                if let responseData: Data = data {
+            if let responseData: Data = data {
 
-                    self.parsingQueue.async(execute: {
+                self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
-                        let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
+                    do {
+                        
+                        let JSON: Any = try JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any
+                        
+                        guard let JSONAsDictionaryAny: [String: Any] = JSON as? [String: Any] else {
+                            
+                            completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                            return
+                        }
+                        
+                        let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, AnyObject>!)
                         
                         DispatchQueue.main.async(execute: {
-                            completionBlock!(meta, nil)
+                            completionBlock?(meta, nil)
                         })
-                    });
+                        
+                    } catch {
+                        
+                        completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                    }
+                })
 
-                } else {
+            } else {
 
-                    completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
-                }
+                completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
             }
 
-       }, errorBlock: {(error, response) in
+       }, errorBlock: {error, response in
         
-            if (completionBlock != nil) {
-                completionBlock!(nil, error)
-            }
+            completionBlock?(nil, error)
        })
     }
     
