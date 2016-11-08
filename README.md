@@ -13,8 +13,8 @@
 ## Requirements
 
 * iOS8+
-* Xcode 7.0
-* Swift 2.0
+* Xcode 8.1
+* Swift 3.0
 
 ## Feedback
 
