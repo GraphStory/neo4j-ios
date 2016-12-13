@@ -10,7 +10,7 @@ import UIKit
 import Foundation
 import XCTest
 
-let TheoTimeoutInterval: NSTimeInterval = 10
+let TheoTimeoutInterval: TimeInterval = 10
 let TheoNodeID: String                  = "100"
 let TheoNodeIDForRelationship: String   = "101"
 let TheoNodePropertyName: String        = "title"
@@ -19,7 +19,7 @@ class ConfigLoader: NSObject {
     
     class func loadConfig() -> Config {
         
-        let filePath: String = NSBundle(forClass: ConfigLoader.classForKeyedArchiver()!).pathForResource("TheoConfig", ofType: "json")!
+        let filePath: String = Bundle(for: ConfigLoader.classForKeyedArchiver()!).path(forResource: "TheoConfig", ofType: "json")!
         
         return Config(pathToFile: filePath)
     }
@@ -40,7 +40,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_000_successfullyFetchDBMeta() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_000_successfullyFetchDBMeta")
+        let exp = self.expectation(description: "test_000_successfullyFetchDBMeta")
         
         theo.metaDescription({(meta, error) in
           
@@ -52,7 +52,7 @@ class Theo_000_RequestTests: XCTestCase {
           exp.fulfill()
         })
 
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
           XCTAssertNil(error, "\(error)")
         })
     }
@@ -60,7 +60,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_001_successfullyFetchNode() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_002_successfullyFetchNode")
+        let exp = self.expectation(description: "test_002_successfullyFetchNode")
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
@@ -73,7 +73,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -81,7 +81,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_002_successfullyAccessProperty() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_002_successfullyAccessProperty")
+        let exp = self.expectation(description: "test_002_successfullyAccessProperty")
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
@@ -99,7 +99,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -107,8 +107,8 @@ class Theo_000_RequestTests: XCTestCase {
     func test_003_successfullyHandleNonExistantAccessProperty() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_003_successfullyHandleNonExistantAccessProperty")
-        let randomString: String = NSUUID().UUIDString
+        let exp = self.expectation(description: "test_003_successfullyHandleNonExistantAccessProperty")
+        let randomString: String = NSUUID().uuidString
         
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
@@ -126,7 +126,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -134,12 +134,12 @@ class Theo_000_RequestTests: XCTestCase {
     func test_004_successfullyAddNodeWithOutLabels() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_004_successfullyAddNodeWithOutLabels")
+        let exp = self.expectation(description: "test_004_successfullyAddNodeWithOutLabels")
         let node = Node()
-        let randomString: String = NSUUID().UUIDString
+        let randomString: String = NSUUID().uuidString
 
-        node.setProp("unitTestKey_1", propertyValue: "unitTestValue_1" + randomString)
-        node.setProp("unitTestKey_2", propertyValue: "unitTestValue_2" + randomString)
+        node.setProp("unitTestKey_1", propertyValue: ("unitTestValue_1" + randomString) as AnyObject)
+        node.setProp("unitTestKey_2", propertyValue: ("unitTestValue_2" + randomString) as AnyObject)
         
         theo.createNode(node, completionBlock: {(node, error) in
         
@@ -152,7 +152,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         });
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -160,13 +160,13 @@ class Theo_000_RequestTests: XCTestCase {
     func test_005_successfullyAddRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_005_successfullyAddRelationship")
+        let exp = self.expectation(description: "test_005_successfullyAddRelationship")
         
         /**
          * Setup dispatch group since you to make a 2 part transation
          */
 
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let fetchDispatchGroup: DispatchGroup = DispatchGroup()
         
         var parentNode: Node?
         var relatedNode: Node?
@@ -176,7 +176,7 @@ class Theo_000_RequestTests: XCTestCase {
          * Fetch the parent node
          */
         
-        dispatch_group_enter(fetchDispatchGroup)
+        fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
             print("meta in success \(node!.meta) node \(node) error \(error)")
@@ -189,14 +189,14 @@ class Theo_000_RequestTests: XCTestCase {
                 parentNode = nodeObject
             }
             
-            dispatch_group_leave(fetchDispatchGroup)
+            fetchDispatchGroup.leave()
         })
         
         /**
          * Fetch the related node
          */
 
-        dispatch_group_enter(fetchDispatchGroup)
+        fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeIDForRelationship, completionBlock: {(node, error) in
             
             print("meta in success \(node!.meta) node \(node) error \(error)")
@@ -209,14 +209,14 @@ class Theo_000_RequestTests: XCTestCase {
                 relatedNode = nodeObject
             }
             
-            dispatch_group_leave(fetchDispatchGroup)
+            fetchDispatchGroup.leave()
         })
         
         /**
          * End it
          */
-
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+//http://stackoverflow.com/questions/38552180/dispatch-group-cannot-notify-to-main-thread
+        dispatch_group_notify(fetchDispatchGroup, DispatchQueue.global(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
 
             XCTAssertNotNil(parentNode, "parent node can't be nil")
             XCTAssertNotNil(relatedNode, "relatedNode node can't be nil")
@@ -234,7 +234,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -242,7 +242,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_006_succesfullyUpdateNodeWithProperties() {
     
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_006_succesfullyUpdateNodeWithProperties")
+        let exp = self.expectation(description: "test_006_succesfullyUpdateNodeWithProperties")
         
        /**
         * Setup dispatch group since you to make a 2 part transation
@@ -271,7 +271,7 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTAssert(node!.meta != nil, "Meta data can't be nil")
             }
             
-            dispatch_group_leave(fetchDispatchGroup)
+            fetchDispatchGroup.leave()
         })
         
        /**
@@ -293,7 +293,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -301,7 +301,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_007_successfullyDeleteRelationship() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_007_successfullyDeleteRelationship")
+        let exp = self.expectation(description: "test_007_successfullyDeleteRelationship")
 
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
 
@@ -329,7 +329,7 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil");
             }
             
-            dispatch_group_leave(fetchDispatchGroup)
+            fetchDispatchGroup.leave()
         })
 
         
@@ -362,7 +362,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         })
 
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -370,13 +370,13 @@ class Theo_000_RequestTests: XCTestCase {
     func test_008_succesfullyAddNodeWithLabels() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_008_succesfullyAddNodeWithLabel")
+        let exp = self.expectation(description: "test_008_succesfullyAddNodeWithLabel")
         let node = Node()
-        let randomString: String = NSUUID().UUIDString
+        let randomString: String = NSUUID().uuidString
         
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
-        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
+        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456 as AnyObject)
         node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
 
         theo.createNode(node, labels: node.labels, completionBlock: {(savedNode, error) in
@@ -388,7 +388,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -397,11 +397,11 @@ class Theo_000_RequestTests: XCTestCase {
 
         let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
         let resultDataContents: Array<String> = ["REST"]
-        let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, "resultDataContents" : resultDataContents]
+        let statement: Dictionary <String, AnyObject> = ["statement" : createStatement as AnyObject, "resultDataContents" : resultDataContents as AnyObject]
         let statements: Array<Dictionary <String, AnyObject>> = [statement]
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_010_successfullyCommitTransaction")
+        let exp = self.expectation(description: "test_010_successfullyCommitTransaction")
         
         theo.executeTransaction(statements, completionBlock: {(response, error) in
             
@@ -411,7 +411,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -419,7 +419,7 @@ class Theo_000_RequestTests: XCTestCase {
     func test_011_succesfullyUpdateRelationshipWithProperties() {
         
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_011_succesfullyUpdateRelationshipWithProperties")
+        let exp = self.expectation(description: "test_011_succesfullyUpdateRelationshipWithProperties")
         
         let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
         
@@ -444,7 +444,7 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil");
             }
             
-            dispatch_group_leave(fetchDispatchGroup)
+            fetchDispatchGroup.leave()
         })
         
         // Delete the relationship
@@ -476,7 +476,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -484,9 +484,9 @@ class Theo_000_RequestTests: XCTestCase {
     func test_012_successfullyExecuteCyperRequest() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_012_successfullyExecuteCyperRequest")
+        let exp = self.expectation(description: "test_012_successfullyExecuteCyperRequest")
         let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->f WITH DISTINCT f,u MATCH f-[:LASTPOST]-lp-[:NEXTPOST*0..3]-p RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
-        let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
+        let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan" as AnyObject]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
             
@@ -496,7 +496,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -504,11 +504,11 @@ class Theo_000_RequestTests: XCTestCase {
     func test_999_successfullyDeleteExistingNode() {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let exp = self.expectationWithDescription("test_999_successfullyDeleteExistingNode")
+        let exp = self.expectation(description: "test_999_successfullyDeleteExistingNode")
 
         var nodeIDForDeletion: String?
         let node = Node()
-        let randomString: String = NSUUID().UUIDString
+        let randomString: String = NSUUID().uuidString
 
         let createDispatchGroup: dispatch_group_t = dispatch_group_create()
 
@@ -524,7 +524,7 @@ class Theo_000_RequestTests: XCTestCase {
 
             nodeIDForDeletion = savedNode!.meta?.nodeID()
 
-            dispatch_group_leave(createDispatchGroup)
+            createDispatchGroup.leave()
         })
 
         dispatch_group_notify(createDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
@@ -539,7 +539,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         })
 
-        self.waitForExpectationsWithTimeout(TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
     }
