@@ -19,7 +19,7 @@ struct Config {
         do {
             
             let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
-            let JSON: AnyObject? = try NSJSONSerialization.JSONObjectWithData(jsonData, options: []) as AnyObject!
+            let JSON: AnyObject? = try JSONSerialization.jsonObject(with: jsonData as Data, options: []) as AnyObject!
 
             let jsonConfig: [String:String]! = JSON as! [String:String]
             
