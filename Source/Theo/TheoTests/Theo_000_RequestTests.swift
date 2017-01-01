@@ -216,7 +216,7 @@ class Theo_000_RequestTests: XCTestCase {
          * End it
          */
 //http://stackoverflow.com/questions/38552180/dispatch-group-cannot-notify-to-main-thread
-        dispatch_group_notify(fetchDispatchGroup, DispatchQueue.global(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        fetchDispatchGroup.notify(queue: DispatchQueue.main) {
 
             XCTAssertNotNil(parentNode, "parent node can't be nil")
             XCTAssertNotNil(relatedNode, "relatedNode node can't be nil")
@@ -232,7 +232,7 @@ class Theo_000_RequestTests: XCTestCase {
                 
                 exp.fulfill()
             })
-        })
+        }
         
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
@@ -248,7 +248,7 @@ class Theo_000_RequestTests: XCTestCase {
         * Setup dispatch group since you to make a 2 part transation
         */
 
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let fetchDispatchGroup: DispatchGroup = DispatchGroup()
         
         var updateNode: Node?
        
@@ -256,7 +256,7 @@ class Theo_000_RequestTests: XCTestCase {
         * Fetch the parent node
         */
         
-        dispatch_group_enter(fetchDispatchGroup)
+        fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
             print("test_008_succesfullyUpdateNodeWithProperties \(node!.meta) node \(node) error \(error)")
@@ -278,11 +278,11 @@ class Theo_000_RequestTests: XCTestCase {
         * End it
         */
         
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        fetchDispatchGroup.notify(queue: DispatchQueue.main) {
             
             XCTAssertNotNil(updateNode, "updateNode node can't be nil")
             
-            let updatedPropertiesDictionary: [String:String] = ["test_update_property_label_1": "test_update_property_lable_2"]
+            let updatedPropertiesDictionary: [String:AnyObject] = ["test_update_property_label_1": "test_update_property_lable_2" as AnyObject]
             
             theo.updateNode(updateNode!, properties: updatedPropertiesDictionary,
                 completionBlock: {(node, error) in
@@ -291,7 +291,7 @@ class Theo_000_RequestTests: XCTestCase {
                     
                     exp.fulfill()
             })
-        })
+        }
         
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
@@ -303,7 +303,7 @@ class Theo_000_RequestTests: XCTestCase {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_007_successfullyDeleteRelationship")
 
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let fetchDispatchGroup = DispatchGroup()
 
         var relationshipIDToDelete: String?
         var nodeIDWithRelationships: String?
@@ -312,7 +312,7 @@ class Theo_000_RequestTests: XCTestCase {
          * Fetch relationship for main RUD node
          */
         
-        dispatch_group_enter(fetchDispatchGroup)
+        fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
             print("test_007_successfullyDeleteRelationship \(node!.meta) node \(node) error \(error)")
@@ -337,7 +337,7 @@ class Theo_000_RequestTests: XCTestCase {
          * Delete the relationship
          */
 
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        fetchDispatchGroup.notify(queue: DispatchQueue.main) {
             
             theo.fetchRelationshipsForNode(nodeIDWithRelationships!, direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
                 
@@ -360,7 +360,7 @@ class Theo_000_RequestTests: XCTestCase {
                     })
                 }
             })
-        })
+        }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
@@ -421,13 +421,13 @@ class Theo_000_RequestTests: XCTestCase {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_011_succesfullyUpdateRelationshipWithProperties")
         
-        let fetchDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let fetchDispatchGroup = DispatchGroup()
         
         var nodeIDWithRelationships: String?
         
         // Fetch relationship for main RUD node
         
-        dispatch_group_enter(fetchDispatchGroup)
+        fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
             
             print("test_011_succesfullyUpdateRelationshipWithProperties \(node!.meta) node \(node) error \(error)")
@@ -449,7 +449,7 @@ class Theo_000_RequestTests: XCTestCase {
         
         // Delete the relationship
         
-        dispatch_group_notify(fetchDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        fetchDispatchGroup.notify(queue: DispatchQueue.main) {
             
             theo.fetchRelationshipsForNode(nodeIDWithRelationships!, direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
                 
@@ -458,7 +458,7 @@ class Theo_000_RequestTests: XCTestCase {
                 
                 if let foundRelationship: Relationship = relationships[0] as Relationship! {
 
-                    let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
+                    let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue" as AnyObject]
                     
                     theo.updateRelationship(foundRelationship, properties: updatedProperties, completionBlock: {(_, error) in
 
@@ -474,7 +474,7 @@ class Theo_000_RequestTests: XCTestCase {
                     exp.fulfill()
                 }
             })
-        })
+        }
         
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
@@ -510,9 +510,9 @@ class Theo_000_RequestTests: XCTestCase {
         let node = Node()
         let randomString: String = NSUUID().uuidString
 
-        let createDispatchGroup: dispatch_group_t = dispatch_group_create()
+        let createDispatchGroup = DispatchGroup()
 
-        dispatch_group_enter(createDispatchGroup)
+        createDispatchGroup.enter()
 
         node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
         node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
@@ -527,7 +527,7 @@ class Theo_000_RequestTests: XCTestCase {
             createDispatchGroup.leave()
         })
 
-        dispatch_group_notify(createDispatchGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+        createDispatchGroup.notify(queue: DispatchQueue.main) {
 
             XCTAssertNotNil(nodeIDForDeletion, "nodeIDForDeletion must NOT be nil")
 
@@ -537,10 +537,26 @@ class Theo_000_RequestTests: XCTestCase {
 
                 exp.fulfill()
             })
-        })
+        }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
             XCTAssertNil(error, "\(error)")
         })
+    }
+}
+
+extension Node {
+    func setProp(_ propertyName: String, propertyValue: String) -> Void {
+        
+        let value: AnyObject = propertyValue as NSString
+        self.setProp(propertyName, propertyValue: value)
+    }
+}
+
+extension Relationship {
+    func setProp(_ propertyName: String, propertyValue: String) -> Void {
+        
+        let value: AnyObject = propertyValue as NSString
+        self.setProp(propertyName, propertyValue: value)
     }
 }
