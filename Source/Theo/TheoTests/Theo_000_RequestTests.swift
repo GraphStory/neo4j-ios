@@ -68,7 +68,7 @@ class Theo_000_RequestTests: XCTestCase {
             XCTAssert(node?.meta != nil, "Meta data can't be nil")
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
             
-            print("meta in success \(node!.meta) node \(node) error \(error)")
+            print("meta in success \(node?.meta ?? "Undefined") node \(node) error \(error)")
             
             exp.fulfill()
         })
