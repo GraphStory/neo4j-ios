@@ -37,7 +37,7 @@ public struct RelationshipMeta: CustomStringConvertible {
     
     public func relationshipID() -> String {
         
-        let pathComponents: Array<String> = self.relationship_self.componentsSeparatedByString("/")
+        let pathComponents: Array<String> = self.relationship_self.components(separatedBy: "/")
         
         return pathComponents.last!
     }
@@ -78,7 +78,7 @@ public struct RelationshipDirection {
     public static var OUT: String = "out"
 }
 
-public class Relationship {
+open class Relationship {
 
     // MARK: Public Properties
     
@@ -109,9 +109,9 @@ public class Relationship {
     
     // MARK: Private Properties
 
-    public private (set) var relationshipMeta: RelationshipMeta?
-    private (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
-    private (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
+    open fileprivate (set) var relationshipMeta: RelationshipMeta?
+    fileprivate (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
+    fileprivate (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
 
     // MARK: Lazy Properties
     
@@ -127,7 +127,7 @@ public class Relationship {
             if (self.updatingProperties) {
                 
             } else {
-                info["data"] = self.relationshipData
+                info["data"] = self.relationshipData as AnyObject?
             }
         }
         
@@ -198,18 +198,18 @@ public class Relationship {
     /// - parameter Node: toNode
     /// - parameter String: type (see RelationshipDirection)
     /// - returns: Void
-    public func relate(fromNode: Node, toNode: Node, type: String) -> Void {
+    open func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
     
-        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship
-        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID()
-        self.relationshipCreateMeta[RelationshipDataTypeKey]     = type
+        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as AnyObject?
+        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as AnyObject?
+        self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as AnyObject?
     }
     
     /// Gets a specified property for the Relationship
     ///
     /// - parameter String: propertyName
     /// - returns: AnyObject?
-    public func getProp(propertyName: String) -> AnyObject? {
+    open func getProp(_ propertyName: String) -> AnyObject? {
         
         if let object: AnyObject = self.relationshipData[propertyName] {
             return object
@@ -223,7 +223,7 @@ public class Relationship {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: AnyObject) -> Void {
         
         let objectValue: AnyObject = propertyValue
         
@@ -237,7 +237,7 @@ public class Relationship {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Bool
-    public func isDataEmpty() -> Bool {
+    open func isDataEmpty() -> Bool {
         return self.relationshipData.keys.isEmpty
     }
 }

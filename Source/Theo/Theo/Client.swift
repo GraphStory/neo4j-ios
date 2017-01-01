@@ -23,7 +23,7 @@ let TheoDBMetaTransactionKey: String       = "transaction"
 let TheoDBMetaNodeLabelsKey: String        = "node_labels"
 let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
-public struct DBMeta: CustomStringConvertible {
+public struct DBMeta {
   
     let extensions: [String: AnyObject] //= [String: AnyObject]()
     let node: String                    //= ""
@@ -55,35 +55,38 @@ public struct DBMeta: CustomStringConvertible {
         self.node_labels            = dictionary[TheoDBMetaNodeLabelsKey]           as! String
         self.neo4j_version          = dictionary[TheoDBMetaNeo4JVersionKey]         as! String
     }
-  
+}
+
+extension DBMeta: CustomStringConvertible {
+    
     public var description: String {
         return "Extensions: \(self.extensions) node: \(self.node) node_index: \(self.node_index) relationship_index: \(self.relationship_index) extensions_info : \(self.extensions_info), relationship_types: \(self.relationship_types) batch: \(self.batch) cypher: \(self.cypher) indexes: \(self.indexes) constraints: \(self.constraints) transaction: \(self.transaction) node_labels: \(self.node_labels) neo4j_version: \(self.neo4j_version)"
     }
 }
 
-public class Client {
+open class Client {
   
     // MARK: Public properties
 
-    public let baseURL: String
-    public let username: String?
-    public let password: String?
+    open let baseURL: String
+    open let username: String?
+    open let password: String?
 
-    public var parsingQueue: dispatch_queue_t = dispatch_queue_create(TheoParsingQueueName, DISPATCH_QUEUE_CONCURRENT)
+    open var parsingQueue: DispatchQueue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
     
-    public typealias TheoMetaDataCompletionBlock = (metaData: DBMeta?, error: NSError?) -> Void
-    public typealias TheoNodeRequestCompletionBlock = (node: Node?, error: NSError?) -> Void
-    public typealias TheoNodeRequestDeleteCompletionBlock = (error: NSError?) -> Void
-    public typealias TheoNodeRequestRelationshipCompletionBlock = (relationship: Relationship?, error: NSError?) -> Void
-    public typealias TheoRelationshipRequestCompletionBlock = (relationships:Array<Relationship>, error: NSError?) -> Void
-    public typealias TheoRawRequestCompletionBlock = (response: AnyObject?, error: NSError?) -> Void
-    public typealias TheoTransactionCompletionBlock = (response: Dictionary<String, AnyObject>, error: NSError?) -> Void
-    public typealias TheoCypherQueryCompletionBlock = (cypher: Cypher?, error: NSError?) -> Void
+    public typealias TheoMetaDataCompletionBlock = (_ metaData: DBMeta?, _ error: NSError?) -> Void
+    public typealias TheoNodeRequestCompletionBlock = (_ node: Node?, _ error: NSError?) -> Void
+    public typealias TheoNodeRequestDeleteCompletionBlock = (_ error: NSError?) -> Void
+    public typealias TheoNodeRequestRelationshipCompletionBlock = (_ relationship: Relationship?, _ error: NSError?) -> Void
+    public typealias TheoRelationshipRequestCompletionBlock = (_ relationships:Array<Relationship>, _ error: NSError?) -> Void
+    public typealias TheoRawRequestCompletionBlock = (_ response: AnyObject?, _ error: NSError?) -> Void
+    public typealias TheoTransactionCompletionBlock = (_ response: Dictionary<String, AnyObject>, _ error: NSError?) -> Void
+    public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
 
 
     // MARK: Lazy properties
 
-    lazy private var credentials: (username: String, password: String)? = {
+    lazy fileprivate var credentials: (username: String, password: String)? = {
         
         if (self.username != nil && self.password != nil) {
             return (username: self.username!, password: self.password!)
@@ -156,40 +159,48 @@ public class Client {
     ///
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    public func metaDescription(completionBlock: TheoMetaDataCompletionBlock?) -> Void {
+    open func metaDescription(_ completionBlock: TheoMetaDataCompletionBlock?) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
-        let metaURL: NSURL = NSURL(string: metaResource)!
+        let metaURL: URL = URL(string: metaResource)!
         let metaRequest: Request = Request(url: metaURL, credentials: self.credentials)
 
-        metaRequest.getResource({(data, response) in
-      
-            if (completionBlock != nil) {
+        metaRequest.getResource({data, response in
             
-                if let responseData: NSData = data {
+            if let responseData: Data = data {
 
-                    dispatch_async(self.parsingQueue, {
+                self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
-                        let meta: DBMeta = DBMeta(dictionary: jsonAsDictionary)
+                    do {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
-                            completionBlock!(metaData: meta, error: nil)
+                        let JSON: Any = try JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any
+                        
+                        guard let JSONAsDictionaryAny: [String: Any] = JSON as? [String: Any] else {
+                            
+                            completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                            return
+                        }
+                        
+                        let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, AnyObject>!)
+                        
+                        DispatchQueue.main.async(execute: {
+                            completionBlock?(meta, nil)
                         })
-                    });
+                        
+                    } catch {
+                        
+                        completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                    }
+                })
 
-                } else {
+            } else {
 
-                    completionBlock!(metaData: nil, error: self.unknownEmptyResponseBodyError(response))
-                }
+                completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
             }
 
-       }, errorBlock: {(error, response) in
+       }, errorBlock: {error, response in
         
-            if (completionBlock != nil) {
-                completionBlock!(metaData: nil, error: error)
-            }
+            completionBlock?(nil, error)
        })
     }
     
@@ -198,39 +209,39 @@ public class Client {
     /// - parameter String: nodeID
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    public func fetchNode(nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func fetchNode(_ nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
-        let nodeURL: NSURL = NSURL(string: nodeResource)!
+        let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.getResource({(data, response) in
             
                 if (completionBlock != nil) {
                     
-                    if let responseData: NSData = data {
+                    if let responseData: Data = data {
                         
-                        dispatch_async(self.parsingQueue, {
+                        self.parsingQueue.async(execute: {
                         
-                            let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                            let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                             let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                             let node: Node = Node(data: jsonAsDictionary)
 
-                            dispatch_async(dispatch_get_main_queue(), {
-                                completionBlock!(node: node, error: nil)
+                            DispatchQueue.main.async(execute: {
+                                completionBlock!(node, nil)
                             })
                         })
 
                     } else {
 
-                        completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
+                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
                     }
                 }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(node: nil, error: error)
+                    completionBlock!(nil, error)
                 }
         })
     }
@@ -240,49 +251,49 @@ public class Client {
     /// - parameter Node: node
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    public func createNode(node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func createNode(_ node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
         
         let nodeResource: String = self.baseURL + "/db/data/node"
-        let nodeURL: NSURL = NSURL(string: nodeResource)!
+        let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
-        nodeRequest.postResource(node.nodeData, forUpdate: false, successBlock: {(data, response) in
+        nodeRequest.postResource(node.nodeData as AnyObject, forUpdate: false, successBlock: {(data, response) in
 
             if (completionBlock != nil) {
                 
-                if let responseData: NSData = data {
+                if let responseData: Data = data {
                     
-                    dispatch_async(self.parsingQueue, {
+                    self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                         
                         if let JSONObject: AnyObject = JSON {
                             
                             let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                             let node: Node = Node(data:jsonAsDictionary)
                             
-                            dispatch_async(dispatch_get_main_queue(), {
-                                completionBlock!(node: node, error: nil)
+                            DispatchQueue.main.async(execute: {
+                                completionBlock!(node, nil)
                             })
                             
                         } else {
 
-                            dispatch_async(dispatch_get_main_queue(), {
-                                completionBlock!(node: nil, error: nil)
+                            DispatchQueue.main.async(execute: {
+                                completionBlock!(nil, nil)
                             })
                         }
                     })
                     
                 } else {
 
-                    completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
+                    completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(node: nil, error: error)
+                    completionBlock!(nil, error)
                 }
             })
     }
@@ -296,23 +307,23 @@ public class Client {
     /// - parameter Array<String>: labels
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    public func createNode(node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func createNode(_ node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         /// Node creation returns node http://neo4j.com/docs/2.3.2/rest-api-nodes.html#rest-api-create-node
         /// However, creating labels doesn't return anything http://neo4j.com/docs/2.3.2/rest-api-node-labels.html#rest-api-adding-a-label-to-a-node in the response, so in the completion block
         /// we append the labels param values to the returned node
         
         var createdNodeWithoutLabels: Node?
-        let nodeSaveOperationQueue: NSOperationQueue = NSOperationQueue()
+        let nodeSaveOperationQueue: OperationQueue = OperationQueue()
         
         nodeSaveOperationQueue.name = "com.theo.createnode.operationqueue"
         nodeSaveOperationQueue.maxConcurrentOperationCount = 1
 
-        let createNodeOperation: NSBlockOperation = NSBlockOperation(block: {
+        let createNodeOperation: BlockOperation = BlockOperation(block: {
 
             self.createNode(node, completionBlock: {(node, error) in
 
-                NSOperationQueue.mainQueue().addOperationWithBlock({
+                OperationQueue.main.addOperation({
                     
                     if let returnedNode: Node = node {
 
@@ -322,35 +333,35 @@ public class Client {
 
                             let nodeID: String = nodeWithLabels.meta!.nodeID()
                             let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
-                            let nodeURL: NSURL = NSURL(string: nodeResource)!
+                            let nodeURL: URL = URL(string: nodeResource)!
                             let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
                             
-                            nodeRequest.postResource(labels, forUpdate: false,
+                            nodeRequest.postResource(labels as AnyObject, forUpdate: false,
                                 successBlock: {(data, response) in
 
-                                    NSOperationQueue.mainQueue().addOperationWithBlock({
+                                    OperationQueue.main.addOperation({
                                         
                                         if (completionBlock != nil) {
                                             
                                             nodeWithLabels.addLabels(labels)
                                             
-                                            completionBlock!(node: nodeWithLabels, error: nil)
+                                            completionBlock!(nodeWithLabels, nil)
                                         }
                                     })
                                 },
                                 errorBlock: {(error, response) in
                                     
-                                    NSOperationQueue.mainQueue().addOperationWithBlock({
+                                    OperationQueue.main.addOperation({
                                         
                                         if (completionBlock != nil) {
-                                            completionBlock!(node: nil, error: error)
+                                            completionBlock!(nil, error)
                                         }
                                     })
                             })
                             
                         } else {
 
-                            NSOperationQueue.mainQueue().addOperationWithBlock({
+                            OperationQueue.main.addOperation({
                                 
                                 // If the labels were sucessfully created then 
                                 // the response is a 204, BUT the resposne is empty.
@@ -364,17 +375,17 @@ public class Client {
                                 }()
                                 
                                 if (completionBlock != nil) {
-                                    completionBlock!(node: nil, error: requestResponseError)
+                                    completionBlock!(nil, requestResponseError)
                                 }
                             })
                         }
                         
                     } else {
 
-                        NSOperationQueue.mainQueue().addOperationWithBlock({
+                        OperationQueue.main.addOperation({
                             
                             if (completionBlock != nil) {
-                                completionBlock!(node: nil, error: nil)
+                                completionBlock!(nil, nil)
                             }
                         })
                     }
@@ -391,50 +402,50 @@ public class Client {
     /// - parameter Dictionary<String,String>: properties
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    public func updateNode(node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func updateNode(_ node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
-        let nodeURL: NSURL = NSURL(string: nodeResource)!
+        let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
-        nodeRequest.postResource(properties, forUpdate: true, successBlock: {(data, response) in
+        nodeRequest.postResource(properties as AnyObject, forUpdate: true, successBlock: {(data, response) in
             
                 if (completionBlock != nil) {
                     
-                    if let responseData: NSData = data {
+                    if let responseData: Data = data {
                         
-                        dispatch_async(self.parsingQueue, {
+                        self.parsingQueue.async(execute: {
                             
-                            let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                            let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                             
                             if let JSONObject: AnyObject = JSON {
 
                                 let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                                 let node: Node = Node(data:jsonAsDictionary)
 
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    completionBlock!(node: node, error: nil)
+                                DispatchQueue.main.async(execute: {
+                                    completionBlock!(node, nil)
                                 })
                                 
                             } else {
 
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    completionBlock!(node: nil, error: nil)
+                                DispatchQueue.main.async(execute: {
+                                    completionBlock!(nil, nil)
                                 })
                             }
                         })
 
                     } else {
 
-                        completionBlock!(node: nil, error: self.unknownEmptyResponseBodyError(response))
+                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
                     }
                 }
             },
             errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(node: nil, error: error)
+                    completionBlock!(nil, error)
                 }
         })
     }
@@ -446,25 +457,25 @@ public class Client {
     /// - parameter Node: nodeID
     /// - parameter TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    public func deleteNode(nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    open func deleteNode(_ nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
-        let nodeURL: NSURL = NSURL(string: nodeResource)!
+        let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
         nodeRequest.deleteResource({(data, response) in
                 
                 if (completionBlock != nil) {
                     
-                    if let _: NSData = data {
-                        completionBlock!(error: nil)
+                    if let _: Data = data {
+                        completionBlock!(nil)
                     }
                 }
                 
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(error: error)
+                    completionBlock!(error)
                 }
         })
     }
@@ -476,7 +487,7 @@ public class Client {
     /// - parameter Array<String>?: types
     /// - parameter TheoRelationshipRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    public func fetchRelationshipsForNode(nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
+    open func fetchRelationshipsForNode(_ nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
         
         var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
         
@@ -492,7 +503,7 @@ public class Client {
                     
                 } else {
                     
-                    for (index, relationship) in relationshipTypes.enumerate() {
+                    for (index, relationship) in relationshipTypes.enumerated() {
                         relationshipResource += index == 0 ? "/" + relationshipTypes[0] : "&" + relationship
                     }
                 }
@@ -503,7 +514,7 @@ public class Client {
             relationshipResource += "/relationships/" + RelationshipDirection.ALL
         }
         
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
+        let relationshipURL: URL = URL(string: relationshipResource)!
         
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         var relationshipsForNode: [Relationship] = [Relationship]()
@@ -512,9 +523,9 @@ public class Client {
             
                 if (completionBlock != nil) {
 
-                    dispatch_async(self.parsingQueue, {
+                    self.parsingQueue.async(execute: {
                     
-                        let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                         let jsonAsArray: [[String:AnyObject]]! = JSON as! [[String:AnyObject]]
                         
                         for relationshipDictionary: [String:AnyObject] in jsonAsArray {
@@ -522,8 +533,8 @@ public class Client {
                             relationshipsForNode.append(newRelationship)
                         }
 
-                        dispatch_async(dispatch_get_main_queue(), {
-                            completionBlock!(relationships: relationshipsForNode, error: nil)
+                        DispatchQueue.main.async(execute: {
+                            completionBlock!(relationshipsForNode, nil)
                         })
                     })
                 }
@@ -531,7 +542,7 @@ public class Client {
             }, errorBlock: {(error, response) in
         
                 if (completionBlock != nil) {
-                    completionBlock!(relationships: relationshipsForNode, error: error)
+                    completionBlock!(relationshipsForNode, error)
                 }
             })
     }
@@ -541,39 +552,39 @@ public class Client {
     /// - parameter Relationship: relationship
     /// - parameter TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    public func createRelationship(relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    open func createRelationship(_ relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
         
         let relationshipResource: String = relationship.fromNode
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
+        let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         
-        relationshipRequest.postResource(relationship.relationshipInfo, forUpdate: false,
+        relationshipRequest.postResource(relationship.relationshipInfo as AnyObject, forUpdate: false,
                                          successBlock: {(data, response) in
                                             
                                             if (completionBlock != nil) {
 
-                                                if let responseData: NSData = data {
+                                                if let responseData: Data = data {
 
-                                                    dispatch_async(self.parsingQueue, {
+                                                    self.parsingQueue.async(execute: {
                                                     
-                                                        let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                                                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                                                         let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                                                         let relationship: Relationship = Relationship(data: jsonAsDictionary)
 
-                                                        dispatch_async(dispatch_get_main_queue(), {
-                                                            completionBlock!(relationship: relationship, error: nil)
+                                                        DispatchQueue.main.async(execute: {
+                                                            completionBlock!(relationship, nil)
                                                         })
                                                     })
 
                                                 } else {
-                                                    completionBlock!(relationship: nil, error: self.unknownEmptyResponseBodyError(response))
+                                                    completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
                                                 }
                                             }
                                          
                                          }, errorBlock: {(error, response) in
 
                                                 if (completionBlock != nil) {
-                                                    completionBlock!(relationship: nil, error: error)
+                                                    completionBlock!(nil, error)
                                                 }
                                          })
     }
@@ -584,10 +595,10 @@ public class Client {
     /// - parameter Dictionary<String,AnyObject>: properties
     /// - parameter TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    public func updateRelationship(relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
+        let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         
         relationship.updatingProperties = true
@@ -596,23 +607,23 @@ public class Client {
             relationship.setProp(name, propertyValue: value)
         }
         
-        relationshipRequest.postResource(properties, forUpdate: true,
+        relationshipRequest.postResource(properties as AnyObject, forUpdate: true,
             successBlock: {(data, response) in
                 
                 if (completionBlock != nil) {
 
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         // If the update is successfull then you'll
                         // receive a 204 with an empty body
-                        completionBlock!(relationship: nil, error: nil)
+                        completionBlock!(nil, nil)
                     })
                 }
                 
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(relationship: nil, error: error)
+                    completionBlock!(nil, error)
                 }
         })
     }
@@ -622,23 +633,23 @@ public class Client {
     /// - parameter String: relationshipID
     /// - parameter TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    public func deleteRelationship(relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    open func deleteRelationship(_ relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
     
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
-        let relationshipURL: NSURL = NSURL(string: relationshipResource)!
+        let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
 
         relationshipRequest.deleteResource({(data, response) in
 
                                             if (completionBlock != nil) {
                                                 
-                                                if let _: NSData = data {
+                                                if let _: Data = data {
                                                     
-                                                    completionBlock!(error: nil)
+                                                    completionBlock!(nil)
 
                                                 } else {
                                                     
-                                                    completionBlock!(error: self.unknownEmptyResponseBodyError(response))
+                                                    completionBlock!(self.unknownEmptyResponseBodyError(response))
                                                 }
                                             }
 
@@ -646,7 +657,7 @@ public class Client {
                                            errorBlock: {(error, response) in
                                             
                                                if (completionBlock != nil) {
-                                                  completionBlock!(error: error)
+                                                  completionBlock!(error)
                                                }
                                            })
     }
@@ -656,39 +667,39 @@ public class Client {
     /// - parameter Array<Dictionary<String,: AnyObject>> statements
     /// - parameter TheoTransactionCompletionBlock?: completionBlock
     /// - returns: Void
-    public func executeTransaction(statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
+    open func executeTransaction(_ statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
         
-        let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements]
+        let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements as Array<AnyObject>]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
-        let transactionURL: NSURL = NSURL(string: transactionResource)!
+        let transactionURL: URL = URL(string: transactionResource)!
         let transactionRequest: Request = Request(url: transactionURL, credentials: self.credentials)
         
-        transactionRequest.postResource(transactionPayload, forUpdate: false, successBlock: {(data, response) in
+        transactionRequest.postResource(transactionPayload as AnyObject, forUpdate: false, successBlock: {(data, response) in
             
             if (completionBlock != nil) {
                 
-                if let responseData: NSData = data {
+                if let responseData: Data = data {
 
-                    dispatch_async(self.parsingQueue, {
+                    self.parsingQueue.async(execute: {
                     
-                        let JSON: AnyObject? = (try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)) as AnyObject!
+                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                         let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                         
-                        dispatch_async(dispatch_get_main_queue(), {
-                            completionBlock!(response: jsonAsDictionary, error: nil)
+                        DispatchQueue.main.async(execute: {
+                            completionBlock!(jsonAsDictionary, nil)
                         })
                     })
 
                 } else {
 
-                    completionBlock!(response: [String:AnyObject](), error: self.unknownEmptyResponseBodyError(response))
+                    completionBlock!([String:AnyObject](), self.unknownEmptyResponseBodyError(response))
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(response: [String:AnyObject](), error: error)
+                    completionBlock!([String:AnyObject](), error)
                 }
         })
     }
@@ -698,37 +709,37 @@ public class Client {
     /// - parameter String: uri
     /// - parameter TheoRawRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    public func executeRequest(uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+    open func executeRequest(_ uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
         
         let queryResource: String = self.baseURL + "/db/data" + uri
-        let queryURL: NSURL = NSURL(string: queryResource)!
+        let queryURL: URL = URL(string: queryResource)!
         let queryRequest: Request = Request(url: queryURL, credentials: self.credentials)
         
         queryRequest.getResource({(data, response) in
                     
                     if (completionBlock != nil) {
                         
-                        if let responseData: NSData = data {
+                        if let responseData: Data = data {
                             
-                            dispatch_async(self.parsingQueue, {
+                            self.parsingQueue.async(execute: {
                                 
-                                let JSON: AnyObject? = try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)
+                                let JSON: AnyObject? = try! JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject?
 
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    completionBlock!(response: JSON, error: nil)
+                                DispatchQueue.main.async(execute: {
+                                    completionBlock!(JSON, nil)
                                 })
                             })
 
                         } else {
                             
-                            completionBlock!(response: nil, error: self.unknownEmptyResponseBodyError(response))
+                            completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
                         }
                     }
                     
                 }, errorBlock: {(error, response) in
                     
                     if (completionBlock != nil) {
-                        completionBlock!(response: nil, error: error)
+                        completionBlock!(nil, error)
                     }
             })
     }
@@ -739,35 +750,35 @@ public class Client {
     /// - parameter Dictionary<String,AnyObject>: params
     /// - parameter TheoRawRequestCompletionBlock: completionBlock
     /// - returns: Void
-    public func executeCypher(query: String, params: Dictionary<String,AnyObject>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
+    open func executeCypher(_ query: String, params: Dictionary<String,AnyObject>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
         
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
 
-        var cypherPayload: Dictionary<String, AnyObject> = ["query" : query]
+        var cypherPayload: Dictionary<String, AnyObject> = ["query" : query as AnyObject]
         
         if let unwrappedParams: Dictionary<String, AnyObject> = params {
-           cypherPayload["params"] = unwrappedParams
+           cypherPayload["params"] = unwrappedParams as AnyObject?
         }
         
         let cypherResource: String = self.baseURL + "/db/data/cypher"
-        let cypherURL: NSURL = NSURL(string: cypherResource)!
+        let cypherURL: URL = URL(string: cypherResource)!
         let cypherRequest: Request = Request(url: cypherURL, credentials: self.credentials)
         
-        cypherRequest.postResource(cypherPayload, forUpdate: false, successBlock: {(data, response) in
+        cypherRequest.postResource(cypherPayload as AnyObject, forUpdate: false, successBlock: {(data, response) in
             
             if (completionBlock != nil) {
                 
-                if let responseData: NSData = data {
+                if let responseData: Data = data {
                     
-                    dispatch_async(self.parsingQueue, {
+                    self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject! = try? NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.AllowFragments)
+                        let JSON: AnyObject! = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject!
 
                         let jsonAsDictionary: [String:[AnyObject]]! = JSON as! [String:[AnyObject]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
-                        dispatch_async(dispatch_get_main_queue(), {
-                            completionBlock!(cypher: cypher, error: nil)
+                        DispatchQueue.main.async(execute: {
+                            completionBlock!(cypher, nil)
                         })
                     })
 
@@ -780,7 +791,7 @@ public class Client {
         }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(cypher: nil, error: error)
+                    completionBlock!(nil, error)
                 }
         })
     }
@@ -793,10 +804,10 @@ public class Client {
     ///
     /// - parameter NSURLResponse: response
     /// - returns: NSError
-    private func unknownEmptyResponseBodyError(response: NSURLResponse) -> NSError {
+    fileprivate func unknownEmptyResponseBodyError(_ response: URLResponse) -> NSError {
         
         let statusCode: Int = {
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             return httpResponse.statusCode
             }()
         let localizedErrorString: String = "The response was empty, but you received at valid response code"
