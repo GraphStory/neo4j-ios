@@ -26,6 +26,7 @@
 		01FB2D1719C7DB5D00D429E7 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1319C7DB5D00D429E7 /* Session.swift */; };
 		01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1819C7DBBF00D429E7 /* Client.swift */; };
 		01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1819C7DBBF00D429E7 /* Client.swift */; };
+		85316C3B1E19A55F00CA3EB7 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85316C3A1E19A55F00CA3EB7 /* Package.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 		01FB2D1219C7DB5D00D429E7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		01FB2D1319C7DB5D00D429E7 /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		01FB2D1819C7DBBF00D429E7 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		85316C3A1E19A55F00CA3EB7 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../../../Package.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 		01FB2CC319C7DAB800D429E7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				85316C3A1E19A55F00CA3EB7 /* Package.swift */,
 				01FB2CC419C7DAB800D429E7 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -261,6 +264,7 @@
 				01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1619C7DB5D00D429E7 /* Session.swift in Sources */,
 				017BB6E719E436E7007C57FD /* Cypher.swift in Sources */,
+				85316C3B1E19A55F00CA3EB7 /* Package.swift in Sources */,
 				01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */,
 				019506C019CC61AB006F3596 /* Node.swift in Sources */,
