@@ -177,7 +177,7 @@ class Request {
             
             if let errorCallBack = errorBlock {
                 
-                if let error = error { // How should this Error be NSError?
+                if error != nil { // How should this Error be NSError?
                     
                     let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
                     errorCallBack(nserror, httpResponse)
@@ -260,7 +260,7 @@ class Request {
             
             if let errorCallBack = errorBlock {
                 
-                if let error = error { // How should this Error be NSError?
+                if error != nil { // How should this Error be NSError?
                     
                     let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
                     errorCallBack(nserror, httpResponse)
@@ -310,7 +310,7 @@ class Request {
         
         self.httpRequest = request
         
-        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: self.httpRequest, completionHandler: {(data: Data?, response: URLResponse?, error: NSError?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: self.httpRequest, completionHandler: {(data: Data?, response: URLResponse?, error: Error?) -> Void in
             
             var dataResp: Data? = data
             let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
@@ -329,9 +329,10 @@ class Request {
             
             if let errorCallBack = errorBlock {
                 
-                if let error = error {
+                if error != nil { // How should this Error be NSError?
                     
-                    errorCallBack(error, httpResponse)
+                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    errorCallBack(nserror, httpResponse)
                     return
                 }
                 
@@ -346,7 +347,7 @@ class Request {
                     errorCallBack(requestResponseError, httpResponse)
                 }
             }
-        } as! (Data?, URLResponse?, Error?) -> Void)
+        })
         
         task.resume()
     }
