@@ -232,10 +232,19 @@ class Request {
             return mutableRequest.copy() as! URLRequest
         }()
         
-        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler: {(data: Data?, response: URLResponse?, error: NSError?) -> Void in
+        let completionHandler = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
             
             var dataResp: Data? = data
-            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
+            guard let httpResponse = response as? HTTPURLResponse else {
+                if let errorCallBack = errorBlock {
+                    let error = NSError(domain: "Invalid response", code: -1, userInfo: nil)
+                    let url: URL = request.url ?? URL(string: "http://invalid.com/error")!
+                    let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+                    errorCallBack(error, response)
+                }
+                return
+            }
+            
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
@@ -251,9 +260,10 @@ class Request {
             
             if let errorCallBack = errorBlock {
                 
-                if let error = error {
+                if let error = error { // How should this Error be NSError?
                     
-                    errorCallBack(error, httpResponse)
+                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    errorCallBack(nserror, httpResponse)
                     return
                 }
                 
@@ -268,7 +278,9 @@ class Request {
                     errorCallBack(requestResponseError, httpResponse)
                 }
             }
-        } as! (Data?, URLResponse?, Error?) -> Void)
+            }
+            
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler:completionHandler)
         
         task.resume()
     }
