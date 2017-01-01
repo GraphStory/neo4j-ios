@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Theo. All rights reserved.
 //
 
-import UIKit
 import Foundation
 import XCTest
 
