@@ -165,13 +165,15 @@ class Request {
             let statusCode = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
 
-            if !containsStatusCode {
+            if containsStatusCode {
+                
+                /// Process Success Block
+                successBlock?(dataResp, httpResponse)
+
+            } else {
                 dataResp = nil
             }
       
-            /// Process Success Block
-            
-            successBlock?(dataResp, httpResponse)
     
             /// Process Error Block
             
