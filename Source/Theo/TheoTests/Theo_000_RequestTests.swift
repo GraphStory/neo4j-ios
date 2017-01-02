@@ -10,8 +10,8 @@ import Foundation
 import XCTest
 
 let TheoTimeoutInterval: TimeInterval = 10
-let TheoNodeID: String                  = "100"
-let TheoNodeIDForRelationship: String   = "101"
+var TheoNodeID: String                  = "100"
+var TheoNodeIDForRelationship: String   = "101"
 let TheoNodePropertyName: String        = "title"
 
 class ConfigLoader: NSObject {
@@ -55,6 +55,170 @@ class Theo_000_RequestTests: XCTestCase {
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
           XCTAssertNil(error, "\(error)")
+        })
+    }
+    
+    func test_000_createTestData() {
+
+        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let exp = self.expectation(description: "test_000_createTestData")
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        
+        // Data
+        
+        let title = "Example"
+        var postNode = Node()
+        postNode.setProp("title", propertyValue: title)
+        postNode.setProp("contentId", propertyValue: NSUUID().uuidString as AnyObject)
+        postNode.setProp("tagstr", propertyValue: "a, b, c")
+        postNode.setProp("timestamp", propertyValue: dateFormatter.string(from: Date()))
+        postNode.setProp("url", propertyValue: "http://somewhere.out.there/post/1")
+        
+        let userUsername = "ajordan"
+        var userNode = Node()
+        userNode.setProp("username", propertyValue: userUsername as AnyObject)
+        
+        let followingUsername = "hhansen"
+        var followingNode = Node()
+        followingNode.setProp("username", propertyValue: followingUsername as AnyObject)
+
+        
+        // Create nodes
+        
+        let createDispatchGroup: DispatchGroup = DispatchGroup()
+
+        createDispatchGroup.enter()
+        theo.createNode(postNode) { (node, error) in
+            XCTAssert(node != nil, "Node data can't be nil")
+            XCTAssert(node?.meta != nil, "Meta data can't be nil")
+            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+
+            if let identifier = node?.meta?.nodeID(){
+                TheoNodeID = identifier
+            } else {
+                XCTFail("Could not get newly created node identifier")
+            }
+            
+            if let nodeTitle = node?.getProp("title") as? String {
+                XCTAssertEqual(title, nodeTitle, "Title in should be title out")
+            } else {
+                XCTFail("Could not get newly created node property: title")
+            }
+
+            if let node = node {
+                postNode = node
+            }
+            createDispatchGroup.leave()
+        }
+
+        createDispatchGroup.enter()
+        theo.createNode(userNode) { (node, error) in
+            XCTAssert(node != nil, "Node data can't be nil")
+            XCTAssert(node?.meta != nil, "Meta data can't be nil")
+            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            
+            if (node?.meta?.nodeID()) != nil {
+            } else {
+                XCTFail("Could not get newly created node identifier")
+            }
+            
+            if let username = node?.getProp("username") as? String {
+                XCTAssertEqual(userUsername, username, "Username in should be username out")
+            } else {
+                XCTFail("Could not get newly created node property: title")
+            }
+            
+            if let node = node {
+                userNode = node
+            }
+            createDispatchGroup.leave()
+        }
+
+        createDispatchGroup.enter()
+        theo.createNode(followingNode) { (node, error) in
+            XCTAssert(node != nil, "Node data can't be nil")
+            XCTAssert(node?.meta != nil, "Meta data can't be nil")
+            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            
+            if let identifier = node?.meta?.nodeID(){
+                TheoNodeIDForRelationship = identifier
+            } else {
+                XCTFail("Could not get newly created node identifier")
+            }
+            
+            if let username = node?.getProp("username") as? String {
+                XCTAssertEqual(followingUsername, username, "Username in should be username out")
+            } else {
+                XCTFail("Could not get newly created node property: username")
+            }
+            
+            if let node = node {
+                followingNode = node
+            }
+            createDispatchGroup.leave()
+        }
+
+        // Wait for creation to make relationships
+        
+        createDispatchGroup.notify(queue: DispatchQueue.main) {
+
+            // Data
+            let followingRelationship = Relationship()
+            followingRelationship.relate(userNode, toNode: followingNode, type: RelationshipType.FOLLOWS)
+            followingRelationship.setProp("startTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+            
+            let lastPostRelationship = Relationship()
+            lastPostRelationship.relate(followingNode, toNode: postNode, type: RelationshipType.LASTPOST)
+            lastPostRelationship.setProp("postTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+            
+            let nextPostRelationship = Relationship()
+            nextPostRelationship.relate(postNode, toNode: userNode, type: RelationshipType.NEXTPOST)
+            nextPostRelationship.setProp("scheduledTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+
+            
+            // Create relationships
+            
+            let relateDispatchGroup = DispatchGroup()
+            
+            relateDispatchGroup.enter()
+            theo.createRelationship(followingRelationship, completionBlock: { (relationship, error) in
+                
+                XCTAssert(relationship != nil, "Relationship data can't be nil")
+                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                
+                relateDispatchGroup.leave()
+            })
+            
+            relateDispatchGroup.enter()
+            theo.createRelationship(lastPostRelationship, completionBlock: { (relationship, error) in
+                
+                XCTAssert(relationship != nil, "Relationship data can't be nil")
+                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                
+                relateDispatchGroup.leave()
+            })
+            
+            relateDispatchGroup.enter()
+            theo.createRelationship(nextPostRelationship, completionBlock: { (relationship, error) in
+                
+                XCTAssert(relationship != nil, "Relationship data can't be nil")
+                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                
+                relateDispatchGroup.leave()
+            })
+            
+            relateDispatchGroup.notify(queue: DispatchQueue.main) {
+                
+                exp.fulfill()
+            }
+        }
+
+        
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+            XCTAssertNil(error, "\(error)")
         })
     }
     
@@ -479,10 +643,10 @@ class Theo_000_RequestTests: XCTestCase {
             }
             theo.fetchRelationshipsForNode(nodeIDWithRelationships, direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
                 
-                XCTAssert(relationships.count >= 1, "Relationships must be exist")
+                XCTAssert(relationships.count >= 1, "Relationships must exist")
                 XCTAssertNil(error, "Error should be nil \(error)")
                 
-                if let foundRelationship: Relationship = relationships[0] as Relationship! {
+                if let foundRelationship: Relationship = relationships.first {
 
                     let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue" as AnyObject]
                     
@@ -511,7 +675,7 @@ class Theo_000_RequestTests: XCTestCase {
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_012_successfullyExecuteCyperRequest")
-        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->f WITH DISTINCT f,u MATCH f-[:LASTPOST]-lp-[:NEXTPOST*0..3]-p RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
+        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
         let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan" as AnyObject]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
@@ -589,4 +753,11 @@ extension Relationship {
         let value: AnyObject = propertyValue as NSString
         self.setProp(propertyName, propertyValue: value)
     }
+}
+
+extension RelationshipType {
+    
+    public static var FOLLOWS: String  = "FOLLOWS"
+    public static var LASTPOST: String = "LASTPOST"
+    public static var NEXTPOST: String = "NEXTPOST"
 }
