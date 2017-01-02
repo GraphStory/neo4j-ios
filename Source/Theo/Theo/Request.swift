@@ -255,8 +255,9 @@ class Request {
             }
 
             /// Process Success Block
-            
-            successBlock?(dataResp, httpResponse)
+            if containsStatusCode {
+                successBlock?(dataResp, httpResponse)
+            }
             
             /// Process Error Block
             
@@ -325,7 +326,9 @@ class Request {
 
             /// Process Success Block
             
-            successBlock?(dataResp, httpResponse)
+            if containsStatusCode {
+                successBlock?(dataResp, httpResponse)
+            }
             
             /// Process Error Block
             
