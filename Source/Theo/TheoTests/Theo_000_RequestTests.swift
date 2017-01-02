@@ -30,6 +30,8 @@ class Theo_000_RequestTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        
+        continueAfterFailure = false
     }
 
     override func tearDown() {
