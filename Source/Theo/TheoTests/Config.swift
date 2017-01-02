@@ -8,21 +8,20 @@
 
 import Foundation
 
-
 struct Config {
     let username: String
     let password: String
     let host: String
-    
+
     init(pathToFile: String) {
 
         do {
-            
+
             let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
             let JSON: AnyObject? = try JSONSerialization.jsonObject(with: jsonData as Data, options: []) as AnyObject!
 
             let jsonConfig: [String:String]! = JSON as! [String:String]
-            
+
             self.username = jsonConfig["username"]!
             self.password = jsonConfig["password"]!
             self.host     = jsonConfig["host"]!
