@@ -281,7 +281,7 @@ class Request {
                     errorCallBack(requestResponseError, httpResponse)
                 }
             }
-            }
+        }
             
         let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler:completionHandler)
         
