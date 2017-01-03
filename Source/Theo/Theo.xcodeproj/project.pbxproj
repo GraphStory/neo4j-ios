@@ -208,10 +208,13 @@
 				TargetAttributes = {
 					01FB2CBF19C7DAB800D429E7 = {
 						CreatedOnToolsVersion = 6.0;
+						DevelopmentTeam = XM4VAKDQL9;
 						LastSwiftMigration = 0800;
+						ProvisioningStyle = Automatic;
 					};
 					01FB2CCA19C7DAB800D429E7 = {
 						CreatedOnToolsVersion = 6.0;
+						DevelopmentTeam = XM4VAKDQL9;
 						LastSwiftMigration = 0810;
 					};
 				};
@@ -385,8 +388,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = XM4VAKDQL9;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -406,8 +410,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = XM4VAKDQL9;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -425,7 +430,7 @@
 		01FB2CD719C7DAB800D429E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = XM4VAKDQL9;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -445,7 +450,7 @@
 		01FB2CD819C7DAB800D429E7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = XM4VAKDQL9;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
