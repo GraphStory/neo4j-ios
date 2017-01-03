@@ -9,6 +9,7 @@
 import Foundation
 import XCTest
 #if os(Linux)
+    @testable import Theo
     import Dispatch
 #endif
 
@@ -23,9 +24,14 @@ class ConfigLoader: NSObject {
 
     class func loadConfig() -> Config {
 
-        let bundle = Bundle(for: ConfigLoader.self)
-        let filePath: String = bundle.path(forResource: "TheoConfig", ofType: "json")!
-
+        #if os(Linux)
+            let parent = (#file).components(separatedBy: "/").dropLast().joined(separator: "/")
+            let filePath = URL(string: "file://\(parent)/TheoConfig.json")?.path ?? ""
+        #else
+            let bundle = Bundle(for: ConfigLoader.self)
+            let filePath: String = bundle.path(forResource: "TheoConfig", ofType: "json")!
+        #endif
+        
         return Config(pathToFile: filePath)
     }
 }
@@ -770,6 +776,23 @@ class Theo_000_RequestTests: XCTestCase {
     }
 
 
+    static var allTests = [
+        ("test_000_successfullyFetchDBMeta", test_000_successfullyFetchDBMeta),
+        ("test_000_createTestData", test_000_createTestData),
+        ("test_001_successfullyFetchNode", test_001_successfullyFetchNode),
+        ("test_002_successfullyAccessProperty", test_002_successfullyAccessProperty),
+        ("test_003_successfullyHandleNonExistantAccessProperty", test_003_successfullyHandleNonExistantAccessProperty),
+        ("test_004_successfullyAddNodeWithOutLabels", test_004_successfullyAddNodeWithOutLabels),
+        ("test_005_successfullyAddRelationship", test_005_successfullyAddRelationship),
+        ("test_006_succesfullyUpdateNodeWithProperties", test_006_succesfullyUpdateNodeWithProperties),
+        ("test_007_successfullyDeleteRelationship", test_007_successfullyDeleteRelationship),
+        ("test_008_succesfullyAddNodeWithLabels", test_008_succesfullyAddNodeWithLabels),
+        ("test_009_successfullyCommitTransaction", test_009_successfullyCommitTransaction),
+        ("test_011_succesfullyUpdateRelationshipWithProperties", test_011_succesfullyUpdateRelationshipWithProperties),
+        ("test_012_successfullyExecuteCyperRequest", test_012_successfullyExecuteCyperRequest),
+        ("test_998_successfullyDeleteExistingNode", test_998_successfullyDeleteExistingNode),
+        ("test_999_cleanupTests", test_999_cleanupTests)
+    ]
 }
 
 extension Node {
