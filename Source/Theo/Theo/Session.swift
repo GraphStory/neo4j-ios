@@ -85,7 +85,7 @@ class Session {
     // MARK: Public properties
 
     var session: URLSession
-    var sessionDelegateQueue: OperationQueue = OperationQueue.main
+    var sessionDelegateQueue: OperationQueue = OperationQueue()
     var configuration: Configuration = Configuration()
     static let sharedInstance: Session = Session(queue: SessionParams.queue)
   
@@ -118,7 +118,7 @@ class Session {
     /// Convenience initializer
     ///
     /// The operation queue param is set to nil which translates to using 
-    /// NSOperationQueue.mainQueue
+    /// a new concurrent OperationQueue
     ///
     /// - returns: Session
     convenience init() {

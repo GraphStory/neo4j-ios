@@ -87,6 +87,8 @@ open class Client {
     public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
 
 
+    fileprivate let operationQueue = OperationQueue()
+    
     // MARK: Lazy properties
 
     lazy fileprivate var credentials: (username: String, password: String)? = {
@@ -186,9 +188,7 @@ open class Client {
                         
                         let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, Any>!)
                         
-                        DispatchQueue.main.async(execute: {
-                            completionBlock?(meta, nil)
-                        })
+                        completionBlock?(meta, nil)
                         
                     } catch {
                         
@@ -230,9 +230,7 @@ open class Client {
                             let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                             let node: Node = Node(data: jsonAsDictionary)
 
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(node, nil)
-                            })
+                            completionBlock!(node, nil)
                         })
 
                     } else {
@@ -275,15 +273,11 @@ open class Client {
                             let jsonAsDictionary: [String:Any] = JSONObject as! [String:Any]
                             let node: Node = Node(data:jsonAsDictionary)
                             
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(node, nil)
-                            })
+                            completionBlock!(node, nil)
                             
                         } else {
 
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(nil, nil)
-                            })
+                            completionBlock!(nil, nil)
                         }
                     })
                     
@@ -326,7 +320,7 @@ open class Client {
 
             self.createNode(node, completionBlock: {(node, error) in
 
-                OperationQueue.main.addOperation({
+                self.operationQueue.addOperation({
                     
                     if let returnedNode: Node = node {
 
@@ -342,7 +336,7 @@ open class Client {
                             nodeRequest.postResource(labels as Any, forUpdate: false,
                                 successBlock: {(data, response) in
 
-                                    OperationQueue.main.addOperation({
+                                    self.operationQueue.addOperation({
                                         
                                         if (completionBlock != nil) {
                                             
@@ -354,7 +348,7 @@ open class Client {
                                 },
                                 errorBlock: {(error, response) in
                                     
-                                    OperationQueue.main.addOperation({
+                                    self.operationQueue.addOperation({
                                         
                                         if (completionBlock != nil) {
                                             completionBlock!(nil, error)
@@ -364,7 +358,7 @@ open class Client {
                             
                         } else {
 
-                            OperationQueue.main.addOperation({
+                            self.operationQueue.addOperation({
                                 
                                 // If the labels were sucessfully created then 
                                 // the response is a 204, BUT the resposne is empty.
@@ -385,7 +379,7 @@ open class Client {
                         
                     } else {
 
-                        OperationQueue.main.addOperation({
+                        self.operationQueue.addOperation({
                             
                             if (completionBlock != nil) {
                                 completionBlock!(nil, nil)
@@ -427,15 +421,11 @@ open class Client {
                                 let jsonAsDictionary: [String:Any] = JSONObject as! [String:Any]
                                 let node: Node = Node(data:jsonAsDictionary)
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(node, nil)
-                                })
+                                completionBlock!(node, nil)
                                 
                             } else {
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(nil, nil)
-                                })
+                                completionBlock!(nil, nil)
                             }
                         })
 
@@ -536,9 +526,7 @@ open class Client {
                             relationshipsForNode.append(newRelationship)
                         }
 
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(relationshipsForNode, nil)
-                        })
+                        completionBlock!(relationshipsForNode, nil)
                     })
                 }
                 
@@ -574,9 +562,7 @@ open class Client {
                                                         let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                                                         let relationship: Relationship = Relationship(data: jsonAsDictionary)
 
-                                                        DispatchQueue.main.async(execute: {
-                                                            completionBlock!(relationship, nil)
-                                                        })
+                                                        completionBlock!(relationship, nil)
                                                     })
 
                                                 } else {
@@ -615,12 +601,9 @@ open class Client {
                 
                 if (completionBlock != nil) {
 
-                    DispatchQueue.main.async(execute: {
-                        
-                        // If the update is successfull then you'll
-                        // receive a 204 with an empty body
-                        completionBlock!(nil, nil)
-                    })
+                    // If the update is successfull then you'll
+                    // receive a 204 with an empty body
+                    completionBlock!(nil, nil)
                 }
                 
             }, errorBlock: {(error, response) in
@@ -688,9 +671,7 @@ open class Client {
                         let JSON: Any? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
                         let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                         
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(jsonAsDictionary, nil)
-                        })
+                        completionBlock!(jsonAsDictionary, nil)
                     })
 
                 } else {
@@ -728,9 +709,7 @@ open class Client {
                                 
                                 let JSON: Any? = try! JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any?
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(JSON, nil)
-                                })
+                                completionBlock!(JSON, nil)
                             })
 
                         } else {
@@ -780,9 +759,7 @@ open class Client {
                         let jsonAsDictionary: [String:[Any]]! = JSON as! [String:[Any]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(cypher, nil)
-                        })
+                        completionBlock!(cypher, nil)
                     })
 
                 } else {

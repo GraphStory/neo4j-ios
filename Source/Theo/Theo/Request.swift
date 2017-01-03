@@ -28,7 +28,7 @@ class Request {
 
     lazy var httpSession: Session = {
 
-        Session.SessionParams.queue = OperationQueue.main
+        Session.SessionParams.queue = OperationQueue()
 
         return Session.sharedInstance;
     }()
