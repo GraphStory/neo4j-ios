@@ -132,7 +132,7 @@ class Request {
 
         let request: URLRequest = {
       
-            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+            var mutableRequest: URLRequest = self.httpRequest
       
             mutableRequest.httpMethod = AllowedHTTPMethods.GET
             
@@ -143,7 +143,7 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
       
-            return mutableRequest.copy() as! URLRequest
+            return mutableRequest
         }()
 
         
@@ -165,15 +165,13 @@ class Request {
             let statusCode = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
 
-            if containsStatusCode {
-                
-                /// Process Success Block
-                successBlock?(dataResp, httpResponse)
-
-            } else {
+            if !containsStatusCode {
                 dataResp = nil
             }
       
+            /// Process Success Block
+            
+            successBlock?(dataResp, httpResponse)
     
             /// Process Error Block
             
@@ -210,11 +208,11 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func postResource(_ postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func postResource(_ postData: Any, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
         let request: URLRequest = {
 
-            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+            var mutableRequest = self.httpRequest
             
             mutableRequest.httpBody = Data()
             
@@ -231,7 +229,7 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
             
-            return mutableRequest.copy() as! URLRequest
+            return mutableRequest
         }()
         
         let completionHandler = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
@@ -255,9 +253,8 @@ class Request {
             }
 
             /// Process Success Block
-            if containsStatusCode {
-                successBlock?(dataResp, httpResponse)
-            }
+            
+            successBlock?(dataResp, httpResponse)
             
             /// Process Error Block
             
@@ -297,7 +294,7 @@ class Request {
     
         let request: URLRequest = {
             
-            let mutableRequest: NSMutableURLRequest = (self.httpRequest as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+            var mutableRequest = self.httpRequest
             
             mutableRequest.httpMethod = AllowedHTTPMethods.DELETE
         
@@ -308,7 +305,7 @@ class Request {
                 mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
             }
             
-            return mutableRequest.copy() as! URLRequest
+            return mutableRequest
         }()
         
         self.httpRequest = request
@@ -326,9 +323,7 @@ class Request {
 
             /// Process Success Block
             
-            if containsStatusCode {
-                successBlock?(dataResp, httpResponse)
-            }
+            successBlock?(dataResp, httpResponse)
             
             /// Process Error Block
             
@@ -376,8 +371,8 @@ class Request {
     /// - returns: String
     fileprivate func basicAuthString(_ username: String, password: String) -> String {
     
-        let loginString = NSString(format: "%@:%@", username, password)
-        let loginData: Data = loginString.data(using: String.Encoding.utf8.rawValue)!
+        let loginString = "\(username):\(password)"
+        let loginData: Data = loginString.data(using: .utf8)!
         let base64LoginString = loginData.base64EncodedString(options: [])
         let authString = "Basic \(base64LoginString)"
 

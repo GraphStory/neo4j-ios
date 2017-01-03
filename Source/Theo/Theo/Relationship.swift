@@ -24,16 +24,16 @@ let TheoRelationshipMetaDataKey: String   = "metadata"
 
 public struct RelationshipMeta: CustomStringConvertible {
 
-    let extensions: [String: AnyObject]
+    let extensions: [String: Any]
     let start: String
     let property: String
     let relationship_self: String
     let properties: String
     let type: String //TODO: add custom function so it will return RelationshipType
     let end: String
-    let data: [String: AnyObject]
+    let data: [String: Any]
 
-    public let metadata: [String: AnyObject]
+    public let metadata: [String: Any]
     
     public func relationshipID() -> String {
         
@@ -42,7 +42,7 @@ public struct RelationshipMeta: CustomStringConvertible {
         return pathComponents.last!
     }
     
-    init(dictionary: Dictionary<String, AnyObject>!) {
+    init(dictionary: Dictionary<String, Any>!) {
         
         self.extensions         = dictionary[TheoRelationshipExtensionsKey] as! Dictionary
         self.start              = dictionary[TheoRelationshipStartKey]      as! String
@@ -110,14 +110,14 @@ open class Relationship {
     // MARK: Private Properties
 
     open fileprivate (set) var relationshipMeta: RelationshipMeta?
-    fileprivate (set) var relationshipCreateMeta: [String:AnyObject] = [String:AnyObject]()
-    fileprivate (set) var relationshipData: [String:AnyObject]       = [String:AnyObject]()
+    fileprivate (set) var relationshipCreateMeta: [String:Any] = [String:Any]()
+    fileprivate (set) var relationshipData: [String:Any]       = [String:Any]()
 
     // MARK: Lazy Properties
     
-    lazy var relationshipInfo: [String:AnyObject] = {
+    lazy var relationshipInfo: [String:Any] = {
 
-        var info: [String:AnyObject] = [String:AnyObject]()
+        var info: [String:Any] = [String:Any]()
         
         info["to"]   = self.relationshipCreateMeta[RelationshipDataToNodeKey]
         info["type"] = self.relationshipCreateMeta[RelationshipDataTypeKey]
@@ -127,7 +127,7 @@ open class Relationship {
             if (self.updatingProperties) {
                 
             } else {
-                info["data"] = self.relationshipData as AnyObject?
+                info["data"] = self.relationshipData as Any?
             }
         }
         
@@ -136,7 +136,7 @@ open class Relationship {
 
     lazy var fromNode: String = {
         
-        if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataFromNodeKey] {
+        if let object: Any = self.relationshipCreateMeta[RelationshipDataFromNodeKey] {
             return object as! String
         }
 
@@ -145,7 +145,7 @@ open class Relationship {
     
     lazy var toNode: String = {
         
-        if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataToNodeKey] {
+        if let object: Any = self.relationshipCreateMeta[RelationshipDataToNodeKey] {
             return object as! String
         }
         
@@ -154,7 +154,7 @@ open class Relationship {
     
     lazy var relationshipType: String = {
 
-        if let object: AnyObject = self.relationshipCreateMeta[RelationshipDataTypeKey] {
+        if let object: Any = self.relationshipCreateMeta[RelationshipDataTypeKey] {
             return object as! String
         }
         
@@ -165,15 +165,15 @@ open class Relationship {
 
     /// Designated Initializer
     ///
-    /// - parameter Dictionary<String,AnyObject>: data
+    /// - parameter Dictionary<String,Any>: data
     /// - returns: Relationship
-    public required init(data: Dictionary<String,AnyObject>?) {
+    public required init(data: Dictionary<String,Any>?) {
         
-        self.relationshipCreateMeta = [String:AnyObject]()
-        self.relationshipData       = [String:AnyObject]()
+        self.relationshipCreateMeta = [String:Any]()
+        self.relationshipData       = [String:Any]()
         self.updatingProperties     = false
         
-        if let dictionaryData: [String:AnyObject] = data {
+        if let dictionaryData: [String:Any] = data {
 
             self.relationshipMeta = RelationshipMeta(dictionary: dictionaryData)
             
@@ -200,18 +200,18 @@ open class Relationship {
     /// - returns: Void
     open func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
     
-        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as AnyObject?
-        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as AnyObject?
-        self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as AnyObject?
+        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as Any?
+        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as Any?
+        self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as Any?
     }
     
     /// Gets a specified property for the Relationship
     ///
     /// - parameter String: propertyName
-    /// - returns: AnyObject?
-    open func getProp(_ propertyName: String) -> AnyObject? {
+    /// - returns: Any?
+    open func getProp(_ propertyName: String) -> Any? {
         
-        if let object: AnyObject = self.relationshipData[propertyName] {
+        if let object: Any = self.relationshipData[propertyName] {
             return object
         }
         
@@ -223,9 +223,9 @@ open class Relationship {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: AnyObject) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: Any) -> Void {
         
-        let objectValue: AnyObject = propertyValue
+        let objectValue: Any = propertyValue
         
         self.relationshipData[propertyName] = objectValue
     }

@@ -48,14 +48,26 @@ open class Configuration {
 private class TheoTaskSessionDelegate: NSObject {
     
     // For Session based challenges
+#if os(Linux)
+    func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        print("session based challenge")
+    }
+    
+    // For Session Task based challenges
+    func URLSession(_ session: Foundation.URLSession, task: URLSessionTask, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        print("session task based challenge")    
+    }
+#else
     @objc func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session based challenge")
     }
     
     // For Session Task based challenges
     @objc func URLSession(_ session: Foundation.URLSession, task: URLSessionTask, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        print("session task based challenge")    
+        print("session task based challenge")
     }
+
+    #endif
 }
 
 class Session {
