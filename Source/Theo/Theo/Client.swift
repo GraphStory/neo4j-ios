@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if os(Linux)
+    import Dispatch
+#endif
 
 let TheoParsingQueueName: String           = "com.theo.client"
 let TheoDBMetaExtensionsKey: String        = "extensions"
@@ -25,7 +28,7 @@ let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
 public struct DBMeta {
   
-    let extensions: [String: AnyObject] //= [String: AnyObject]()
+    let extensions: [String: Any] //= [String: Any]()
     let node: String                    //= ""
     let node_index: String              //= ""
     let relationship_index: String      //= ""
@@ -39,7 +42,7 @@ public struct DBMeta {
     let node_labels: String             //= ""
     let neo4j_version: String           //= ""
 
-    init(dictionary: Dictionary<String, AnyObject>!) {
+    init(dictionary: Dictionary<String, Any>!) {
 
         self.extensions             = dictionary[TheoDBMetaExtensionsKey]           as! Dictionary
         self.node                   = dictionary[TheoDBMetaNodeKey]                 as! String
@@ -79,11 +82,13 @@ open class Client {
     public typealias TheoNodeRequestDeleteCompletionBlock = (_ error: NSError?) -> Void
     public typealias TheoNodeRequestRelationshipCompletionBlock = (_ relationship: Relationship?, _ error: NSError?) -> Void
     public typealias TheoRelationshipRequestCompletionBlock = (_ relationships:Array<Relationship>, _ error: NSError?) -> Void
-    public typealias TheoRawRequestCompletionBlock = (_ response: AnyObject?, _ error: NSError?) -> Void
-    public typealias TheoTransactionCompletionBlock = (_ response: Dictionary<String, AnyObject>, _ error: NSError?) -> Void
+    public typealias TheoRawRequestCompletionBlock = (_ response: Any?, _ error: NSError?) -> Void
+    public typealias TheoTransactionCompletionBlock = (_ response: Dictionary<String, Any>, _ error: NSError?) -> Void
     public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
 
 
+    fileprivate let operationQueue = OperationQueue()
+    
     // MARK: Lazy properties
 
     lazy fileprivate var credentials: (username: String, password: String)? = {
@@ -181,11 +186,9 @@ open class Client {
                             return
                         }
                         
-                        let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, AnyObject>!)
+                        let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, Any>!)
                         
-                        DispatchQueue.main.async(execute: {
-                            completionBlock?(meta, nil)
-                        })
+                        completionBlock?(meta, nil)
                         
                     } catch {
                         
@@ -223,13 +226,11 @@ open class Client {
                         
                         self.parsingQueue.async(execute: {
                         
-                            let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
-                            let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
+                            let JSON = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)
+                            let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                             let node: Node = Node(data: jsonAsDictionary)
 
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(node, nil)
-                            })
+                            completionBlock!(node, nil)
                         })
 
                     } else {
@@ -257,7 +258,7 @@ open class Client {
         let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
-        nodeRequest.postResource(node.nodeData as AnyObject, forUpdate: false, successBlock: {(data, response) in
+        nodeRequest.postResource(node.nodeData as Any, forUpdate: false, successBlock: {(data, response) in
 
             if (completionBlock != nil) {
                 
@@ -265,22 +266,18 @@ open class Client {
                     
                     self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
+                        let JSON: Any? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
                         
-                        if let JSONObject: AnyObject = JSON {
+                        if let JSONObject: Any = JSON {
                             
-                            let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
+                            let jsonAsDictionary: [String:Any] = JSONObject as! [String:Any]
                             let node: Node = Node(data:jsonAsDictionary)
                             
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(node, nil)
-                            })
+                            completionBlock!(node, nil)
                             
                         } else {
 
-                            DispatchQueue.main.async(execute: {
-                                completionBlock!(nil, nil)
-                            })
+                            completionBlock!(nil, nil)
                         }
                     })
                     
@@ -323,7 +320,7 @@ open class Client {
 
             self.createNode(node, completionBlock: {(node, error) in
 
-                OperationQueue.main.addOperation({
+                self.operationQueue.addOperation({
                     
                     if let returnedNode: Node = node {
 
@@ -336,10 +333,10 @@ open class Client {
                             let nodeURL: URL = URL(string: nodeResource)!
                             let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
                             
-                            nodeRequest.postResource(labels as AnyObject, forUpdate: false,
+                            nodeRequest.postResource(labels as Any, forUpdate: false,
                                 successBlock: {(data, response) in
 
-                                    OperationQueue.main.addOperation({
+                                    self.operationQueue.addOperation({
                                         
                                         if (completionBlock != nil) {
                                             
@@ -351,7 +348,7 @@ open class Client {
                                 },
                                 errorBlock: {(error, response) in
                                     
-                                    OperationQueue.main.addOperation({
+                                    self.operationQueue.addOperation({
                                         
                                         if (completionBlock != nil) {
                                             completionBlock!(nil, error)
@@ -361,7 +358,7 @@ open class Client {
                             
                         } else {
 
-                            OperationQueue.main.addOperation({
+                            self.operationQueue.addOperation({
                                 
                                 // If the labels were sucessfully created then 
                                 // the response is a 204, BUT the resposne is empty.
@@ -382,7 +379,7 @@ open class Client {
                         
                     } else {
 
-                        OperationQueue.main.addOperation({
+                        self.operationQueue.addOperation({
                             
                             if (completionBlock != nil) {
                                 completionBlock!(nil, nil)
@@ -402,14 +399,14 @@ open class Client {
     /// - parameter Dictionary<String,String>: properties
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateNode(_ node: Node, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
         
-        nodeRequest.postResource(properties as AnyObject, forUpdate: true, successBlock: {(data, response) in
+        nodeRequest.postResource(properties as Any, forUpdate: true, successBlock: {(data, response) in
             
                 if (completionBlock != nil) {
                     
@@ -417,22 +414,18 @@ open class Client {
                         
                         self.parsingQueue.async(execute: {
                             
-                            let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
+                            let JSON: Any? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
                             
-                            if let JSONObject: AnyObject = JSON {
+                            if let JSONObject: Any = JSON {
 
-                                let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
+                                let jsonAsDictionary: [String:Any] = JSONObject as! [String:Any]
                                 let node: Node = Node(data:jsonAsDictionary)
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(node, nil)
-                                })
+                                completionBlock!(node, nil)
                                 
                             } else {
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(nil, nil)
-                                })
+                                completionBlock!(nil, nil)
                             }
                         })
 
@@ -525,17 +518,15 @@ open class Client {
 
                     self.parsingQueue.async(execute: {
                     
-                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
-                        let jsonAsArray: [[String:AnyObject]]! = JSON as! [[String:AnyObject]]
+                        let JSON: Any? = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
+                        let jsonAsArray: [[String:Any]]! = JSON as! [[String:Any]]
                         
-                        for relationshipDictionary: [String:AnyObject] in jsonAsArray {
+                        for relationshipDictionary: [String:Any] in jsonAsArray {
                             let newRelationship = Relationship(data: relationshipDictionary)
                             relationshipsForNode.append(newRelationship)
                         }
 
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(relationshipsForNode, nil)
-                        })
+                        completionBlock!(relationshipsForNode, nil)
                     })
                 }
                 
@@ -558,7 +549,7 @@ open class Client {
         let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
         
-        relationshipRequest.postResource(relationship.relationshipInfo as AnyObject, forUpdate: false,
+        relationshipRequest.postResource(relationship.relationshipInfo as Any, forUpdate: false,
                                          successBlock: {(data, response) in
                                             
                                             if (completionBlock != nil) {
@@ -567,13 +558,11 @@ open class Client {
 
                                                     self.parsingQueue.async(execute: {
                                                     
-                                                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
-                                                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
+                                                        let JSON: Any? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
+                                                        let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                                                         let relationship: Relationship = Relationship(data: jsonAsDictionary)
 
-                                                        DispatchQueue.main.async(execute: {
-                                                            completionBlock!(relationship, nil)
-                                                        })
+                                                        completionBlock!(relationship, nil)
                                                     })
 
                                                 } else {
@@ -592,10 +581,10 @@ open class Client {
     /// Updates a relationship instance with a set of properties
     ///
     /// - parameter Relationship: relationship
-    /// - parameter Dictionary<String,AnyObject>: properties
+    /// - parameter Dictionary<String,Any>: properties
     /// - parameter TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,AnyObject>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
     
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -607,17 +596,14 @@ open class Client {
             relationship.setProp(name, propertyValue: value)
         }
         
-        relationshipRequest.postResource(properties as AnyObject, forUpdate: true,
+        relationshipRequest.postResource(properties as Any, forUpdate: true,
             successBlock: {(data, response) in
                 
                 if (completionBlock != nil) {
 
-                    DispatchQueue.main.async(execute: {
-                        
-                        // If the update is successfull then you'll
-                        // receive a 204 with an empty body
-                        completionBlock!(nil, nil)
-                    })
+                    // If the update is successfull then you'll
+                    // receive a 204 with an empty body
+                    completionBlock!(nil, nil)
                 }
                 
             }, errorBlock: {(error, response) in
@@ -664,17 +650,17 @@ open class Client {
     
     /// Executes raw Neo4j statements
     ///
-    /// - parameter Array<Dictionary<String,: AnyObject>> statements
+    /// - parameter Array<Dictionary<String,: Any>> statements
     /// - parameter TheoTransactionCompletionBlock?: completionBlock
     /// - returns: Void
-    open func executeTransaction(_ statements: Array<Dictionary<String, AnyObject>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
+    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
         
-        let transactionPayload: Dictionary<String, Array<AnyObject>> = ["statements" : statements as Array<AnyObject>]
+        let transactionPayload: Dictionary<String, Array<Any>> = ["statements" : statements as Array<Any>]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
         let transactionURL: URL = URL(string: transactionResource)!
         let transactionRequest: Request = Request(url: transactionURL, credentials: self.credentials)
         
-        transactionRequest.postResource(transactionPayload as AnyObject, forUpdate: false, successBlock: {(data, response) in
+        transactionRequest.postResource(transactionPayload as Any, forUpdate: false, successBlock: {(data, response) in
             
             if (completionBlock != nil) {
                 
@@ -682,24 +668,22 @@ open class Client {
 
                     self.parsingQueue.async(execute: {
                     
-                        let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
-                        let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
+                        let JSON: Any? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as Any!
+                        let jsonAsDictionary: [String:Any]! = JSON as! [String:Any]
                         
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(jsonAsDictionary, nil)
-                        })
+                        completionBlock!(jsonAsDictionary, nil)
                     })
 
                 } else {
 
-                    completionBlock!([String:AnyObject](), self.unknownEmptyResponseBodyError(response))
+                    completionBlock!([String:Any](), self.unknownEmptyResponseBodyError(response))
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!([String:AnyObject](), error)
+                    completionBlock!([String:Any](), error)
                 }
         })
     }
@@ -723,11 +707,9 @@ open class Client {
                             
                             self.parsingQueue.async(execute: {
                                 
-                                let JSON: AnyObject? = try! JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject?
+                                let JSON: Any? = try! JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any?
 
-                                DispatchQueue.main.async(execute: {
-                                    completionBlock!(JSON, nil)
-                                })
+                                completionBlock!(JSON, nil)
                             })
 
                         } else {
@@ -747,24 +729,24 @@ open class Client {
     /// Executes a cypher query
     ///
     /// - parameter String: query
-    /// - parameter Dictionary<String,AnyObject>: params
+    /// - parameter Dictionary<String,Any>: params
     /// - parameter TheoRawRequestCompletionBlock: completionBlock
     /// - returns: Void
-    open func executeCypher(_ query: String, params: Dictionary<String,AnyObject>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
+    open func executeCypher(_ query: String, params: Dictionary<String,Any>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
         
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
 
-        var cypherPayload: Dictionary<String, AnyObject> = ["query" : query as AnyObject]
+        var cypherPayload: Dictionary<String, Any> = ["query" : query]
         
-        if let unwrappedParams: Dictionary<String, AnyObject> = params {
-           cypherPayload["params"] = unwrappedParams as AnyObject?
+        if let unwrappedParams: Dictionary<String, Any> = params {
+           cypherPayload["params"] = unwrappedParams
         }
         
         let cypherResource: String = self.baseURL + "/db/data/cypher"
         let cypherURL: URL = URL(string: cypherResource)!
         let cypherRequest: Request = Request(url: cypherURL, credentials: self.credentials)
         
-        cypherRequest.postResource(cypherPayload as AnyObject, forUpdate: false, successBlock: {(data, response) in
+        cypherRequest.postResource(cypherPayload as Any, forUpdate: false, successBlock: {(data, response) in
             
             if (completionBlock != nil) {
                 
@@ -772,14 +754,12 @@ open class Client {
                     
                     self.parsingQueue.async(execute: {
 
-                        let JSON: AnyObject! = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject!
+                        let JSON: Any! = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any!
 
-                        let jsonAsDictionary: [String:[AnyObject]]! = JSON as! [String:[AnyObject]]
+                        let jsonAsDictionary: [String:[Any]]! = JSON as! [String:[Any]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
-                        DispatchQueue.main.async(execute: {
-                            completionBlock!(cypher, nil)
-                        })
+                        completionBlock!(cypher, nil)
                     })
 
                 } else {

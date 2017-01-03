@@ -27,7 +27,7 @@ let TheoNodeMetaData: String                   = "metadata"
 
 public struct NodeMeta: CustomStringConvertible {
     
-    let extensions: [String: AnyObject]
+    let extensions: [String: Any]
     let page_traverse: String
     let labels: String
     let outgoing_relationships: String
@@ -41,8 +41,8 @@ public struct NodeMeta: CustomStringConvertible {
     let incoming_relationships: String
     let incoming_typed_relationships: String
     let create_relationship: String
-    let data: [String: AnyObject]
-    let metadata: [String: AnyObject]
+    let data: [String: Any]
+    let metadata: [String: Any]
 
     public func nodeID() -> String {
 
@@ -51,7 +51,7 @@ public struct NodeMeta: CustomStringConvertible {
         return pathComponents.last!
     }
     
-    public init(dictionary: Dictionary<String, AnyObject>!) {
+    public init(dictionary: Dictionary<String, Any>!) {
         
         self.extensions                     = dictionary[TheoNodeExtensions]                    as! Dictionary
         self.page_traverse                  = dictionary[TheoNodePagedTraverse]                 as! String
@@ -80,7 +80,7 @@ open class Node {
 
     // MARK: Private Setters and Public Getters
 
-    fileprivate (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
+    fileprivate (set) var nodeData: [String:Any] = [String:Any]()
     fileprivate (set) var labels: [String] = [String]()
 
     // MARK: Public Properties
@@ -99,11 +99,11 @@ open class Node {
     
     /// Designated Initializer
     ///
-    /// - parameter Dictionary<String,AnyObject>?: data
+    /// - parameter Dictionary<String,Any>?: data
     /// - returns: Node
-    public required init(data: Dictionary<String,AnyObject>?) {
+    public required init(data: Dictionary<String,Any>?) {
         
-        if let dictionaryData: [String:AnyObject] = data {
+        if let dictionaryData: [String:Any] = data {
 
             self.meta = NodeMeta(dictionary: dictionaryData)
             
@@ -125,10 +125,10 @@ open class Node {
     /// Gets a specified property for the Node
     ///
     /// - parameter String: propertyName
-    /// - returns: AnyObject?
-    open func getProp(_ propertyName: String) -> AnyObject? {
+    /// - returns: Any?
+    open func getProp(_ propertyName: String) -> Any? {
 
-        if let object: AnyObject = self.nodeData[propertyName] {
+        if let object: Any = self.nodeData[propertyName] {
             return object
         }
         
@@ -140,9 +140,9 @@ open class Node {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: AnyObject) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: Any) -> Void {
         
-        let objectValue: AnyObject = propertyValue
+        let objectValue: Any = propertyValue
         
         self.nodeData[propertyName] = objectValue
     }

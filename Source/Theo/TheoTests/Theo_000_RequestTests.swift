@@ -8,6 +8,10 @@
 
 import Foundation
 import XCTest
+#if os(Linux)
+    import Dispatch
+#endif
+
 
 let TheoTimeoutInterval: TimeInterval = 10
 var TheoNodeID: String                  = "100"
@@ -19,7 +23,8 @@ class ConfigLoader: NSObject {
 
     class func loadConfig() -> Config {
 
-        let filePath: String = Bundle(for: ConfigLoader.classForKeyedArchiver()!).path(forResource: "TheoConfig", ofType: "json")!
+        let bundle = Bundle(for: ConfigLoader.self)
+        let filePath: String = bundle.path(forResource: "TheoConfig", ofType: "json")!
 
         return Config(pathToFile: filePath)
     }
@@ -73,18 +78,18 @@ class Theo_000_RequestTests: XCTestCase {
         let title = "Example"
         var postNode = Node()
         postNode.setProp("title", propertyValue: title)
-        postNode.setProp("contentId", propertyValue: NSUUID().uuidString as AnyObject)
+        postNode.setProp("contentId", propertyValue: NSUUID().uuidString)
         postNode.setProp("tagstr", propertyValue: "a, b, c")
         postNode.setProp("timestamp", propertyValue: dateFormatter.string(from: Date()))
         postNode.setProp("url", propertyValue: "http://somewhere.out.there/post/1")
 
         let userUsername = "ajordan"
         var userNode = Node()
-        userNode.setProp("username", propertyValue: userUsername as AnyObject)
+        userNode.setProp("username", propertyValue: userUsername as Any)
 
         let followingUsername = "hhansen"
         var followingNode = Node()
-        followingNode.setProp("username", propertyValue: followingUsername as AnyObject)
+        followingNode.setProp("username", propertyValue: followingUsername as Any)
 
         // Create nodes
 
@@ -169,15 +174,15 @@ class Theo_000_RequestTests: XCTestCase {
             // Data
             let followingRelationship = Relationship()
             followingRelationship.relate(userNode, toNode: followingNode, type: RelationshipType.FOLLOWS)
-            followingRelationship.setProp("startTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+            followingRelationship.setProp("startTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
             let lastPostRelationship = Relationship()
             lastPostRelationship.relate(followingNode, toNode: postNode, type: RelationshipType.LASTPOST)
-            lastPostRelationship.setProp("postTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+            lastPostRelationship.setProp("postTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
             let nextPostRelationship = Relationship()
             nextPostRelationship.relate(postNode, toNode: userNode, type: RelationshipType.NEXTPOST)
-            nextPostRelationship.setProp("scheduledTime", propertyValue: dateFormatter.string(from: Date()) as AnyObject)
+            nextPostRelationship.setProp("scheduledTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
             // Create relationships
 
@@ -256,7 +261,7 @@ class Theo_000_RequestTests: XCTestCase {
             XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
-                let nodePropertyValue: AnyObject? = nodeObject.getProp(TheoNodePropertyName)
+                let nodePropertyValue = nodeObject.getProp(TheoNodePropertyName)
 
                 XCTAssert(nodePropertyValue != nil, "The nodeProperty can't be nil")
 
@@ -284,7 +289,7 @@ class Theo_000_RequestTests: XCTestCase {
             XCTAssert(error == nil, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
-                let nodePropertyValue: AnyObject? = nodeObject.getProp(randomString)
+                let nodePropertyValue = nodeObject.getProp(randomString)
 
                 XCTAssertNil(nodePropertyValue, "The nodeProperty must be nil")
 
@@ -304,8 +309,8 @@ class Theo_000_RequestTests: XCTestCase {
         let node = Node()
         let randomString: String = NSUUID().uuidString
 
-        node.setProp("unitTestKey_1", propertyValue: ("unitTestValue_1" + randomString) as AnyObject)
-        node.setProp("unitTestKey_2", propertyValue: ("unitTestValue_2" + randomString) as AnyObject)
+        node.setProp("unitTestKey_1", propertyValue: ("unitTestValue_1" + randomString) as Any)
+        node.setProp("unitTestKey_2", propertyValue: ("unitTestValue_2" + randomString) as Any)
 
         theo.createNode(node, completionBlock: {(node, error) in
 
@@ -458,7 +463,7 @@ class Theo_000_RequestTests: XCTestCase {
                 return
             }
 
-            let updatedPropertiesDictionary: [String:AnyObject] = ["test_update_property_label_1": "test_update_property_lable_2" as AnyObject]
+            let updatedPropertiesDictionary: [String:Any] = ["test_update_property_label_1": "test_update_property_lable_2" as Any]
 
             theo.updateNode(updateNode, properties: updatedPropertiesDictionary,
                 completionBlock: {(_, error) in
@@ -556,7 +561,7 @@ class Theo_000_RequestTests: XCTestCase {
 
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
-        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456 as AnyObject)
+        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456 as Any)
         node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
 
         theo.createNode(node, labels: node.labels, completionBlock: {(savedNode, error) in
@@ -581,8 +586,8 @@ class Theo_000_RequestTests: XCTestCase {
 
         let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"
         let resultDataContents: Array<String> = ["REST"]
-        let statement: Dictionary <String, AnyObject> = ["statement": createStatement as AnyObject, "resultDataContents": resultDataContents as AnyObject]
-        let statements: Array<Dictionary <String, AnyObject>> = [statement]
+        let statement: Dictionary <String, Any> = ["statement": createStatement as Any, "resultDataContents": resultDataContents as Any]
+        let statements: Array<Dictionary <String, Any>> = [statement]
 
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_010_successfullyCommitTransaction")
@@ -646,7 +651,7 @@ class Theo_000_RequestTests: XCTestCase {
 
                 if let foundRelationship: Relationship = relationships.first {
 
-                    let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty": "updatedRelationshipPropertyValue" as AnyObject]
+                    let updatedProperties: Dictionary<String, Any> = ["updatedRelationshipProperty": "updatedRelationshipPropertyValue" as Any]
 
                     theo.updateRelationship(foundRelationship, properties: updatedProperties, completionBlock: {(_, error) in
 
@@ -674,7 +679,7 @@ class Theo_000_RequestTests: XCTestCase {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_012_successfullyExecuteCyperRequest")
         let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
-        let cyperParams: Dictionary<String, AnyObject> = ["user": "ajordan" as AnyObject]
+        let cyperParams: Dictionary<String, Any> = ["user": "ajordan" as Any]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
 
@@ -770,7 +775,7 @@ class Theo_000_RequestTests: XCTestCase {
 extension Node {
     func setProp(_ propertyName: String, propertyValue: String) -> Void {
 
-        let value: AnyObject = propertyValue as NSString
+        let value: Any = propertyValue as String
         self.setProp(propertyName, propertyValue: value)
     }
 }
@@ -778,7 +783,7 @@ extension Node {
 extension Relationship {
     func setProp(_ propertyName: String, propertyValue: String) -> Void {
 
-        let value: AnyObject = propertyValue as NSString
+        let value: Any = propertyValue as String
         self.setProp(propertyName, propertyValue: value)
     }
 }
