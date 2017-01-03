@@ -73,6 +73,7 @@ open class Client {
     open let password: String?
 
     open var parsingQueue: DispatchQueue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
+    open var callbackQueue: DispatchQueue = DispatchQueue.main
     
     public typealias TheoMetaDataCompletionBlock = (_ metaData: DBMeta?, _ error: NSError?) -> Void
     public typealias TheoNodeRequestCompletionBlock = (_ node: Node?, _ error: NSError?) -> Void
@@ -82,7 +83,6 @@ open class Client {
     public typealias TheoRawRequestCompletionBlock = (_ response: AnyObject?, _ error: NSError?) -> Void
     public typealias TheoTransactionCompletionBlock = (_ response: Dictionary<String, AnyObject>, _ error: NSError?) -> Void
     public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
-
 
     // MARK: Lazy properties
 
@@ -177,25 +177,32 @@ open class Client {
                         
                         guard let JSONAsDictionaryAny: [String: Any] = JSON as? [String: Any] else {
                             
-                            completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
-                            return
+                            self.callbackQueue.async {
+                             
+                                completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                                return
+                            }
                         }
                         
                         let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, AnyObject>!)
                         
-                        DispatchQueue.main.async(execute: {
+                        self.callbackQueue.async {
                             completionBlock?(meta, nil)
-                        })
+                        }
                         
                     } catch {
                         
-                        completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                        self.callbackQueue.async {
+                            completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                        }
                     }
                 })
 
             } else {
-
-                completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                
+                self.callbackQueue.async {
+                    completionBlock?(nil, self.unknownEmptyResponseBodyError(response))
+                }
             }
 
        }, errorBlock: {error, response in
@@ -227,21 +234,26 @@ open class Client {
                             let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                             let node: Node = Node(data: jsonAsDictionary)
 
-                            DispatchQueue.main.async(execute: {
+                            self.callbackQueue.async {
                                 completionBlock!(node, nil)
-                            })
+                            }
                         })
 
                     } else {
-
-                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                        
+                        self.callbackQueue.async {
+                            completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                        }
                     }
                 }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(nil, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, error)
+                    }
                 }
         })
     }
@@ -272,28 +284,33 @@ open class Client {
                             let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                             let node: Node = Node(data:jsonAsDictionary)
                             
-                            DispatchQueue.main.async(execute: {
+                            self.callbackQueue.async {
                                 completionBlock!(node, nil)
-                            })
+                            }
                             
                         } else {
 
-                            DispatchQueue.main.async(execute: {
+                            self.callbackQueue.async {
                                 completionBlock!(nil, nil)
-                            })
+                            }
                         }
                     })
                     
                 } else {
-
-                    completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                    }
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(nil, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, error)
+                    }
                 }
             })
     }
@@ -424,28 +441,33 @@ open class Client {
                                 let jsonAsDictionary: [String:AnyObject] = JSONObject as! [String:AnyObject]
                                 let node: Node = Node(data:jsonAsDictionary)
 
-                                DispatchQueue.main.async(execute: {
+                                self.callbackQueue.async {
                                     completionBlock!(node, nil)
-                                })
+                                }
                                 
                             } else {
 
-                                DispatchQueue.main.async(execute: {
+                                self.callbackQueue.async {
                                     completionBlock!(nil, nil)
-                                })
+                                }
                             }
                         })
 
                     } else {
-
-                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                        
+                        self.callbackQueue.async {
+                            completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                        }
                     }
                 }
             },
             errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(nil, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, error)
+                    }
                 }
         })
     }
@@ -468,14 +490,20 @@ open class Client {
                 if (completionBlock != nil) {
                     
                     if let _: Data = data {
-                        completionBlock!(nil)
+                        
+                        self.callbackQueue.async {
+                            completionBlock!(nil)
+                        }
                     }
                 }
                 
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(error)
+                    }
                 }
         })
     }
@@ -533,16 +561,19 @@ open class Client {
                             relationshipsForNode.append(newRelationship)
                         }
 
-                        DispatchQueue.main.async(execute: {
+                        self.callbackQueue.async {
                             completionBlock!(relationshipsForNode, nil)
-                        })
+                        }
                     })
                 }
                 
             }, errorBlock: {(error, response) in
         
                 if (completionBlock != nil) {
-                    completionBlock!(relationshipsForNode, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(relationshipsForNode, error)
+                    }
                 }
             })
     }
@@ -571,20 +602,26 @@ open class Client {
                                                         let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                                                         let relationship: Relationship = Relationship(data: jsonAsDictionary)
 
-                                                        DispatchQueue.main.async(execute: {
+                                                        self.callbackQueue.async {
                                                             completionBlock!(relationship, nil)
-                                                        })
+                                                        }
                                                     })
 
                                                 } else {
-                                                    completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                                                    
+                                                    self.callbackQueue.async {
+                                                        completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                                                    }
                                                 }
                                             }
                                          
                                          }, errorBlock: {(error, response) in
 
                                                 if (completionBlock != nil) {
-                                                    completionBlock!(nil, error)
+                                                    
+                                                    self.callbackQueue.async {
+                                                        completionBlock!(nil, error)
+                                                    }
                                                 }
                                          })
     }
@@ -612,18 +649,21 @@ open class Client {
                 
                 if (completionBlock != nil) {
 
-                    DispatchQueue.main.async(execute: {
+                    self.callbackQueue.async {
                         
-                        // If the update is successfull then you'll
-                        // receive a 204 with an empty body
+                        /// If the update is successfull then you'll
+                        /// receive a 204 with an empty body
                         completionBlock!(nil, nil)
-                    })
+                    }
                 }
                 
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(nil, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, error)
+                    }
                 }
         })
     }
@@ -645,11 +685,15 @@ open class Client {
                                                 
                                                 if let _: Data = data {
                                                     
-                                                    completionBlock!(nil)
+                                                    self.callbackQueue.async {
+                                                        completionBlock!(nil)
+                                                    }
 
                                                 } else {
                                                     
-                                                    completionBlock!(self.unknownEmptyResponseBodyError(response))
+                                                    self.callbackQueue.async {
+                                                        completionBlock!(self.unknownEmptyResponseBodyError(response))
+                                                    }
                                                 }
                                             }
 
@@ -657,7 +701,10 @@ open class Client {
                                            errorBlock: {(error, response) in
                                             
                                                if (completionBlock != nil) {
-                                                  completionBlock!(error)
+                                                
+                                                    self.callbackQueue.async {
+                                                        completionBlock!(error)
+                                                    }
                                                }
                                            })
     }
@@ -685,21 +732,26 @@ open class Client {
                         let JSON: AnyObject? = (try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)) as AnyObject!
                         let jsonAsDictionary: [String:AnyObject]! = JSON as! [String:AnyObject]
                         
-                        DispatchQueue.main.async(execute: {
+                        self.callbackQueue.async {
                             completionBlock!(jsonAsDictionary, nil)
-                        })
+                        }
                     })
 
                 } else {
-
-                    completionBlock!([String:AnyObject](), self.unknownEmptyResponseBodyError(response))
+                    
+                    self.callbackQueue.async {
+                        completionBlock!([String:AnyObject](), self.unknownEmptyResponseBodyError(response))
+                    }
                 }
             }
             
             }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!([String:AnyObject](), error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!([String:AnyObject](), error)
+                    }
                 }
         })
     }
@@ -725,21 +777,26 @@ open class Client {
                                 
                                 let JSON: AnyObject? = try! JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject?
 
-                                DispatchQueue.main.async(execute: {
+                                self.callbackQueue.async {
                                     completionBlock!(JSON, nil)
-                                })
+                                }
                             })
 
                         } else {
                             
-                            completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                            self.callbackQueue.async {
+                                completionBlock!(nil, self.unknownEmptyResponseBodyError(response))
+                            }
                         }
                     }
                     
                 }, errorBlock: {(error, response) in
                     
                     if (completionBlock != nil) {
-                        completionBlock!(nil, error)
+                        
+                        self.callbackQueue.async {
+                            completionBlock!(nil, error)
+                        }
                     }
             })
     }
@@ -777,21 +834,27 @@ open class Client {
                         let jsonAsDictionary: [String:[AnyObject]]! = JSON as! [String:[AnyObject]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
-                        DispatchQueue.main.async(execute: {
+                        self.callbackQueue.async {
                             completionBlock!(cypher, nil)
-                        })
+                        }
                     })
 
                 } else {
                     //TRAVIS EDIT: UNNECESSARY?
-                    //completionBlock!(cypher: nil, error: self.unknownEmptyResponseBodyError(response))
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(cypher: nil, error: self.unknownEmptyResponseBodyError(response))
+                    }
                 }
             }
             
         }, errorBlock: {(error, response) in
                 
                 if (completionBlock != nil) {
-                    completionBlock!(nil, error)
+                    
+                    self.callbackQueue.async {
+                        completionBlock!(nil, error)
+                    }
                 }
         })
     }
