@@ -9,42 +9,44 @@
 /* Begin PBXBuildFile section */
 		01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
 		01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01422D2419D0B04A00B4B3B8 /* Relationship.swift */; };
-		017BB6E519E427A9007C57FD /* TheoConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 017BB6E419E427A9007C57FD /* TheoConfig.json */; };
 		017BB6E719E436E7007C57FD /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BB6E619E436E7007C57FD /* Cypher.swift */; };
 		017BB6E819E436E7007C57FD /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BB6E619E436E7007C57FD /* Cypher.swift */; };
 		019506C019CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
 		019506C119CC61AB006F3596 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506BF19CC61AB006F3596 /* Node.swift */; };
-		019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */ = {isa = PBXBuildFile; fileRef = 019506C219CF4C7A006F3596 /* TheoConfig.json.example */; };
-		019506C619CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
-		019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 019506C319CF4C7A006F3596 /* TemplateIcon2x.png */; };
-		019506CD19CF555E006F3596 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019506CC19CF555E006F3596 /* Config.swift */; };
 		01FB2CC619C7DAB800D429E7 /* Theo.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FB2CC519C7DAB800D429E7 /* Theo.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */; };
 		01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1219C7DB5D00D429E7 /* Request.swift */; };
 		01FB2D1519C7DB5D00D429E7 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1219C7DB5D00D429E7 /* Request.swift */; };
 		01FB2D1619C7DB5D00D429E7 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1319C7DB5D00D429E7 /* Session.swift */; };
 		01FB2D1719C7DB5D00D429E7 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1319C7DB5D00D429E7 /* Session.swift */; };
 		01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1819C7DBBF00D429E7 /* Client.swift */; };
 		01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FB2D1819C7DBBF00D429E7 /* Client.swift */; };
+		85316C3B1E19A55F00CA3EB7 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85316C3A1E19A55F00CA3EB7 /* Package.swift */; };
+		8563ED891E1BEB170045A6D3 /* TheoConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 8563ED881E1BEB170045A6D3 /* TheoConfig.json */; };
+		8563ED8B1E1BEB1F0045A6D3 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8563ED8A1E1BEB1F0045A6D3 /* Config.swift */; };
+		8563ED8D1E1BEB290045A6D3 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8563ED8C1E1BEB290045A6D3 /* Theo_000_RequestTests.swift */; };
+		8563ED921E1BEB500045A6D3 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8563ED911E1BEB500045A6D3 /* TemplateIcon2x.png */; };
+		8563ED931E1BEB500045A6D3 /* TemplateIcon2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 8563ED911E1BEB500045A6D3 /* TemplateIcon2x.png */; };
+		8563ED951E1BEB600045A6D3 /* TheoConfig.json.example in Resources */ = {isa = PBXBuildFile; fileRef = 8563ED941E1BEB600045A6D3 /* TheoConfig.json.example */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		01422D2419D0B04A00B4B3B8 /* Relationship.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
-		017BB6E419E427A9007C57FD /* TheoConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TheoConfig.json; sourceTree = "<group>"; };
 		017BB6E619E436E7007C57FD /* Cypher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
 		019506BF19CC61AB006F3596 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
-		019506C219CF4C7A006F3596 /* TheoConfig.json.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TheoConfig.json.example; sourceTree = "<group>"; };
-		019506C319CF4C7A006F3596 /* TemplateIcon2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TemplateIcon2x.png; sourceTree = "<group>"; };
-		019506CC19CF555E006F3596 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		01FB2CC019C7DAB800D429E7 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01FB2CC419C7DAB800D429E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01FB2CC519C7DAB800D429E7 /* Theo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Theo.h; sourceTree = "<group>"; };
 		01FB2CCB19C7DAB800D429E7 /* TheoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		01FB2CCE19C7DAB800D429E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_RequestTests.swift; sourceTree = "<group>"; };
 		01FB2D1219C7DB5D00D429E7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		01FB2D1319C7DB5D00D429E7 /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		01FB2D1819C7DBBF00D429E7 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		85316C3A1E19A55F00CA3EB7 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../../../Package.swift; sourceTree = "<group>"; };
+		8563ED881E1BEB170045A6D3 /* TheoConfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = TheoConfig.json; path = ../../../Tests/TheoTests/TheoConfig.json; sourceTree = "<group>"; };
+		8563ED8A1E1BEB1F0045A6D3 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Config.swift; path = ../../../Tests/TheoTests/Config.swift; sourceTree = "<group>"; };
+		8563ED8C1E1BEB290045A6D3 /* Theo_000_RequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Theo_000_RequestTests.swift; path = ../../../Tests/TheoTests/Theo_000_RequestTests.swift; sourceTree = "<group>"; };
+		8563ED8E1E1BEB340045A6D3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../../Tests/TheoTests/Info.plist; sourceTree = "<group>"; };
+		8563ED911E1BEB500045A6D3 /* TemplateIcon2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TemplateIcon2x.png; path = ../../../Tests/TheoTests/TemplateIcon2x.png; sourceTree = "<group>"; };
+		8563ED941E1BEB600045A6D3 /* TheoConfig.json.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TheoConfig.json.example; path = ../../../Tests/TheoTests/TheoConfig.json.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 		01FB2CC319C7DAB800D429E7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				85316C3A1E19A55F00CA3EB7 /* Package.swift */,
 				01FB2CC419C7DAB800D429E7 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -125,12 +128,12 @@
 		01FB2CCC19C7DAB800D429E7 /* TheoTests */ = {
 			isa = PBXGroup;
 			children = (
-				017BB6E419E427A9007C57FD /* TheoConfig.json */,
-				019506CC19CF555E006F3596 /* Config.swift */,
-				01FB2CCF19C7DAB800D429E7 /* Theo_000_RequestTests.swift */,
+				8563ED881E1BEB170045A6D3 /* TheoConfig.json */,
+				8563ED8A1E1BEB1F0045A6D3 /* Config.swift */,
+				8563ED8C1E1BEB290045A6D3 /* Theo_000_RequestTests.swift */,
 				01FB2CCD19C7DAB800D429E7 /* Supporting Files */,
-				019506C219CF4C7A006F3596 /* TheoConfig.json.example */,
-				019506C319CF4C7A006F3596 /* TemplateIcon2x.png */,
+				8563ED941E1BEB600045A6D3 /* TheoConfig.json.example */,
+				8563ED911E1BEB500045A6D3 /* TemplateIcon2x.png */,
 			);
 			path = TheoTests;
 			sourceTree = "<group>";
@@ -138,7 +141,7 @@
 		01FB2CCD19C7DAB800D429E7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				01FB2CCE19C7DAB800D429E7 /* Info.plist */,
+				8563ED8E1E1BEB340045A6D3 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -200,14 +203,16 @@
 			attributes = {
 				LastSwiftMigration = 0700;
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Theo;
 				TargetAttributes = {
 					01FB2CBF19C7DAB800D429E7 = {
 						CreatedOnToolsVersion = 6.0;
+						LastSwiftMigration = 0800;
 					};
 					01FB2CCA19C7DAB800D429E7 = {
 						CreatedOnToolsVersion = 6.0;
+						LastSwiftMigration = 0810;
 					};
 				};
 			};
@@ -234,7 +239,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				019506C619CF4C7A006F3596 /* TemplateIcon2x.png in Resources */,
+				8563ED921E1BEB500045A6D3 /* TemplateIcon2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,9 +247,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				019506C719CF4C7A006F3596 /* TemplateIcon2x.png in Resources */,
-				017BB6E519E427A9007C57FD /* TheoConfig.json in Resources */,
-				019506C519CF4C7A006F3596 /* TheoConfig.json.example in Resources */,
+				8563ED931E1BEB500045A6D3 /* TemplateIcon2x.png in Resources */,
+				8563ED891E1BEB170045A6D3 /* TheoConfig.json in Resources */,
+				8563ED951E1BEB600045A6D3 /* TheoConfig.json.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +263,7 @@
 				01422D2519D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1619C7DB5D00D429E7 /* Session.swift in Sources */,
 				017BB6E719E436E7007C57FD /* Cypher.swift in Sources */,
+				85316C3B1E19A55F00CA3EB7 /* Package.swift in Sources */,
 				01FB2D1419C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1919C7DBBF00D429E7 /* Client.swift in Sources */,
 				019506C019CC61AB006F3596 /* Node.swift in Sources */,
@@ -268,14 +274,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01FB2CD019C7DAB800D429E7 /* Theo_000_RequestTests.swift in Sources */,
+				8563ED8D1E1BEB290045A6D3 /* Theo_000_RequestTests.swift in Sources */,
 				019506C119CC61AB006F3596 /* Node.swift in Sources */,
+				8563ED8B1E1BEB1F0045A6D3 /* Config.swift in Sources */,
 				017BB6E819E436E7007C57FD /* Cypher.swift in Sources */,
 				01422D2619D0B04A00B4B3B8 /* Relationship.swift in Sources */,
 				01FB2D1519C7DB5D00D429E7 /* Request.swift in Sources */,
 				01FB2D1A19C7DBBF00D429E7 /* Client.swift in Sources */,
 				01FB2D1719C7DB5D00D429E7 /* Session.swift in Sources */,
-				019506CD19CF555E006F3596 /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,8 +301,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -306,6 +314,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -342,8 +351,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -352,6 +363,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -361,6 +373,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -372,18 +385,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Theo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.graphstory.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -391,23 +406,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Theo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.graphstory.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
 		01FB2CD719C7DAB800D429E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -416,24 +434,27 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = TheoTests/Info.plist;
+				INFOPLIST_FILE = ../../Tests/TheoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.graphstory.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		01FB2CD819C7DAB800D429E7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = TheoTests/Info.plist;
+				INFOPLIST_FILE = ../../Tests/TheoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.graphstory.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

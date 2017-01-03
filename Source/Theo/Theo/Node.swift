@@ -27,7 +27,7 @@ let TheoNodeMetaData: String                   = "metadata"
 
 public struct NodeMeta: CustomStringConvertible {
     
-    let extensions: [String: AnyObject]
+    let extensions: [String: Any]
     let page_traverse: String
     let labels: String
     let outgoing_relationships: String
@@ -41,17 +41,17 @@ public struct NodeMeta: CustomStringConvertible {
     let incoming_relationships: String
     let incoming_typed_relationships: String
     let create_relationship: String
-    let data: [String: AnyObject]
-    let metadata: [String: AnyObject]
+    let data: [String: Any]
+    let metadata: [String: Any]
 
     public func nodeID() -> String {
 
-        let pathComponents: Array<String> = self.node_self.componentsSeparatedByString("/")
+        let pathComponents: Array<String> = self.node_self.components(separatedBy: "/")
 
         return pathComponents.last!
     }
     
-    public init(dictionary: Dictionary<String, AnyObject>!) {
+    public init(dictionary: Dictionary<String, Any>!) {
         
         self.extensions                     = dictionary[TheoNodeExtensions]                    as! Dictionary
         self.page_traverse                  = dictionary[TheoNodePagedTraverse]                 as! String
@@ -76,16 +76,16 @@ public struct NodeMeta: CustomStringConvertible {
     }
 }
 
-public class Node {
+open class Node {
 
     // MARK: Private Setters and Public Getters
 
-    private (set) var nodeData: [String:AnyObject] = [String:AnyObject]()
-    private (set) var labels: [String] = [String]()
+    fileprivate (set) var nodeData: [String:Any] = [String:Any]()
+    fileprivate (set) var labels: [String] = [String]()
 
     // MARK: Public Properties
     
-    public var meta: NodeMeta? = nil {
+    open var meta: NodeMeta? = nil {
 
         didSet {
         
@@ -99,11 +99,11 @@ public class Node {
     
     /// Designated Initializer
     ///
-    /// - parameter Dictionary<String,AnyObject>?: data
+    /// - parameter Dictionary<String,Any>?: data
     /// - returns: Node
-    public required init(data: Dictionary<String,AnyObject>?) {
+    public required init(data: Dictionary<String,Any>?) {
         
-        if let dictionaryData: [String:AnyObject] = data {
+        if let dictionaryData: [String:Any] = data {
 
             self.meta = NodeMeta(dictionary: dictionaryData)
             
@@ -125,10 +125,10 @@ public class Node {
     /// Gets a specified property for the Node
     ///
     /// - parameter String: propertyName
-    /// - returns: AnyObject?
-    public func getProp(propertyName: String) -> AnyObject? {
+    /// - returns: Any?
+    open func getProp(_ propertyName: String) -> Any? {
 
-        if let object: AnyObject = self.nodeData[propertyName] {
+        if let object: Any = self.nodeData[propertyName] {
             return object
         }
         
@@ -140,9 +140,9 @@ public class Node {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    public func setProp(propertyName: String, propertyValue: AnyObject) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: Any) -> Void {
         
-        let objectValue: AnyObject = propertyValue
+        let objectValue: Any = propertyValue
         
         self.nodeData[propertyName] = objectValue
     }
@@ -151,7 +151,7 @@ public class Node {
     ///
     /// - parameter String: label
     /// - returns: Void
-    public func addLabel(label: String) -> Void {
+    open func addLabel(_ label: String) -> Void {
         self.labels.append(label)
     }
     
@@ -159,9 +159,9 @@ public class Node {
     ///
     /// - parameter Array<String>: labels
     /// - returns: Void
-    public func addLabels(labels: Array<String>) -> Void {
+    open func addLabels(_ labels: Array<String>) -> Void {
 
-        let newLabels = Array([self.labels, labels].flatten())
+        let newLabels = Array([self.labels, labels].joined())
         self.labels = newLabels
     }
     
@@ -170,14 +170,14 @@ public class Node {
     /// This is done by checking for empty keys array
     ///
     /// - returns: Bool
-    public func isEmpty() -> Bool {
+    open func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
 
     /// Returns whether the current node has labels
     ///
     /// - returns: Bool
-    public func hasLabels() -> Bool {
+    open func hasLabels() -> Bool {
         return self.labels.isEmpty
     }
 }

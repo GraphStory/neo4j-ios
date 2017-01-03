@@ -17,9 +17,9 @@ struct Config {
     init(pathToFile: String) {
 
         do {
-            
-            let jsonData: NSData = NSData(contentsOfFile: pathToFile)!
-            let JSON: AnyObject? = try NSJSONSerialization.JSONObjectWithData(jsonData, options: []) as AnyObject!
+            let filePathURL = URL(fileURLWithPath: pathToFile)
+            let jsonData = try Data(contentsOf: filePathURL)
+            let JSON = try JSONSerialization.jsonObject(with: jsonData, options: [])
 
             let jsonConfig: [String:String]! = JSON as! [String:String]
             
@@ -33,7 +33,7 @@ struct Config {
             self.password = ""
             self.host     = ""
 
-            print("Fetch failed: \((error as NSError).localizedDescription)")
+            print("Fetch failed: \(error)")
         }
     }
 }

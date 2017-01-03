@@ -17,3 +17,5 @@ DerivedData
 *.xccheckout
 Pods
 Source/Theo/TheoTests/TheoConfig.json
+Tests/TheoTests/TheoConfig.json
+.build

@@ -8,8 +8,8 @@
 
 import Foundation
 
-typealias RequestSuccessBlock = (data: NSData?, response: NSURLResponse) -> Void
-typealias RequestErrorBlock   = (error: NSError, response: NSURLResponse) -> Void
+typealias RequestSuccessBlock = (_ data: Data?, _ response: URLResponse) -> Void
+typealias RequestErrorBlock   = (_ error: NSError, _ response: URLResponse) -> Void
 
 let TheoNetworkErrorDomain: String  = "com.theo.network.error"
 let TheoAuthorizationHeader: String = "Authorization"
@@ -28,26 +28,24 @@ class Request {
 
     lazy var httpSession: Session = {
 
-        Session.SessionParams.queue = NSOperationQueue.mainQueue()
+        Session.SessionParams.queue = OperationQueue()
 
         return Session.sharedInstance;
     }()
   
-    lazy var sessionConfiguration: NSURLSessionConfiguration = {
+    lazy var sessionConfiguration: URLSessionConfiguration = {
         return self.httpSession.configuration.sessionConfiguration
     }()
   
-    lazy var sessionHTTPAdditionalHeaders: [NSObject:AnyObject]? = {
-        return self.sessionConfiguration.HTTPAdditionalHeaders
+    lazy var sessionHTTPAdditionalHeaders: [AnyHashable: Any]? = {
+        return self.sessionConfiguration.httpAdditionalHeaders
     }()
   
-    let sessionURL: NSURL
+    let sessionURL: URL
     
     // MARK: Private properties
 
-    private var httpRequest: NSURLRequest
-    
-    private var userCredentials: (username: String, password: String)?
+    fileprivate var userCredentials: (username: String, password: String)?
 
     // MARK: Constructors
     
@@ -57,10 +55,9 @@ class Request {
     /// - parameter NSURLCredential?: credentials
     /// - parameter Array<String,String>?: additionalHeaders
     /// - returns: Request
-    required init(url: NSURL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
+    required init(url: URL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
-        self.httpRequest = NSURLRequest(URL: self.sessionURL)
     
         // If the additional headers aren't nil then we have to fake a mutable 
         // copy of the sessionHTTPAdditionsalHeaders (they are immutable), add 
@@ -81,11 +78,8 @@ class Request {
                 }
             }
       
-            self.sessionConfiguration.HTTPAdditionalHeaders = newHeaders as [NSObject:AnyObject]?
+            self.sessionConfiguration.httpAdditionalHeaders = newHeaders as [AnyHashable: Any]?
       
-        } else {
-      
-           // self.sessionURL = url
         }
         
         // More than likely your instance of Neo4j will require a username/pass.
@@ -97,6 +91,21 @@ class Request {
 
         self.userCredentials = credentials
     }
+    
+    func urlRequest() -> URLRequest {
+        var httpRequest = URLRequest(url: self.sessionURL)
+        
+        httpRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        httpRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept")
+
+        if let userCreds = self.userCredentials {
+            
+            let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
+            httpRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+        }
+        
+        return httpRequest
+    }
   
     /// Convenience initializer
     ///
@@ -106,7 +115,7 @@ class Request {
     /// - parameter NSURLCredential?: credentials
     /// - returns: Request
 
-    convenience init(url: NSURL, credentials: (username: String, password: String)?) {
+    convenience init(url: URL, credentials: (username: String, password: String)?) {
         self.init(url: url, credentials: credentials, additionalHeaders: nil)
     }
     
@@ -118,7 +127,7 @@ class Request {
     /// - returns: Request
     
     convenience init() {
-        self.init(url: NSURL(), credentials: (username: String(), password: String()), additionalHeaders: nil)
+        self.init(url: URL(string: "this will fail")!, credentials: (username: String(), password: String()), additionalHeaders: nil)
     }
   
     // MARK: Public Methods
@@ -128,57 +137,69 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func getResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func getResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
 
-        let request: NSURLRequest = {
+        let request: URLRequest = {
       
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
+            var mutableRequest: URLRequest = urlRequest()
+            mutableRequest.httpMethod = AllowedHTTPMethods.GET
       
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.GET
-            
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
-            }
-      
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest
         }()
 
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        
+        
+        let completionHandler : (Data?, URLResponse?, Error?) -> Void = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
       
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
-            let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            guard let httpResponse: HTTPURLResponse = response as? HTTPURLResponse else {
+                if let errorCallBack = errorBlock {
+                    let error = NSError(domain: "Invalid response", code: -1, userInfo: nil)
+                    let url: URL = request.url ?? URL(string: "http://invalid.com/error")!
+                    let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+                    errorCallBack(error, response)
+                }
+                return
+            }
+            
+            var dataResp: Data? = data
+            
+            let statusCode = httpResponse.statusCode
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
 
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
       
-            if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
-            }
-      
-            if (errorBlock != nil) {
-        
-                if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+            /// Process Success Block
+            
+            successBlock?(dataResp, httpResponse)
+    
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
+                
+                if error != nil { // How should this Error be NSError?
+                    
+                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    errorCallBack(nserror, httpResponse)
+                    return
                 }
-        
-                if (!containsStatusCode) {
-
+                
+                if !containsStatusCode {
+                    
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
                     let requestResponseError: NSError = {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
-          
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
-        })
+
+        }
+            
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler:completionHandler)
     
         task.resume()
     }
@@ -188,48 +209,62 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func postResource(postData: AnyObject, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func postResource(_ postData: Any, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
-        let request: NSURLRequest = {
+        
+        let request: URLRequest = {
 
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
-            let transformedJSONData: NSData = try! NSJSONSerialization.dataWithJSONObject(postData, options: [])
+            var mutableRequest = urlRequest()
+            mutableRequest.httpMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             
-            mutableRequest.HTTPMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
-            mutableRequest.HTTPBody   = transformedJSONData
+            mutableRequest.httpBody = Data()
             
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+            if let transformedJSONData: Data = try? JSONSerialization.data(withJSONObject: postData, options: []) {
+                mutableRequest.httpBody = transformedJSONData
             }
             
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest
         }()
         
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(request, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        let completionHandler = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
+
+            print("completionHandler #1 - \(request.url)")
+            var dataResp: Data? = data
+            guard let httpResponse = response as? HTTPURLResponse else {
+                if let errorCallBack = errorBlock {
+                    let error = NSError(domain: "Invalid response", code: -1, userInfo: nil)
+                    let url: URL = request.url ?? URL(string: "http://invalid.com/error")!
+                    let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+                    errorCallBack(error, response)
+                }
+                print("failed guard #1 - \(request.url)")
+                return
+            }
             
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
+            print("completionHandler #2 -> \(statusCode) - \(request.url)")
             
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
+
+            /// Process Success Block
             
-            if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
-            }
+            successBlock?(dataResp, httpResponse)
             
-            if (errorBlock != nil) {
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
                 
-                if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+                if error != nil { // How should this Error be NSError?
+                    
+                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    errorCallBack(nserror, httpResponse)
+                    return
                 }
                 
-                if (!containsStatusCode) {
+                if !containsStatusCode {
                     
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
@@ -237,10 +272,12 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
-        })
+        }
+        
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler:completionHandler)
         
         task.resume()
     }
@@ -250,48 +287,43 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func deleteResource(successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func deleteResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
     
-        let request: NSURLRequest = {
+        let request: URLRequest = {
             
-            let mutableRequest: NSMutableURLRequest = self.httpRequest.mutableCopy() as! NSMutableURLRequest
-            
-            mutableRequest.HTTPMethod = AllowedHTTPMethods.DELETE
+            var mutableRequest = urlRequest()
+            mutableRequest.httpMethod = AllowedHTTPMethods.DELETE
         
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
-            }
-            
-            return mutableRequest.copy() as! NSURLRequest
+            return mutableRequest
         }()
         
-        self.httpRequest = request
-        
-        let task : NSURLSessionDataTask = self.httpSession.session.dataTaskWithRequest(self.httpRequest, completionHandler: {(data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler: {(data: Data?, response: URLResponse?, error: Error?) -> Void in
             
-            var dataResp: NSData? = data
-            let httpResponse: NSHTTPURLResponse = response as! NSHTTPURLResponse
+            var dataResp: Data? = data
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().containsIndex(statusCode)
+            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
             
-            if (!containsStatusCode) {
+            if !containsStatusCode {
                 dataResp = nil
             }
+
+            /// Process Success Block
             
-            if (successBlock != nil) {
-                successBlock!(data: dataResp, response: httpResponse)
-            }
+            successBlock?(dataResp, httpResponse)
             
-            if (errorBlock != nil) {
+            /// Process Error Block
+            
+            if let errorCallBack = errorBlock {
                 
-                if (error != nil) {
-                    errorBlock!(error: error!, response: httpResponse)
+                if error != nil { // How should this Error be NSError?
+                    
+                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    errorCallBack(nserror, httpResponse)
+                    return
                 }
                 
-                if (!containsStatusCode) {
+                if !containsStatusCode {
                     
                     let localizedErrorString: String = "There was an error processing the request"
                     let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response!.description]
@@ -299,7 +331,7 @@ class Request {
                         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorUnknown, userInfo: errorDictionary)
                     }()
                     
-                    errorBlock!(error: requestResponseError, response: httpResponse)
+                    errorCallBack(requestResponseError, httpResponse)
                 }
             }
         })
@@ -310,11 +342,11 @@ class Request {
     /// Defines and range of acceptable HTTP response codes. 200 thru 300 inclusive
     ///
     /// - returns: NSIndexSet
-    class func acceptableStatusCodes() -> NSIndexSet {
+    class func acceptableStatusCodes() -> IndexSet {
     
         let nsRange = NSMakeRange(200, 100)
     
-        return NSIndexSet(indexesInRange: nsRange)
+        return IndexSet(integersIn: nsRange.toRange() ?? 0..<0)
     }
     
     // MARK: Private Methods
@@ -324,11 +356,11 @@ class Request {
     /// - parameter String: username
     /// - parameter String: password
     /// - returns: String
-    private func basicAuthString(username: String, password: String) -> String {
+    fileprivate func basicAuthString(_ username: String, password: String) -> String {
     
-        let loginString = NSString(format: "%@:%@", username, password)
-        let loginData: NSData = loginString.dataUsingEncoding(NSUTF8StringEncoding)!
-        let base64LoginString = loginData.base64EncodedStringWithOptions([])
+        let loginString = "\(username):\(password)"
+        let loginData: Data = loginString.data(using: .utf8)!
+        let base64LoginString = loginData.base64EncodedString(options: [])
         let authString = "Basic \(base64LoginString)"
 
         return authString
