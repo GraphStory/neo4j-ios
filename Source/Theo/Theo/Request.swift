@@ -45,8 +45,6 @@ class Request {
     
     // MARK: Private properties
 
-    fileprivate var httpRequest: URLRequest
-    
     fileprivate var userCredentials: (username: String, password: String)?
 
     // MARK: Constructors
@@ -60,7 +58,6 @@ class Request {
     required init(url: URL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
-        self.httpRequest = URLRequest(url: self.sessionURL)
     
         // If the additional headers aren't nil then we have to fake a mutable 
         // copy of the sessionHTTPAdditionsalHeaders (they are immutable), add 
@@ -83,9 +80,6 @@ class Request {
       
             self.sessionConfiguration.httpAdditionalHeaders = newHeaders as [AnyHashable: Any]?
       
-        } else {
-      
-           // self.sessionURL = url
         }
         
         // More than likely your instance of Neo4j will require a username/pass.
@@ -96,6 +90,21 @@ class Request {
         // at a session or task level.
 
         self.userCredentials = credentials
+    }
+    
+    func urlRequest() -> URLRequest {
+        var httpRequest = URLRequest(url: self.sessionURL)
+        
+        httpRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        httpRequest.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept")
+
+        if let userCreds = self.userCredentials {
+            
+            let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
+            httpRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+        }
+        
+        return httpRequest
     }
   
     /// Convenience initializer
@@ -132,16 +141,8 @@ class Request {
 
         let request: URLRequest = {
       
-            var mutableRequest: URLRequest = self.httpRequest
-      
+            var mutableRequest: URLRequest = urlRequest()
             mutableRequest.httpMethod = AllowedHTTPMethods.GET
-            
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
-            }
       
             return mutableRequest
         }()
@@ -210,30 +211,24 @@ class Request {
     /// - returns: Void
     func postResource(_ postData: Any, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
         
+        
         let request: URLRequest = {
 
-            var mutableRequest = self.httpRequest
+            var mutableRequest = urlRequest()
+            mutableRequest.httpMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
             
             mutableRequest.httpBody = Data()
             
             if let transformedJSONData: Data = try? JSONSerialization.data(withJSONObject: postData, options: []) {
-                mutableRequest.httpBody   = transformedJSONData
-            }
-            
-            mutableRequest.httpMethod = forUpdate == true ? AllowedHTTPMethods.PUT : AllowedHTTPMethods.POST
-            
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
+                mutableRequest.httpBody = transformedJSONData
             }
             
             return mutableRequest
         }()
         
         let completionHandler = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
-            
+
+            print("completionHandler #1 - \(request.url)")
             var dataResp: Data? = data
             guard let httpResponse = response as? HTTPURLResponse else {
                 if let errorCallBack = errorBlock {
@@ -242,11 +237,13 @@ class Request {
                     let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
                     errorCallBack(error, response)
                 }
+                print("failed guard #1 - \(request.url)")
                 return
             }
             
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
+            print("completionHandler #2 -> \(statusCode) - \(request.url)")
             
             if !containsStatusCode {
                 dataResp = nil
@@ -278,8 +275,8 @@ class Request {
                     errorCallBack(requestResponseError, httpResponse)
                 }
             }
-            }
-            
+        }
+        
         let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler:completionHandler)
         
         task.resume()
@@ -294,23 +291,13 @@ class Request {
     
         let request: URLRequest = {
             
-            var mutableRequest = self.httpRequest
-            
+            var mutableRequest = urlRequest()
             mutableRequest.httpMethod = AllowedHTTPMethods.DELETE
         
-            if let userCreds = self.userCredentials {
-                
-                let userAuthString: String = self.basicAuthString(userCreds.username, password: userCreds.password)
-                
-                mutableRequest.setValue(userAuthString, forHTTPHeaderField: TheoAuthorizationHeader)
-            }
-            
             return mutableRequest
         }()
         
-        self.httpRequest = request
-        
-        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: self.httpRequest, completionHandler: {(data: Data?, response: URLResponse?, error: Error?) -> Void in
+        let task : URLSessionDataTask = self.httpSession.session.dataTask(with: request, completionHandler: {(data: Data?, response: URLResponse?, error: Error?) -> Void in
             
             var dataResp: Data? = data
             let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
