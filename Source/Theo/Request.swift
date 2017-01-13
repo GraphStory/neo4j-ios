@@ -228,7 +228,6 @@ class Request {
         
         let completionHandler = {(data: Data?, response: URLResponse?, error: Error?) -> Void in
 
-            print("completionHandler #1 - \(request.url)")
             var dataResp: Data? = data
             guard let httpResponse = response as? HTTPURLResponse else {
                 if let errorCallBack = errorBlock {
@@ -237,13 +236,11 @@ class Request {
                     let response = URLResponse(url: url, mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
                     errorCallBack(error, response)
                 }
-                print("failed guard #1 - \(request.url)")
                 return
             }
             
             let statusCode: Int = httpResponse.statusCode
             let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
-            print("completionHandler #2 -> \(statusCode) - \(request.url)")
             
             if !containsStatusCode {
                 dataResp = nil

@@ -1,0 +1,372 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		OBJ_29 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Client.swift */; };
+		OBJ_30 /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Cypher.swift */; };
+		OBJ_31 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Node.swift */; };
+		OBJ_32 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* Relationship.swift */; };
+		OBJ_33 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Request.swift */; };
+		OBJ_34 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* Session.swift */; };
+		OBJ_41 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* Config.swift */; };
+		OBJ_42 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_18 /* Theo_000_RequestTests.swift */; };
+		OBJ_43 /* XCTestManifests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* XCTestManifests.swift */; };
+		OBJ_45 /* Theo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* Theo.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		85723EE11E297C70000DB81E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_24;
+			remoteInfo = Theo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		OBJ_10 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
+		OBJ_11 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		OBJ_12 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
+		OBJ_13 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		OBJ_14 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		OBJ_17 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		OBJ_18 /* Theo_000_RequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_RequestTests.swift; sourceTree = "<group>"; };
+		OBJ_19 /* XCTestManifests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestManifests.swift; sourceTree = "<group>"; };
+		OBJ_22 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_23 /* TheoTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = TheoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		OBJ_9 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		OBJ_35 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_44 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_45 /* Theo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		OBJ_15 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_16 /* TheoTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		OBJ_16 /* TheoTests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_17 /* Config.swift */,
+				OBJ_18 /* Theo_000_RequestTests.swift */,
+				OBJ_19 /* XCTestManifests.swift */,
+			);
+			name = TheoTests;
+			path = Tests/TheoTests;
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_21 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_22 /* Theo.framework */,
+				OBJ_23 /* TheoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		OBJ_5 = {
+			isa = PBXGroup;
+			children = (
+				OBJ_6 /* Package.swift */,
+				OBJ_7 /* Sources */,
+				OBJ_15 /* Tests */,
+				OBJ_21 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		OBJ_7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_8 /* Theo */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		OBJ_8 /* Theo */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_9 /* Client.swift */,
+				OBJ_10 /* Cypher.swift */,
+				OBJ_11 /* Node.swift */,
+				OBJ_12 /* Relationship.swift */,
+				OBJ_13 /* Request.swift */,
+				OBJ_14 /* Session.swift */,
+			);
+			name = Theo;
+			path = Source/Theo;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		OBJ_24 /* Theo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_25 /* Build configuration list for PBXNativeTarget "Theo" */;
+			buildPhases = (
+				OBJ_28 /* Sources */,
+				OBJ_35 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Theo;
+			productName = Theo;
+			productReference = OBJ_22 /* Theo.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		OBJ_36 /* TheoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_37 /* Build configuration list for PBXNativeTarget "TheoTests" */;
+			buildPhases = (
+				OBJ_40 /* Sources */,
+				OBJ_44 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				OBJ_46 /* PBXTargetDependency */,
+			);
+			name = TheoTests;
+			productName = TheoTests;
+			productReference = OBJ_23 /* TheoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		OBJ_1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 9999;
+			};
+			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "Theo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = OBJ_5;
+			productRefGroup = OBJ_21 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				OBJ_24 /* Theo */,
+				OBJ_36 /* TheoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		OBJ_28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_29 /* Client.swift in Sources */,
+				OBJ_30 /* Cypher.swift in Sources */,
+				OBJ_31 /* Node.swift in Sources */,
+				OBJ_32 /* Relationship.swift in Sources */,
+				OBJ_33 /* Request.swift in Sources */,
+				OBJ_34 /* Session.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_40 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_41 /* Config.swift in Sources */,
+				OBJ_42 /* Theo_000_RequestTests.swift in Sources */,
+				OBJ_43 /* XCTestManifests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		OBJ_46 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_24 /* Theo */;
+			targetProxy = 85723EE11E297C70000DB81E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		OBJ_26 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/Theo_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = Theo;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = Theo;
+			};
+			name = Debug;
+		};
+		OBJ_27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/Theo_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = Theo;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = Theo;
+			};
+			name = Release;
+		};
+		OBJ_3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SWIFT_PACKAGE;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				USE_HEADERMAP = NO;
+			};
+			name = Debug;
+		};
+		OBJ_38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = TheoTests;
+			};
+			name = Debug;
+		};
+		OBJ_39 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = TheoTests;
+			};
+			name = Release;
+		};
+		OBJ_4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				OTHER_SWIFT_FLAGS = "-DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SWIFT_PACKAGE;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 3.0;
+				USE_HEADERMAP = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		OBJ_2 /* Build configuration list for PBXProject "Theo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_3 /* Debug */,
+				OBJ_4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_25 /* Build configuration list for PBXNativeTarget "Theo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_26 /* Debug */,
+				OBJ_27 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_37 /* Build configuration list for PBXNativeTarget "TheoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_38 /* Debug */,
+				OBJ_39 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = OBJ_1 /* Project object */;
+}
