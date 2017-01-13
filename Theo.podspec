@@ -21,4 +21,8 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "#{s.version}" }
 
   s.source_files  = "Classes", "Source/Theo/*.swift"
+  
+  s.ios.deployment_target = "9.0"
+  s.osx.deployment_target = "10.11"
+  
 end
