@@ -27,7 +27,7 @@ class ConfigLoader: NSObject {
 
         let testPath = URL(fileURLWithPath: #file)
             .deletingLastPathComponent().path
-        
+
         let filePath = "\(testPath)/TheoConfig.json"
 
         return Config(pathToFile: filePath)
@@ -56,13 +56,13 @@ class Theo_000_RequestTests: XCTestCase {
 
         theo.metaDescription({(meta, error) in
 
-          XCTAssert(meta != nil, "Meta can't be nil")
-          XCTAssert(error == nil, "Error must be nil \(error?.description)")
+          XCTAssertNotNil(meta, "Meta can't be nil")
+          XCTAssertNil(error, "Error must be nil \(error?.description)")
 
           exp.fulfill()
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
           XCTAssertNil(error, "\(error)")
         })
     }
@@ -100,9 +100,9 @@ class Theo_000_RequestTests: XCTestCase {
 
         createDispatchGroup.enter()
         theo.createNode(postNode) { (node, error) in
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let identifier = node?.meta?.nodeID() {
                 TheoNodeID = identifier
@@ -124,9 +124,9 @@ class Theo_000_RequestTests: XCTestCase {
 
         createDispatchGroup.enter()
         theo.createNode(userNode) { (node, error) in
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let identifier = node?.meta?.nodeID() {
                 TheoNodeIDForUser = identifier
@@ -148,9 +148,9 @@ class Theo_000_RequestTests: XCTestCase {
 
         createDispatchGroup.enter()
         theo.createNode(followingNode) { (node, error) in
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let identifier = node?.meta?.nodeID() {
                 TheoNodeIDForRelationship = identifier
@@ -194,8 +194,8 @@ class Theo_000_RequestTests: XCTestCase {
             relateDispatchGroup.enter()
             theo.createRelationship(followingRelationship, completionBlock: { (relationship, error) in
 
-                XCTAssert(relationship != nil, "Relationship data can't be nil")
-                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                XCTAssertNotNil(relationship, "Relationship data can't be nil")
+                XCTAssertNil(error, "Error must be nil \(error?.description)")
 
                 relateDispatchGroup.leave()
             })
@@ -203,8 +203,8 @@ class Theo_000_RequestTests: XCTestCase {
             relateDispatchGroup.enter()
             theo.createRelationship(lastPostRelationship, completionBlock: { (relationship, error) in
 
-                XCTAssert(relationship != nil, "Relationship data can't be nil")
-                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                XCTAssertNotNil(relationship, "Relationship data can't be nil")
+                XCTAssertNil(error, "Error must be nil \(error?.description)")
 
                 relateDispatchGroup.leave()
             })
@@ -212,8 +212,8 @@ class Theo_000_RequestTests: XCTestCase {
             relateDispatchGroup.enter()
             theo.createRelationship(nextPostRelationship, completionBlock: { (relationship, error) in
 
-                XCTAssert(relationship != nil, "Relationship data can't be nil")
-                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                XCTAssertNotNil(relationship, "Relationship data can't be nil")
+                XCTAssertNil(error, "Error must be nil \(error?.description)")
 
                 relateDispatchGroup.leave()
             })
@@ -224,7 +224,7 @@ class Theo_000_RequestTests: XCTestCase {
             }
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -236,14 +236,14 @@ class Theo_000_RequestTests: XCTestCase {
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             exp.fulfill()
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -255,20 +255,20 @@ class Theo_000_RequestTests: XCTestCase {
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
                 let nodePropertyValue = nodeObject.getProp(TheoNodePropertyName)
 
-                XCTAssert(nodePropertyValue != nil, "The nodeProperty can't be nil")
+                XCTAssertNotNil(nodePropertyValue, "The nodeProperty can't be nil")
 
                 exp.fulfill()
             }
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -281,9 +281,9 @@ class Theo_000_RequestTests: XCTestCase {
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
                 let nodePropertyValue = nodeObject.getProp(randomString)
@@ -294,7 +294,7 @@ class Theo_000_RequestTests: XCTestCase {
             }
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -311,14 +311,14 @@ class Theo_000_RequestTests: XCTestCase {
 
         theo.createNode(node, completionBlock: {(node, error) in
 
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             exp.fulfill()
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -345,9 +345,9 @@ class Theo_000_RequestTests: XCTestCase {
         fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
                 parentNode = nodeObject
@@ -363,9 +363,9 @@ class Theo_000_RequestTests: XCTestCase {
         fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeIDForRelationship, completionBlock: {(node, error) in
 
-            XCTAssert(node?.meta != nil, "Meta data can't be nil")
-            XCTAssert(node != nil, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
+            XCTAssertNotNil(node, "Node data can't be nil")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
                 relatedNode = nodeObject
@@ -394,15 +394,15 @@ class Theo_000_RequestTests: XCTestCase {
 
             theo.createRelationship(relationship, completionBlock: {(rel, error) in
 
-                XCTAssert(rel?.relationshipMeta != nil, "Meta data can't be nil")
-                XCTAssert(rel != nil, "Node data can't be nil")
-                XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                XCTAssertNotNil(rel?.relationshipMeta, "Meta data can't be nil")
+                XCTAssertNotNil(rel, "Node data can't be nil")
+                XCTAssertNil(error, "Error must be nil \(error?.description)")
 
                 exp.fulfill()
             })
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -428,13 +428,13 @@ class Theo_000_RequestTests: XCTestCase {
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
 
                 updateNode = nodeObject
 
-                XCTAssert(node?.meta != nil, "Meta data can't be nil")
+                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             }
 
             fetchDispatchGroup.leave()
@@ -457,13 +457,13 @@ class Theo_000_RequestTests: XCTestCase {
             theo.updateNode(updateNode, properties: updatedPropertiesDictionary,
                 completionBlock: {(_, error) in
 
-                    XCTAssert(error == nil, "Error must be nil \(error?.description)")
+                    XCTAssertNil(error, "Error must be nil \(error?.description)")
 
                     exp.fulfill()
             })
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -486,11 +486,11 @@ class Theo_000_RequestTests: XCTestCase {
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssert(error == nil, "Error must be nil \(error?.description)")
+            XCTAssertNil(error, "Error must be nil \(error?.description)")
 
             if let nodeObject: Node = node {
 
-                XCTAssert(node?.meta != nil, "Meta data can't be nil")
+                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
 
                 nodeIDWithRelationships = nodeObject.meta!.nodeID()
 
@@ -513,7 +513,7 @@ class Theo_000_RequestTests: XCTestCase {
 
             theo.fetchRelationshipsForNode(nodeIDWithRelationships, direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
 
-                XCTAssert(relationships.count >= 1, "Relationships must be exist")
+                XCTAssert(relationships.count >= 1, "Relationships must exist")
                 XCTAssertNil(error, "Error should be nil \(error)")
 
                 if let foundRelationship: Relationship = relationships[0] as Relationship! {
@@ -524,7 +524,7 @@ class Theo_000_RequestTests: XCTestCase {
 
                     XCTAssertNotNil(relationshipIDToDelete, "relationshipIDToDelete can't be nil")
 
-                    theo.deleteRelationship(relationshipIDToDelete!, completionBlock: {error in
+                    theo.deleteRelationship(relationshipIDToDelete!, completionBlock: { error in
 
                         XCTAssertNil(error, "Error should be nil \(error)")
 
@@ -534,7 +534,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -549,7 +549,9 @@ class Theo_000_RequestTests: XCTestCase {
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456 as Any)
-        node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
+
+        let expectedLabel = "test_008_succesfullyAddNodeWithLabel_" + randomString
+        node.addLabel(expectedLabel)
 
         theo.createNode(node, labels: node.labels, completionBlock: {(savedNode, error) in
 
@@ -559,12 +561,27 @@ class Theo_000_RequestTests: XCTestCase {
                 XCTFail("Assert fell through, abort")
                 return
             }
-            XCTAssertFalse(savedNode.labels.isEmpty, "Labels must be set")
 
-            exp.fulfill()
+            XCTAssertEqual(1, savedNode.labels.count, "Node has only one label")
+            if let label = savedNode.labels.first {
+                XCTAssertEqual(expectedLabel, label, "Labels must be the one which was set")
+            } else {
+                XCTFail("Could not get label")
+            }
+
+            // Then test cleanup
+            if let id = savedNode.meta?.nodeID() {
+                theo.deleteNode(id, completionBlock: { (deleteError) in
+                    XCTAssertNil(deleteError)
+                    exp.fulfill()
+                })
+            } else {
+                XCTFail("Could not get node ID")
+            }
+
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -587,7 +604,7 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -611,7 +628,7 @@ class Theo_000_RequestTests: XCTestCase {
 
             if let nodeObject: Node = node {
 
-                XCTAssert(node?.meta != nil, "Meta data can't be nil")
+                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
 
                 nodeIDWithRelationships = nodeObject.meta!.nodeID()
 
@@ -654,7 +671,7 @@ class Theo_000_RequestTests: XCTestCase {
             })
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -674,54 +691,54 @@ class Theo_000_RequestTests: XCTestCase {
             exp.fulfill()
         })
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
-    
+
     func test_998_successfullyDeleteExistingNode() {
-        
+
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_999_successfullyDeleteExistingNode")
-        
+
         var nodeIDForDeletion: String?
         let node = Node()
         let randomString: String = NSUUID().uuidString
-        
+
         let createDispatchGroup = DispatchGroup()
-        
+
         createDispatchGroup.enter()
-        
+
         node.setProp("test_010_successfullyDeleteExistingNode_1", propertyValue: "test_010_successfullyDeleteExistingNode_1" + randomString)
         node.setProp("test_010_successfullyDeleteExistingNode_2", propertyValue: "test_010_successfullyDeleteExistingNode_2" + randomString)
-        
+
         theo.createNode(node, completionBlock: {(savedNode, error) in
-            
+
             XCTAssertNil(error, "Error must be nil \(error?.description)")
             XCTAssertNotNil(savedNode, "Saved node can't be nil")
-            
+
             nodeIDForDeletion = savedNode?.meta?.nodeID()
-            
+
             createDispatchGroup.leave()
         })
-        
+
         createDispatchGroup.notify(queue: DispatchQueue.main) {
-            
+
             XCTAssertNotNil(nodeIDForDeletion, "nodeIDForDeletion must NOT be nil")
             guard let nodeIDForDeletion = nodeIDForDeletion else {
                 XCTFail("nodeIDForDeletion was not defined")
                 return
             }
-            
-            theo.deleteNode(nodeIDForDeletion, completionBlock: {error in
-                
+
+            theo.deleteNode(nodeIDForDeletion, completionBlock: { error in
+
                 XCTAssertNil(error, "Error should be nil \(error)")
-                
+
                 exp.fulfill()
             })
         }
-        
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
@@ -729,27 +746,58 @@ class Theo_000_RequestTests: XCTestCase {
     func test_999_cleanupTests() {
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
 
-        let cleanupDispatchGroup: DispatchGroup = DispatchGroup()
-
-        let completionBlock = { (error: NSError?) in
-            cleanupDispatchGroup.leave()
-        }
-
-        cleanupDispatchGroup.enter()
-        theo.deleteNode(TheoNodeID, completionBlock: completionBlock)
-
-        cleanupDispatchGroup.enter()
-        theo.deleteNode(TheoNodeIDForRelationship, completionBlock: completionBlock)
-
-        cleanupDispatchGroup.enter()
-        theo.deleteNode(TheoNodeIDForUser, completionBlock: completionBlock)
-
         let exp = self.expectation(description: "cleanup")
-        cleanupDispatchGroup.notify(queue: DispatchQueue.main) {
-            exp.fulfill()
+
+        let nodeIds = [TheoNodeID, TheoNodeIDForRelationship, TheoNodeIDForUser]
+
+        // First clean up the relationships
+        let cleanupRelationshipsDispatchGroup: DispatchGroup = DispatchGroup()
+
+        var doneIds = [String]()
+        for nodeId in nodeIds {
+            cleanupRelationshipsDispatchGroup.enter()
+            theo.fetchRelationshipsForNode(nodeId, direction: nil, types: nil, completionBlock: { (relationships, error) in
+                XCTAssertNil(error)
+                for relationship in relationships {
+                    if let relId = relationship.relationshipMeta?.relationshipID() {
+                        if !doneIds.contains(relId) {
+                            doneIds.append(relId)
+                            cleanupRelationshipsDispatchGroup.enter()
+                            theo.deleteRelationship(relId, completionBlock: { (error) in
+                                XCTAssertNil(error)
+                                cleanupRelationshipsDispatchGroup.leave()
+                            })
+                        }
+                    } else {
+                        XCTFail("Could not get relationship ID")
+                    }
+                }
+                cleanupRelationshipsDispatchGroup.leave()
+            })
         }
 
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: {error in
+        // When relationships are done, clean up the nodes
+        cleanupRelationshipsDispatchGroup.notify(queue: DispatchQueue.main) {
+
+            let cleanupNodesDispatchGroup: DispatchGroup = DispatchGroup()
+
+            let completionBlock = { (error: NSError?) in
+                XCTAssertNil(error)
+                cleanupNodesDispatchGroup.leave()
+            }
+
+            for nodeId in nodeIds {
+                cleanupNodesDispatchGroup.enter()
+                theo.deleteNode(nodeId, completionBlock: completionBlock)
+            }
+
+            cleanupNodesDispatchGroup.notify(queue: DispatchQueue.main) {
+                exp.fulfill()
+            }
+
+        }
+
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error, "\(error)")
         })
     }
