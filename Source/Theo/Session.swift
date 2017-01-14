@@ -9,7 +9,7 @@
 import Foundation
 
 open class Configuration {
-  
+
     fileprivate let requestTimeout: Double  = 10
     fileprivate let resourceTimeout: Double = 20
 
@@ -17,8 +17,8 @@ open class Configuration {
 
     lazy fileprivate var cache: URLCache = {
 
-    let memoryCacheLimit: Int = 10 * 1024 * 1024;
-    let diskCapacity: Int = 50 * 1024 * 1024;
+    let memoryCacheLimit: Int = 10 * 1024 * 1024
+    let diskCapacity: Int = 50 * 1024 * 1024
 
    /**
     * http://nsscreencast.com/episodes/91-afnetworking-2-0
@@ -33,7 +33,7 @@ open class Configuration {
         let additionalHeaders: [String:String] = ["Accept": "application/json", "Content-Type": "application/json; charset=UTF-8"]
 
         self.sessionConfiguration = URLSessionConfiguration.default
-        
+
         self.sessionConfiguration.requestCachePolicy         = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         self.sessionConfiguration.timeoutIntervalForRequest  = self.requestTimeout
         self.sessionConfiguration.timeoutIntervalForResource = self.resourceTimeout
@@ -43,25 +43,25 @@ open class Configuration {
 }
 
 // TODO: Move all session request to utilize this delegate.
-// Right now these are NOT called because I'm setting the URLCredential on the 
+// Right now these are NOT called because I'm setting the URLCredential on the
 // session configuration
 private class TheoTaskSessionDelegate: NSObject {
-    
+
     // For Session based challenges
 #if os(Linux)
     func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session based challenge")
     }
-    
+
     // For Session Task based challenges
     func URLSession(_ session: Foundation.URLSession, task: URLSessionTask, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        print("session task based challenge")    
+        print("session task based challenge")
     }
 #else
     @objc func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session based challenge")
     }
-    
+
     // For Session Task based challenges
     @objc func URLSession(_ session: Foundation.URLSession, task: URLSessionTask, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session task based challenge")
@@ -72,7 +72,7 @@ private class TheoTaskSessionDelegate: NSObject {
 
 class Session {
 
-  
+
     // MARK: Private properties
 
     fileprivate let sessionDescription = "com.graphstory.session"
@@ -88,15 +88,15 @@ class Session {
     var sessionDelegateQueue: OperationQueue = OperationQueue()
     var configuration: Configuration = Configuration()
     static let sharedInstance: Session = Session(queue: SessionParams.queue)
-  
+
     // MARK: Structs and class vars
 
     struct SessionParams {
         static var queue: OperationQueue?
     }
-  
+
     // MARK: Constructors
-    
+
     /// Designated initializer
     ///
     /// The session delegate is set to nil and will use the "system" provided
@@ -114,14 +114,14 @@ class Session {
 
         self.session.sessionDescription = sessionDescription
     }
-  
+
     /// Convenience initializer
     ///
-    /// The operation queue param is set to nil which translates to using 
+    /// The operation queue param is set to nil which translates to using
     /// a new concurrent OperationQueue
     ///
     /// - returns: Session
     convenience init() {
-        self.init(queue: nil);
+        self.init(queue: nil)
     }
 }
