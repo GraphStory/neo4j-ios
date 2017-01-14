@@ -9,19 +9,53 @@
 
 * CRUD operations for Nodes and Relationships
 * Transaction statement execution
+* Supports iOS, macOS and Linux
 
 ## Requirements
 
-* iOS8+
-* Xcode 8.1
-* Swift 3.0
+* iOS 9.0 or higher / macOS 10.11 or higher / Ubuntu Linux 14.04 or higher 
+* Xcode 8.1 or newer for iOS or macOS
+* Swift 3.0 for iOS or macOS, 3.0.2 for Linux
 
 ## Feedback
 
-Because this framework is open source it is best for most situations to post on Stack Overflow and tag it **Theo**. If you do 
+Because this framework is open source it is best for most situations to post on Stack Overflow and tag it **[Theo](http://stackoverflow.com/questions/tagged/theo)**. If you do 
 find a bug please file an issue or issue a PR for any features or fixes.
 
 ## Installation
+You can install Theo in a number of ways
+
+###Swift Package Manager
+Add the following line to your Package dependencies array:
+
+```swift
+.Package(url: "https://github.com/GraphStory/neo4j-ios.git”, majorVersion: 3, minor: 0)
+```
+Run `swift build` to build your project, now with Theo included and ready to be used from your source
+
+###CococaPods
+Add the following to your Podfile:
+
+```ruby
+source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, ‘9.0’
+use_frameworks!
+
+target '<Your Target Name>' do
+  pod ‘Theo’
+end
+```
+Run `pod install` to configure your updated workspace. Open the .xcworkspace generated, your project is now ready to use Theo
+
+###Carthage
+Add the following to your Cartfile:
+
+```ogdl
+github "GraphStory/neo4j-ios" ~> 4.0
+```
+Run `carthage update` to build the framework and drag the built `Theo.framework` into your Xcode project.
+
+###git submodule
 
   1. Add it as a submodule to your existing project. `git submodule add git@github.com:GraphStory/neo4j-ios.git`
   2. Open the Theo folder, and drag Theo.xcodeproj into the file navigator of your Xcode project.
@@ -190,14 +224,14 @@ theo.executeTransaction(statements, completionBlock: {(response, error) in
 
 ```Swift
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->f WITH DISTINCT f,u MATCH f-[:LASTPOST]-lp-[:NEXTPOST*0..3]-p RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
+        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
         let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
             println("response from cyper \(cypher)")
         })
 ```
-## Unit Tests
+## Integration Tests
 
 ### Setup
 
@@ -208,7 +242,12 @@ There is a file called, `TheoConfig.json.example` which you should copy to `Theo
 * Select the unit test target
 * Hit `CMD-U`
 
-## Creator
+## Known issues
+Swift 3.0.1 on Ubuntu Linux 14.04 sometimes looses all headers in an URL request, thus making the server return a HTTP status code 401 where 200 was expected. In your code where you handle retries for unexpected network results, you may want to take this into account If you are interested in this issue, you can follow [this bug report](https://bugs.swift.org/browse/SR-3463) and [this stack overflow post](http://stackoverflow.com/questions/41601863/urlsession-on-linux-giving-different-result-than-on-ios)
 
-[Cory Wiles](http://www.corywiles.com/) ([@kwylez](https://twitter.com/kwylez))
+
+## Authors
+
+* [Cory Wiles](http://www.corywiles.com/) ([@kwylez](https://twitter.com/kwylez))
+* [Niklas Saers](http://niklas.sasers.com/) ([@niklassaers](https://twitter.com/niklassaers))
 
