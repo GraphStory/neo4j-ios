@@ -516,11 +516,12 @@ open class Client {
         let relationshipURL: URL = URL(string: relationshipResource)!
 
         let relationshipRequest: Request = Request(url: relationshipURL, credentials: self.credentials)
-        var relationshipsForNode: [Relationship] = [Relationship]()
 
         relationshipRequest.getResource({(data, response) in
 
                 if let completionBlock = completionBlock {
+
+                    var relationshipsForNode: [Relationship] = [Relationship]()
 
                     self.parsingQueue.async(execute: {
 
@@ -539,7 +540,7 @@ open class Client {
             }, errorBlock: {(error, response) in
 
                 if let completionBlock = completionBlock {
-                    completionBlock(relationshipsForNode, error)
+                    completionBlock([Relationship](), error)
                 }
             })
     }
