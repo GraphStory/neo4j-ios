@@ -761,9 +761,9 @@ open class Client {
 
                     self.parsingQueue.async(execute: {
 
-                        let JSON: Any! = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments) as Any!
+                        let JSON = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)
 
-                        let jsonAsDictionary: [String:[Any]]! = JSON as! [String:[Any]]
+                        let jsonAsDictionary = JSON as! [String:[Any]]
                         let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
 
                         completionBlock(cypher, nil)
