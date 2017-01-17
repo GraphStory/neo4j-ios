@@ -75,7 +75,15 @@ open class Client {
     open let username: String?
     open let password: String?
 
-    open var parsingQueue: DispatchQueue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
+    lazy open var parsingQueue: DispatchQueue = {
+        if let underlyingQueue = Session.sharedInstance.sessionDelegateQueue.underlyingQueue {
+            return underlyingQueue
+        } else {
+            print("Warning, missing Session's underlying queue, creating one")
+            let queue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
+            return queue
+        }
+    }()
 
     public typealias TheoMetaDataCompletionBlock = (_ metaData: DBMeta?, _ error: NSError?) -> Void
     public typealias TheoNodeRequestCompletionBlock = (_ node: Node?, _ error: NSError?) -> Void
@@ -87,7 +95,7 @@ open class Client {
     public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
 
 
-    fileprivate let operationQueue = OperationQueue()
+    lazy fileprivate var operationQueue = Session.sharedInstance.sessionDelegateQueue
 
     // MARK: Lazy properties
 
@@ -312,10 +320,7 @@ open class Client {
         /// we append the labels param values to the returned node
 
         var createdNodeWithoutLabels: Node?
-        let nodeSaveOperationQueue: OperationQueue = OperationQueue()
-
-        nodeSaveOperationQueue.name = "com.theo.createnode.operationqueue"
-        nodeSaveOperationQueue.maxConcurrentOperationCount = 1
+        let nodeSaveOperationQueue = Session.sharedInstance.sessionDelegateQueue
 
         let createNodeOperation: BlockOperation = BlockOperation(block: {
 
