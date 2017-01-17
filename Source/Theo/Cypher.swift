@@ -14,9 +14,9 @@ let TheoCypherData: String    = "data"
 public struct CypherMeta: CustomStringConvertible {
     
     let columns: Array<String>
-    let data: Array<AnyObject>
+    let data: Array<Any>
     
-    init(dictionary: Dictionary<String, AnyObject>) {
+    init(dictionary: Dictionary<String, Any>) {
         
         self.columns = dictionary[TheoCypherColumns] as! Array
         self.data    = dictionary[TheoCypherData]    as! Array
@@ -27,24 +27,24 @@ public struct CypherMeta: CustomStringConvertible {
     }
 }
 
-public class Cypher {
+open class Cypher {
 
     var meta: CypherMeta?
-    public private(set) var data: Array<Dictionary<String, AnyObject>> = Array<Dictionary<String, AnyObject>>()
+    open fileprivate(set) var data: Array<Dictionary<String, Any>> = Array<Dictionary<String, Any>>()
     
-    public required init(metaData: Dictionary<String, Array<AnyObject>>?) {
+    public required init(metaData: Dictionary<String, Any>?) {
     
-        if let dictionaryData: [String:[AnyObject]] = metaData {
+        if let dictionaryData = metaData {
 
-            self.meta = CypherMeta(dictionary: dictionaryData)
+            self.meta = CypherMeta(dictionary: dictionaryData as Dictionary<String, Any>)
             
             if let metaForCypher: CypherMeta = self.meta {
 
-                for arrayValues in metaForCypher.data as! Array<Array<AnyObject>> {
+                for arrayValues in metaForCypher.data as! Array<Array<Any>> {
 
-                    var cypherDictionary: Dictionary<String, AnyObject> = Dictionary<String, AnyObject>()
+                    var cypherDictionary: Dictionary<String, Any> = Dictionary<String, Any>()
                     
-                    for (index, value) in arrayValues.enumerate() {
+                    for (index, value) in arrayValues.enumerated() {
 
                         let cypherDictionaryKey: String = metaForCypher.columns[index]
                         
@@ -70,7 +70,7 @@ extension Cypher: CustomStringConvertible {
         
         var returnString: String = ""
             
-            for value: Dictionary<String, AnyObject> in self.data {
+            for value: Dictionary<String, Any> in self.data {
                 
                 for (returnStringKey, returnKeyValue) in value {
                     returnString += " \(returnStringKey): \(returnKeyValue)"
