@@ -85,15 +85,18 @@ class Session {
     // MARK: Public properties
 
     var session: URLSession
-    var sessionDelegateQueue: OperationQueue = OperationQueue()
+    var sessionDelegateQueue: OperationQueue
     var configuration: Configuration = Configuration()
-    static let sharedInstance: Session = Session(queue: SessionParams.queue)
+    
+    static var sharedInstance: Session = {
+        let queue = OperationQueue()
+        queue.name = "com.theo.session.queue"
+        queue.maxConcurrentOperationCount = 1
+        queue.underlyingQueue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
 
-    // MARK: Structs and class vars
-
-    struct SessionParams {
-        static var queue: OperationQueue?
-    }
+        let session = Session(queue: queue)
+        return session
+    }()
 
     // MARK: Constructors
 
@@ -107,6 +110,10 @@ class Session {
     required init(queue: OperationQueue?) {
 
         if let operationQueue = queue {
+            self.sessionDelegateQueue = operationQueue
+        } else {
+            
+            let operationQueue = Session.sharedInstance.sessionDelegateQueue
             self.sessionDelegateQueue = operationQueue
         }
 

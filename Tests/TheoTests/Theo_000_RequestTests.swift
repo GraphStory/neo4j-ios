@@ -752,27 +752,33 @@ class Theo_000_RequestTests: XCTestCase {
 
         // First clean up the relationships
         let cleanupRelationshipsDispatchGroup: DispatchGroup = DispatchGroup()
-
         var doneIds = [String]()
+
         for nodeId in nodeIds {
             cleanupRelationshipsDispatchGroup.enter()
             theo.fetchRelationshipsForNode(nodeId, direction: nil, types: nil, completionBlock: { (relationships, error) in
                 XCTAssertNil(error)
-                for relationship in relationships {
-                    if let relId = relationship.relationshipMeta?.relationshipID() {
-                        if !doneIds.contains(relId) {
-                            doneIds.append(relId)
-                            cleanupRelationshipsDispatchGroup.enter()
-                            theo.deleteRelationship(relId, completionBlock: { (error) in
-                                XCTAssertNil(error)
-                                cleanupRelationshipsDispatchGroup.leave()
-                            })
+                DispatchQueue.main.async {
+                    for relationship in relationships {
+                        if let relId = relationship.relationshipMeta?.relationshipID() {
+                            if !doneIds.contains(relId) {
+                                doneIds.append(relId)
+                                cleanupRelationshipsDispatchGroup.enter()
+                                theo.deleteRelationship(relId, completionBlock: { (error) in
+                                    XCTAssertNil(error)
+                                    DispatchQueue.main.async {
+                                        cleanupRelationshipsDispatchGroup.leave()
+                                    }
+                                })
+                            }
+                        } else {
+                            XCTFail("Could not get relationship ID")
                         }
-                    } else {
-                        XCTFail("Could not get relationship ID")
+                        
                     }
+                    
+                    cleanupRelationshipsDispatchGroup.leave()
                 }
-                cleanupRelationshipsDispatchGroup.leave()
             })
         }
 
