@@ -8,6 +8,10 @@
 
 import Foundation
 
+#if os(Linux)
+    import Dispatch
+#endif
+
 open class Configuration {
 
     fileprivate let requestTimeout: Double  = 10
