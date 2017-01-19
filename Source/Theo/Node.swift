@@ -122,6 +122,17 @@ open class Node {
         self.init(data: nil)
     }
     
+    /// A list of available properties for Node
+    ///
+    /// - returns: [String]
+    open var allProperties: [String] {
+        get {
+            return nodeData.map({ (key, _) -> String in
+                return key
+            })
+        }
+    }
+    
     /// Gets a specified property for the Node
     ///
     /// - parameter String: propertyName
@@ -135,16 +146,40 @@ open class Node {
         return nil
     }
     
-    /// Sets the property for the relationship
+    /// Unsets the property for the node
+    ///
+    /// - parameter String: propertyName
+    /// - returns: Void
+    open func removeProp(_ propertyName: String) -> Void {
+        
+        self.nodeData.removeValue(forKey: propertyName)
+    }
+    
+    /// Sets the property for the node. Use value nil to unset it
     ///
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: Any) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
         
-        let objectValue: Any = propertyValue
+        if let propertyValue = propertyValue {
+            let objectValue: Any = propertyValue
+            self.nodeData[propertyName] = objectValue
+
+        } else {
+            removeProp(propertyName)
+        }
+    }
+    
+    /// Equivalent subscripts
+    open subscript(propertyName: String) -> Any? {
+        get {
+            return getProp(propertyName)
+        }
         
-        self.nodeData[propertyName] = objectValue
+        set {
+            setProp(propertyName, propertyValue: newValue)
+        }
     }
     
     /// Adds label to array of labels for the node
