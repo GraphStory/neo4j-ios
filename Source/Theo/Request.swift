@@ -139,7 +139,7 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func getResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func getResource(_ successBlock: RequestSuccessBlock? = nil, errorBlock: RequestErrorBlock? = nil) -> Void {
 
         let request: URLRequest = {
 
@@ -211,7 +211,7 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func postResource(_ postData: Any, forUpdate: Bool, successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func postResource(_ postData: Any, forUpdate: Bool, successBlock: RequestSuccessBlock? = nil, errorBlock: RequestErrorBlock? = nil) -> Void {
 
 
         let request: URLRequest = {
@@ -286,7 +286,7 @@ class Request {
     /// - parameter RequestSuccessBlock: successBlock
     /// - parameter RequestErrorBlock: errorBlock
     /// - returns: Void
-    func deleteResource(_ successBlock: RequestSuccessBlock?, errorBlock: RequestErrorBlock?) -> Void {
+    func deleteResource(_ successBlock: RequestSuccessBlock? = nil, errorBlock: RequestErrorBlock? = nil) -> Void {
 
         let request: URLRequest = {
 

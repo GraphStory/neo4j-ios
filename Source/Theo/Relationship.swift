@@ -205,6 +205,17 @@ open class Relationship {
         self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as Any?
     }
     
+    /// A list of available properties for Relationship
+    ///
+    /// - returns: [String]
+    open var allProperties: [String] {
+        get {
+            return relationshipData.map({ (key, _) -> String in
+                return key
+            })
+        }
+    }
+    
     /// Gets a specified property for the Relationship
     ///
     /// - parameter String: propertyName
@@ -218,16 +229,40 @@ open class Relationship {
         return nil
     }
     
-    /// Sets the property for the relationship
+    /// Unsets the property for the relationship
+    ///
+    /// - parameter String: propertyName
+    /// - returns: Void
+    open func removeProp(_ propertyName: String) -> Void {
+        
+        self.relationshipData.removeValue(forKey: propertyName)
+    }
+    
+    /// Sets the property for the relationship. Use value nil to unset it
     ///
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: Any) -> Void {
+    open func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
         
-        let objectValue: Any = propertyValue
+        if let propertyValue = propertyValue {
+            let objectValue: Any = propertyValue
+            self.relationshipData[propertyName] = objectValue
+
+        } else {
+            removeProp(propertyName)
+        }
+    }
+    
+    /// Equivalent subscripts
+    open subscript(propertyName: String) -> Any? {
+        get {
+            return getProp(propertyName)
+        }
         
-        self.relationshipData[propertyName] = objectValue
+        set {
+            setProp(propertyName, propertyValue: newValue)
+        }
     }
     
     /// Determine whether the relationship data is empty.
