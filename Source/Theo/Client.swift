@@ -173,7 +173,7 @@ open class Client {
     ///
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func metaDescription(_ completionBlock: TheoMetaDataCompletionBlock?) -> Void {
+    open func metaDescription(_ completionBlock: TheoMetaDataCompletionBlock? = nil) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: URL = URL(string: metaResource)!
@@ -221,7 +221,7 @@ open class Client {
     /// - parameter String: nodeID
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func fetchNode(_ nodeID: String, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func fetchNode(_ nodeID: String, completionBlock: TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: URL = URL(string: nodeResource)!
@@ -261,7 +261,7 @@ open class Client {
     /// - parameter Node: node
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createNode(_ node: Node, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func createNode(_ node: Node, completionBlock: TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: URL = URL(string: nodeResource)!
@@ -313,7 +313,7 @@ open class Client {
     /// - parameter Array<String>: labels
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createNode(_ node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func createNode(_ node: Node, labels: Array<String>, completionBlock: TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         /// Node creation returns node http://neo4j.com/docs/2.3.2/rest-api-nodes.html#rest-api-create-node
         /// However, creating labels doesn't return anything http://neo4j.com/docs/2.3.2/rest-api-node-labels.html#rest-api-adding-a-label-to-a-node in the response, so in the completion block
@@ -405,7 +405,7 @@ open class Client {
     /// - parameter Dictionary<String,String>: properties
     /// - parameter TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
+    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeID: String = node.meta!.nodeID()
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
@@ -456,7 +456,7 @@ open class Client {
     /// - parameter Node: nodeID
     /// - parameter TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    open func deleteNode(_ nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    open func deleteNode(_ nodeID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
 
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: URL = URL(string: nodeResource)!
@@ -486,7 +486,7 @@ open class Client {
     /// - parameter Array<String>?: types
     /// - parameter TheoRelationshipRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    open func fetchRelationshipsForNode(_ nodeID: String, direction: String?, types: Array<String>?, completionBlock: TheoRelationshipRequestCompletionBlock?) -> Void {
+    open func fetchRelationshipsForNode(_ nodeID: String, direction: String? = nil, types: Array<String>? = nil, completionBlock: TheoRelationshipRequestCompletionBlock? = nil) -> Void {
 
         var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
 
@@ -550,7 +550,7 @@ open class Client {
     /// - parameter Relationship: relationship
     /// - parameter TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createRelationship(_ relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    open func createRelationship(_ relationship: Relationship, completionBlock: TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -591,7 +591,7 @@ open class Client {
     /// - parameter Dictionary<String,Any>: properties
     /// - parameter TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestRelationshipCompletionBlock?) -> Void {
+    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
         let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -626,7 +626,7 @@ open class Client {
     /// - parameter String: relationshipID
     /// - parameter TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    open func deleteRelationship(_ relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock?) -> Void {
+    open func deleteRelationship(_ relationshipID: String, completionBlock: TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
 
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -660,7 +660,7 @@ open class Client {
     /// - parameter Array<Dictionary<String,: Any>> statements
     /// - parameter TheoTransactionCompletionBlock?: completionBlock
     /// - returns: Void
-    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: TheoTransactionCompletionBlock?) -> Void {
+    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: TheoTransactionCompletionBlock? = nil) -> Void {
 
         let transactionPayload: Dictionary<String, Array<Any>> = ["statements" : statements as Array<Any>]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
@@ -700,7 +700,7 @@ open class Client {
     /// - parameter String: uri
     /// - parameter TheoRawRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    open func executeRequest(_ uri: String, completionBlock: TheoRawRequestCompletionBlock?) -> Void {
+    open func executeRequest(_ uri: String, completionBlock: TheoRawRequestCompletionBlock? = nil) -> Void {
 
         let queryResource: String = self.baseURL + "/db/data" + uri
         let queryURL: URL = URL(string: queryResource)!
@@ -739,7 +739,7 @@ open class Client {
     /// - parameter Dictionary<String,Any>: params
     /// - parameter TheoRawRequestCompletionBlock: completionBlock
     /// - returns: Void
-    open func executeCypher(_ query: String, params: Dictionary<String,Any>?, completionBlock: Client.TheoCypherQueryCompletionBlock?) -> Void {
+    open func executeCypher(_ query: String, params: Dictionary<String,Any>? = nil, completionBlock: Client.TheoCypherQueryCompletionBlock? = nil) -> Void {
 
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
 
