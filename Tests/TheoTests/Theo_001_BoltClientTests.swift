@@ -53,6 +53,8 @@ class Theo_001_BoltClientTests: XCTestCase {
                 try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
                 try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n")
                 try client.executeCypher("MAXXXTCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n")
+            } catch {
+                tx.markAsFailed()
             }
 
             try completionBlock()
