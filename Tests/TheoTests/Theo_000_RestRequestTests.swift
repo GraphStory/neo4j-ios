@@ -23,20 +23,31 @@ let TheoNodePropertyName: String        = "title"
 
 class ConfigLoader: NSObject {
 
-    class func loadConfig() -> Config {
+    class func loadRestConfig() -> RestConfig {
 
         let testPath = URL(fileURLWithPath: #file)
             .deletingLastPathComponent().path
 
-        let filePath = "\(testPath)/TheoConfig.json"
+        let filePath = "\(testPath)/TheoRestConfig.json"
 
-        return Config(pathToFile: filePath)
+        return RestConfig(pathToFile: filePath)
     }
+
+    class func loadBoltConfig() -> BoltConfig {
+        
+        let testPath = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().path
+        
+        let filePath = "\(testPath)/TheoBoltConfig.json"
+        
+        return BoltConfig(pathToFile: filePath)
+    }
+
 }
 
-class Theo_000_RequestTests: XCTestCase {
+class Theo_000_RestRequestTests: XCTestCase {
 
-    let configuration: Config = ConfigLoader.loadConfig()
+    let configuration: RestConfig = ConfigLoader.loadRestConfig()
 
 
     override func setUp() {
@@ -51,7 +62,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_000_successfullyFetchDBMeta() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_000_successfullyFetchDBMeta")
 
         theo.metaDescription({(meta, error) in
@@ -69,7 +80,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_000_createTestData() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_000_createTestData")
 
         let dateFormatter = DateFormatter()
@@ -231,7 +242,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_001_successfullyFetchNode() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_002_successfullyFetchNode")
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
@@ -250,7 +261,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_002_successfullyAccessProperty() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_002_successfullyAccessProperty")
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
@@ -275,7 +286,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_003_successfullyHandleNonExistantAccessProperty() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_003_successfullyHandleNonExistantAccessProperty")
         let randomString: String = NSUUID().uuidString
 
@@ -301,7 +312,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_004_successfullyAddNodeWithOutLabels() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_004_successfullyAddNodeWithOutLabels")
         let node = Node()
         let randomString: String = NSUUID().uuidString
@@ -325,7 +336,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_005_successfullyAddRelationship() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_005_successfullyAddRelationship")
 
         /**
@@ -409,7 +420,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_006_succesfullyUpdateNodeWithProperties() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_006_succesfullyUpdateNodeWithProperties")
 
        /**
@@ -470,7 +481,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_007_successfullyDeleteRelationship() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_007_successfullyDeleteRelationship")
 
         let fetchDispatchGroup = DispatchGroup()
@@ -541,7 +552,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_008_succesfullyAddNodeWithLabels() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_008_succesfullyAddNodeWithLabel")
         let node = Node()
         let randomString: String = NSUUID().uuidString
@@ -593,7 +604,7 @@ class Theo_000_RequestTests: XCTestCase {
         let statement: Dictionary <String, Any> = ["statement": createStatement as Any, "resultDataContents": resultDataContents as Any]
         let statements: Array<Dictionary <String, Any>> = [statement]
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_010_successfullyCommitTransaction")
 
         theo.executeTransaction(statements, completionBlock: {(response, error) in
@@ -611,7 +622,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_011_succesfullyUpdateRelationshipWithProperties() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_011_succesfullyUpdateRelationshipWithProperties")
 
         let fetchDispatchGroup = DispatchGroup()
@@ -678,7 +689,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_012_successfullyExecuteCyperRequest() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_012_successfullyExecuteCyperRequest")
         let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
         let cyperParams: Dictionary<String, Any> = ["user": "ajordan" as Any]
@@ -698,7 +709,7 @@ class Theo_000_RequestTests: XCTestCase {
 
     func test_998_successfullyDeleteExistingNode() {
 
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_999_successfullyDeleteExistingNode")
 
         var nodeIDForDeletion: String?
@@ -744,7 +755,7 @@ class Theo_000_RequestTests: XCTestCase {
     }
 
     func test_999_cleanupTests() {
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
+        let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
 
         let exp = self.expectation(description: "cleanup")
 

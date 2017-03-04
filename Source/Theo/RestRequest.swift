@@ -1,5 +1,5 @@
 //
-//  Request.swift
+//  RestRequest.swift
 //  Cory D. Wiles
 //
 //  Created by Cory D. Wiles on 9/11/14.
@@ -22,7 +22,7 @@ public struct AllowedHTTPMethods {
     static var DELETE: String = "DELETE"
 }
 
-class Request {
+class RestRequest {
 
     // MARK: Lazy properties
 
@@ -52,7 +52,7 @@ class Request {
     /// - parameter NSURL: url
     /// - parameter NSURLCredential?: credentials
     /// - parameter Array<String,String>?: additionalHeaders
-    /// - returns: Request
+    /// - returns: RestRequest
     required init(url: URL, credentials: (username: String, password: String)?, additionalHeaders:[String:String]?) {
 
         self.sessionURL  = url
@@ -115,7 +115,7 @@ class Request {
     ///
     /// - parameter NSURL: url
     /// - parameter NSURLCredential?: credentials
-    /// - returns: Request
+    /// - returns: RestRequest
 
     convenience init(url: URL, credentials: (username: String, password: String)?) {
         self.init(url: url, credentials: credentials, additionalHeaders: nil)
@@ -126,7 +126,7 @@ class Request {
     /// The additionalHeaders and credentials properties are set to nil
     ///
     /// - parameter NSURL: url
-    /// - returns: Request
+    /// - returns: RestRequest
 
     convenience init() {
         self.init(url: URL(string: "this will fail")!, credentials: (username: String(), password: String()), additionalHeaders: nil)
@@ -166,7 +166,7 @@ class Request {
             var dataResp: Data? = data
 
             let statusCode = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
+            let containsStatusCode:Bool = RestRequest.acceptableStatusCodes().contains(statusCode)
 
             if !containsStatusCode {
                 dataResp = nil
@@ -182,7 +182,7 @@ class Request {
 
                 if error != nil { // How should this Error be NSError?
 
-                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    let nserror = NSError(domain: "Theo RestRequest", code: 1, userInfo: nil)
                     errorCallBack(nserror, httpResponse)
                     return
                 }
@@ -242,7 +242,7 @@ class Request {
             }
 
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
+            let containsStatusCode:Bool = RestRequest.acceptableStatusCodes().contains(statusCode)
 
             if !containsStatusCode {
                 dataResp = nil
@@ -258,7 +258,7 @@ class Request {
 
                 if error != nil { // How should this Error be NSError?
 
-                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    let nserror = NSError(domain: "Theo RestRequest", code: 1, userInfo: nil)
                     errorCallBack(nserror, httpResponse)
                     return
                 }
@@ -301,7 +301,7 @@ class Request {
             var dataResp: Data? = data
             let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
             let statusCode: Int = httpResponse.statusCode
-            let containsStatusCode:Bool = Request.acceptableStatusCodes().contains(statusCode)
+            let containsStatusCode:Bool = RestRequest.acceptableStatusCodes().contains(statusCode)
 
             if !containsStatusCode {
                 dataResp = nil
@@ -317,7 +317,7 @@ class Request {
 
                 if error != nil { // How should this Error be NSError?
 
-                    let nserror = NSError(domain: "Theo Request", code: 1, userInfo: nil)
+                    let nserror = NSError(domain: "Theo RestRequest", code: 1, userInfo: nil)
                     errorCallBack(nserror, httpResponse)
                     return
                 }

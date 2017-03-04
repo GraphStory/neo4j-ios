@@ -7,157 +7,498 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		OBJ_29 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Client.swift */; };
-		OBJ_30 /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Cypher.swift */; };
-		OBJ_31 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Node.swift */; };
-		OBJ_32 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* Relationship.swift */; };
-		OBJ_33 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Request.swift */; };
-		OBJ_34 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* Session.swift */; };
-		OBJ_41 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* Config.swift */; };
-		OBJ_42 /* Theo_000_RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_18 /* Theo_000_RequestTests.swift */; };
-		OBJ_43 /* XCTestManifests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* XCTestManifests.swift */; };
-		OBJ_45 /* Theo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* Theo.framework */; };
+		853737021E68AED200A01F58 /* BoltClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737011E68AED200A01F58 /* BoltClient.swift */; };
+		853737041E68AEF400A01F58 /* ClientProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737031E68AEF400A01F58 /* ClientProtocol.swift */; };
+		853737071E68AFE600A01F58 /* Theo_001_BoltClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737051E68AFB000A01F58 /* Theo_001_BoltClientTests.swift */; };
+		853737091E6ACABF00A01F58 /* BoltConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737081E6ACABF00A01F58 /* BoltConfig.swift */; };
+		OBJ_100 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_32 /* Response.swift */; };
+		OBJ_101 /* SocketProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_33 /* SocketProtocol.swift */; };
+		OBJ_102 /* UnencryptedSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_34 /* UnencryptedSocket.swift */; };
+		OBJ_104 /* packstream_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* packstream_swift.framework */; };
+		OBJ_105 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
+		OBJ_106 /* SSLService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* SSLService.framework */; };
+		OBJ_115 /* RestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_36 /* RestClient.swift */; };
+		OBJ_116 /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_37 /* Cypher.swift */; };
+		OBJ_117 /* DBMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_38 /* DBMeta.swift */; };
+		OBJ_118 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_39 /* Node.swift */; };
+		OBJ_119 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_40 /* Relationship.swift */; };
+		OBJ_120 /* RestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_41 /* RestRequest.swift */; };
+		OBJ_121 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_42 /* Session.swift */; };
+		OBJ_123 /* packstream_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* packstream_swift.framework */; };
+		OBJ_124 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
+		OBJ_125 /* SSLService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* SSLService.framework */; };
+		OBJ_126 /* bolt_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_52 /* bolt_swift.framework */; };
+		OBJ_136 /* RestConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_45 /* RestConfig.swift */; };
+		OBJ_137 /* Theo_000_RestRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_46 /* Theo_000_RestRequestTests.swift */; };
+		OBJ_138 /* XCTestManifests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_47 /* XCTestManifests.swift */; };
+		OBJ_140 /* packstream_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* packstream_swift.framework */; };
+		OBJ_141 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
+		OBJ_142 /* SSLService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* SSLService.framework */; };
+		OBJ_143 /* bolt_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_52 /* bolt_swift.framework */; };
+		OBJ_144 /* Theo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_53 /* Theo.framework */; };
+		OBJ_60 /* Bool.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Bool.swift */; };
+		OBJ_61 /* Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Float.swift */; };
+		OBJ_62 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Int.swift */; };
+		OBJ_63 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* List.swift */; };
+		OBJ_64 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* Map.swift */; };
+		OBJ_65 /* Null.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* Null.swift */; };
+		OBJ_66 /* Packer.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* Packer.swift */; };
+		OBJ_67 /* PackProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_16 /* PackProtocol.swift */; };
+		OBJ_68 /* packstream_swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* packstream_swift.swift */; };
+		OBJ_69 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_18 /* String.swift */; };
+		OBJ_70 /* Structure.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* Structure.swift */; };
+		OBJ_77 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* Socket.swift */; };
+		OBJ_78 /* SocketProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* SocketProtocols.swift */; };
+		OBJ_79 /* SocketUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* SocketUtils.swift */; };
+		OBJ_86 /* SSLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_25 /* SSLService.swift */; };
+		OBJ_88 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
+		OBJ_95 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_27 /* Connection.swift */; };
+		OBJ_96 /* ConnectionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_28 /* ConnectionSettings.swift */; };
+		OBJ_97 /* EncryptedSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_29 /* EncryptedSocket.swift */; };
+		OBJ_98 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_30 /* Node.swift */; };
+		OBJ_99 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_31 /* Request.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		85723EE11E297C70000DB81E /* PBXContainerItemProxy */ = {
+		853736F41E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = OBJ_24;
+			remoteGlobalIDString = OBJ_72;
+			remoteInfo = Socket;
+		};
+		853736F51E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_55;
+			remoteInfo = "packstream-swift";
+		};
+		853736F61E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_72;
+			remoteInfo = Socket;
+		};
+		853736F71E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_81;
+			remoteInfo = SSLService;
+		};
+		853736F81E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_55;
+			remoteInfo = "packstream-swift";
+		};
+		853736F91E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_72;
+			remoteInfo = Socket;
+		};
+		853736FA1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_81;
+			remoteInfo = SSLService;
+		};
+		853736FB1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_90;
+			remoteInfo = "bolt-swift";
+		};
+		853736FC1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_55;
+			remoteInfo = "packstream-swift";
+		};
+		853736FD1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_72;
+			remoteInfo = Socket;
+		};
+		853736FE1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_81;
+			remoteInfo = SSLService;
+		};
+		853736FF1E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_90;
+			remoteInfo = "bolt-swift";
+		};
+		853737001E68AA9A00A01F58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = OBJ_110;
 			remoteInfo = Theo;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		OBJ_10 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
-		OBJ_11 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
-		OBJ_12 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
-		OBJ_13 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
-		OBJ_14 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
-		OBJ_17 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		OBJ_18 /* Theo_000_RequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_RequestTests.swift; sourceTree = "<group>"; };
-		OBJ_19 /* XCTestManifests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestManifests.swift; sourceTree = "<group>"; };
-		OBJ_22 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		OBJ_23 /* TheoTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = TheoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		853737011E68AED200A01F58 /* BoltClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoltClient.swift; sourceTree = "<group>"; };
+		853737031E68AEF400A01F58 /* ClientProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClientProtocol.swift; sourceTree = "<group>"; };
+		853737051E68AFB000A01F58 /* Theo_001_BoltClientTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Theo_001_BoltClientTests.swift; sourceTree = "<group>"; };
+		853737081E6ACABF00A01F58 /* BoltConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoltConfig.swift; sourceTree = "<group>"; };
+		OBJ_10 /* Float.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
+		OBJ_11 /* Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
+		OBJ_12 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
+		OBJ_13 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
+		OBJ_14 /* Null.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Null.swift; sourceTree = "<group>"; };
+		OBJ_15 /* Packer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer.swift; sourceTree = "<group>"; };
+		OBJ_16 /* PackProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackProtocol.swift; sourceTree = "<group>"; };
+		OBJ_17 /* packstream_swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = packstream_swift.swift; sourceTree = "<group>"; };
+		OBJ_18 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		OBJ_19 /* Structure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structure.swift; sourceTree = "<group>"; };
+		OBJ_21 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
+		OBJ_22 /* SocketProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketProtocols.swift; sourceTree = "<group>"; };
+		OBJ_23 /* SocketUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketUtils.swift; sourceTree = "<group>"; };
+		OBJ_25 /* SSLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSLService.swift; sourceTree = "<group>"; };
+		OBJ_27 /* Connection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
+		OBJ_28 /* ConnectionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettings.swift; sourceTree = "<group>"; };
+		OBJ_29 /* EncryptedSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedSocket.swift; sourceTree = "<group>"; };
+		OBJ_30 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		OBJ_31 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		OBJ_32 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
+		OBJ_33 /* SocketProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocketProtocol.swift; sourceTree = "<group>"; };
+		OBJ_34 /* UnencryptedSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnencryptedSocket.swift; sourceTree = "<group>"; };
+		OBJ_36 /* RestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestClient.swift; sourceTree = "<group>"; };
+		OBJ_37 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
+		OBJ_38 /* DBMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBMeta.swift; sourceTree = "<group>"; };
+		OBJ_39 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		OBJ_40 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
+		OBJ_41 /* RestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestRequest.swift; sourceTree = "<group>"; };
+		OBJ_42 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		OBJ_45 /* RestConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestConfig.swift; sourceTree = "<group>"; };
+		OBJ_46 /* Theo_000_RestRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_RestRequestTests.swift; sourceTree = "<group>"; };
+		OBJ_47 /* XCTestManifests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestManifests.swift; sourceTree = "<group>"; };
+		OBJ_49 /* packstream_swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = packstream_swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_50 /* Socket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Socket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_51 /* SSLService.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SSLService.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_52 /* bolt_swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = bolt_swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_53 /* Theo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Theo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_54 /* TheoTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = TheoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		OBJ_9 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		OBJ_9 /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		OBJ_35 /* Frameworks */ = {
+		OBJ_103 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_104 /* packstream_swift.framework in Frameworks */,
+				OBJ_105 /* Socket.framework in Frameworks */,
+				OBJ_106 /* SSLService.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_122 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_123 /* packstream_swift.framework in Frameworks */,
+				OBJ_124 /* Socket.framework in Frameworks */,
+				OBJ_125 /* SSLService.framework in Frameworks */,
+				OBJ_126 /* bolt_swift.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_139 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_140 /* packstream_swift.framework in Frameworks */,
+				OBJ_141 /* Socket.framework in Frameworks */,
+				OBJ_142 /* SSLService.framework in Frameworks */,
+				OBJ_143 /* bolt_swift.framework in Frameworks */,
+				OBJ_144 /* Theo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_71 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_44 /* Frameworks */ = {
+		OBJ_80 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_45 /* Theo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_87 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_88 /* Socket.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		OBJ_15 /* Tests */ = {
+		OBJ_20 /* Socket */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_16 /* TheoTests */,
+				OBJ_21 /* Socket.swift */,
+				OBJ_22 /* SocketProtocols.swift */,
+				OBJ_23 /* SocketUtils.swift */,
 			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		OBJ_16 /* TheoTests */ = {
-			isa = PBXGroup;
-			children = (
-				OBJ_17 /* Config.swift */,
-				OBJ_18 /* Theo_000_RequestTests.swift */,
-				OBJ_19 /* XCTestManifests.swift */,
-			);
-			name = TheoTests;
-			path = Tests/TheoTests;
+			name = Socket;
+			path = "Packages/Socket-0.12.33/Sources";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_21 /* Products */ = {
+		OBJ_24 /* SSLService */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_22 /* Theo.framework */,
-				OBJ_23 /* TheoTests.xctest */,
+				OBJ_25 /* SSLService.swift */,
 			);
-			name = Products;
-			sourceTree = BUILT_PRODUCTS_DIR;
+			name = SSLService;
+			path = "Packages/SSLService-0.12.22/Sources";
+			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 = {
+		OBJ_26 /* bolt-swift */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_6 /* Package.swift */,
-				OBJ_7 /* Sources */,
-				OBJ_15 /* Tests */,
-				OBJ_21 /* Products */,
+				OBJ_27 /* Connection.swift */,
+				OBJ_28 /* ConnectionSettings.swift */,
+				OBJ_29 /* EncryptedSocket.swift */,
+				OBJ_30 /* Node.swift */,
+				OBJ_31 /* Request.swift */,
+				OBJ_32 /* Response.swift */,
+				OBJ_33 /* SocketProtocol.swift */,
+				OBJ_34 /* UnencryptedSocket.swift */,
 			);
-			sourceTree = "<group>";
+			name = "bolt-swift";
+			path = "Packages/bolt-swift-0.1.0/Sources";
+			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_7 /* Sources */ = {
+		OBJ_35 /* Theo */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_8 /* Theo */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		OBJ_8 /* Theo */ = {
-			isa = PBXGroup;
-			children = (
-				OBJ_9 /* Client.swift */,
-				OBJ_10 /* Cypher.swift */,
-				OBJ_11 /* Node.swift */,
-				OBJ_12 /* Relationship.swift */,
-				OBJ_13 /* Request.swift */,
-				OBJ_14 /* Session.swift */,
+				OBJ_37 /* Cypher.swift */,
+				OBJ_38 /* DBMeta.swift */,
+				OBJ_39 /* Node.swift */,
+				OBJ_40 /* Relationship.swift */,
+				OBJ_41 /* RestRequest.swift */,
+				OBJ_42 /* Session.swift */,
+				OBJ_36 /* RestClient.swift */,
+				853737011E68AED200A01F58 /* BoltClient.swift */,
+				853737031E68AEF400A01F58 /* ClientProtocol.swift */,
 			);
 			name = Theo;
 			path = Source/Theo;
 			sourceTree = SOURCE_ROOT;
 		};
+		OBJ_43 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_44 /* TheoTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		OBJ_44 /* TheoTests */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_45 /* RestConfig.swift */,
+				853737081E6ACABF00A01F58 /* BoltConfig.swift */,
+				OBJ_46 /* Theo_000_RestRequestTests.swift */,
+				853737051E68AFB000A01F58 /* Theo_001_BoltClientTests.swift */,
+				OBJ_47 /* XCTestManifests.swift */,
+			);
+			name = TheoTests;
+			path = Tests/TheoTests;
+			sourceTree = SOURCE_ROOT;
+		};
+		OBJ_48 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_49 /* packstream_swift.framework */,
+				OBJ_50 /* Socket.framework */,
+				OBJ_51 /* SSLService.framework */,
+				OBJ_52 /* bolt_swift.framework */,
+				OBJ_53 /* Theo.framework */,
+				OBJ_54 /* TheoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		OBJ_5 /*  */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_6 /* Package.swift */,
+				OBJ_7 /* Sources */,
+				OBJ_43 /* Tests */,
+				OBJ_48 /* Products */,
+			);
+			name = "";
+			sourceTree = "<group>";
+		};
+		OBJ_7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_8 /* packstream-swift */,
+				OBJ_20 /* Socket */,
+				OBJ_24 /* SSLService */,
+				OBJ_26 /* bolt-swift */,
+				OBJ_35 /* Theo */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		OBJ_8 /* packstream-swift */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_9 /* Bool.swift */,
+				OBJ_10 /* Float.swift */,
+				OBJ_11 /* Int.swift */,
+				OBJ_12 /* List.swift */,
+				OBJ_13 /* Map.swift */,
+				OBJ_14 /* Null.swift */,
+				OBJ_15 /* Packer.swift */,
+				OBJ_16 /* PackProtocol.swift */,
+				OBJ_17 /* packstream_swift.swift */,
+				OBJ_18 /* String.swift */,
+				OBJ_19 /* Structure.swift */,
+			);
+			name = "packstream-swift";
+			path = "Packages/packstream-swift-0.1.1/Sources";
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		OBJ_24 /* Theo */ = {
+		OBJ_110 /* Theo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_25 /* Build configuration list for PBXNativeTarget "Theo" */;
+			buildConfigurationList = OBJ_111 /* Build configuration list for PBXNativeTarget "Theo" */;
 			buildPhases = (
-				OBJ_28 /* Sources */,
-				OBJ_35 /* Frameworks */,
+				OBJ_114 /* Sources */,
+				OBJ_122 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				OBJ_127 /* PBXTargetDependency */,
+				OBJ_128 /* PBXTargetDependency */,
+				OBJ_129 /* PBXTargetDependency */,
+				OBJ_130 /* PBXTargetDependency */,
 			);
 			name = Theo;
 			productName = Theo;
-			productReference = OBJ_22 /* Theo.framework */;
+			productReference = OBJ_53 /* Theo.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		OBJ_36 /* TheoTests */ = {
+		OBJ_131 /* TheoTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = OBJ_37 /* Build configuration list for PBXNativeTarget "TheoTests" */;
+			buildConfigurationList = OBJ_132 /* Build configuration list for PBXNativeTarget "TheoTests" */;
 			buildPhases = (
-				OBJ_40 /* Sources */,
-				OBJ_44 /* Frameworks */,
+				OBJ_135 /* Sources */,
+				OBJ_139 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				OBJ_46 /* PBXTargetDependency */,
+				OBJ_145 /* PBXTargetDependency */,
+				OBJ_146 /* PBXTargetDependency */,
+				OBJ_147 /* PBXTargetDependency */,
+				OBJ_148 /* PBXTargetDependency */,
+				OBJ_149 /* PBXTargetDependency */,
 			);
 			name = TheoTests;
 			productName = TheoTests;
-			productReference = OBJ_23 /* TheoTests.xctest */;
+			productReference = OBJ_54 /* TheoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		OBJ_55 /* packstream-swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_56 /* Build configuration list for PBXNativeTarget "packstream-swift" */;
+			buildPhases = (
+				OBJ_59 /* Sources */,
+				OBJ_71 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "packstream-swift";
+			productName = packstream_swift;
+			productReference = OBJ_49 /* packstream_swift.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		OBJ_72 /* Socket */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_73 /* Build configuration list for PBXNativeTarget "Socket" */;
+			buildPhases = (
+				OBJ_76 /* Sources */,
+				OBJ_80 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Socket;
+			productName = Socket;
+			productReference = OBJ_50 /* Socket.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		OBJ_81 /* SSLService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_82 /* Build configuration list for PBXNativeTarget "SSLService" */;
+			buildPhases = (
+				OBJ_85 /* Sources */,
+				OBJ_87 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				OBJ_89 /* PBXTargetDependency */,
+			);
+			name = SSLService;
+			productName = SSLService;
+			productReference = OBJ_51 /* SSLService.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		OBJ_90 /* bolt-swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = OBJ_91 /* Build configuration list for PBXNativeTarget "bolt-swift" */;
+			buildPhases = (
+				OBJ_94 /* Sources */,
+				OBJ_103 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				OBJ_107 /* PBXTargetDependency */,
+				OBJ_108 /* PBXTargetDependency */,
+				OBJ_109 /* PBXTargetDependency */,
+			);
+			name = "bolt-swift";
+			productName = bolt_swift;
+			productReference = OBJ_52 /* bolt_swift.framework */;
+			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
@@ -174,53 +515,173 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5;
-			productRefGroup = OBJ_21 /* Products */;
+			mainGroup = OBJ_5 /*  */;
+			productRefGroup = OBJ_48 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				OBJ_24 /* Theo */,
-				OBJ_36 /* TheoTests */,
+				OBJ_55 /* packstream-swift */,
+				OBJ_72 /* Socket */,
+				OBJ_81 /* SSLService */,
+				OBJ_90 /* bolt-swift */,
+				OBJ_110 /* Theo */,
+				OBJ_131 /* TheoTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		OBJ_28 /* Sources */ = {
+		OBJ_114 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_29 /* Client.swift in Sources */,
-				OBJ_30 /* Cypher.swift in Sources */,
-				OBJ_31 /* Node.swift in Sources */,
-				OBJ_32 /* Relationship.swift in Sources */,
-				OBJ_33 /* Request.swift in Sources */,
-				OBJ_34 /* Session.swift in Sources */,
+				OBJ_115 /* RestClient.swift in Sources */,
+				OBJ_116 /* Cypher.swift in Sources */,
+				OBJ_117 /* DBMeta.swift in Sources */,
+				853737021E68AED200A01F58 /* BoltClient.swift in Sources */,
+				OBJ_118 /* Node.swift in Sources */,
+				OBJ_119 /* Relationship.swift in Sources */,
+				853737041E68AEF400A01F58 /* ClientProtocol.swift in Sources */,
+				OBJ_120 /* RestRequest.swift in Sources */,
+				OBJ_121 /* Session.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		OBJ_40 /* Sources */ = {
+		OBJ_135 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				OBJ_41 /* Config.swift in Sources */,
-				OBJ_42 /* Theo_000_RequestTests.swift in Sources */,
-				OBJ_43 /* XCTestManifests.swift in Sources */,
+				853737091E6ACABF00A01F58 /* BoltConfig.swift in Sources */,
+				OBJ_136 /* RestConfig.swift in Sources */,
+				OBJ_137 /* Theo_000_RestRequestTests.swift in Sources */,
+				OBJ_138 /* XCTestManifests.swift in Sources */,
+				853737071E68AFE600A01F58 /* Theo_001_BoltClientTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_59 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_60 /* Bool.swift in Sources */,
+				OBJ_61 /* Float.swift in Sources */,
+				OBJ_62 /* Int.swift in Sources */,
+				OBJ_63 /* List.swift in Sources */,
+				OBJ_64 /* Map.swift in Sources */,
+				OBJ_65 /* Null.swift in Sources */,
+				OBJ_66 /* Packer.swift in Sources */,
+				OBJ_67 /* PackProtocol.swift in Sources */,
+				OBJ_68 /* packstream_swift.swift in Sources */,
+				OBJ_69 /* String.swift in Sources */,
+				OBJ_70 /* Structure.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_77 /* Socket.swift in Sources */,
+				OBJ_78 /* SocketProtocols.swift in Sources */,
+				OBJ_79 /* SocketUtils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_85 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_86 /* SSLService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		OBJ_94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				OBJ_95 /* Connection.swift in Sources */,
+				OBJ_96 /* ConnectionSettings.swift in Sources */,
+				OBJ_97 /* EncryptedSocket.swift in Sources */,
+				OBJ_98 /* Node.swift in Sources */,
+				OBJ_99 /* Request.swift in Sources */,
+				OBJ_100 /* Response.swift in Sources */,
+				OBJ_101 /* SocketProtocol.swift in Sources */,
+				OBJ_102 /* UnencryptedSocket.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		OBJ_46 /* PBXTargetDependency */ = {
+		OBJ_107 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = OBJ_24 /* Theo */;
-			targetProxy = 85723EE11E297C70000DB81E /* PBXContainerItemProxy */;
+			target = OBJ_55 /* packstream-swift */;
+			targetProxy = 853736F51E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_108 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_72 /* Socket */;
+			targetProxy = 853736F61E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_109 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_81 /* SSLService */;
+			targetProxy = 853736F71E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_127 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_55 /* packstream-swift */;
+			targetProxy = 853736F81E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_128 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_72 /* Socket */;
+			targetProxy = 853736F91E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_129 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_81 /* SSLService */;
+			targetProxy = 853736FA1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_130 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_90 /* bolt-swift */;
+			targetProxy = 853736FB1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_145 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_55 /* packstream-swift */;
+			targetProxy = 853736FC1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_146 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_72 /* Socket */;
+			targetProxy = 853736FD1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_147 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_81 /* SSLService */;
+			targetProxy = 853736FE1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_148 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_90 /* bolt-swift */;
+			targetProxy = 853736FF1E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_149 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_110 /* Theo */;
+			targetProxy = 853737001E68AA9A00A01F58 /* PBXContainerItemProxy */;
+		};
+		OBJ_89 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = OBJ_72 /* Socket */;
+			targetProxy = 853736F41E68AA9A00A01F58 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		OBJ_26 /* Debug */ = {
+		OBJ_112 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
@@ -240,7 +701,7 @@
 			};
 			name = Debug;
 		};
-		OBJ_27 /* Release */ = {
+		OBJ_113 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
@@ -257,6 +718,40 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				TARGET_NAME = Theo;
+			};
+			name = Release;
+		};
+		OBJ_133 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = TheoTests;
+			};
+			name = Debug;
+		};
+		OBJ_134 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = TheoTests;
 			};
 			name = Release;
 		};
@@ -282,40 +777,6 @@
 			};
 			name = Debug;
 		};
-		OBJ_38 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = "$(inherited)";
-				OTHER_SWIFT_FLAGS = "$(inherited)";
-				TARGET_NAME = TheoTests;
-			};
-			name = Debug;
-		};
-		OBJ_39 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
-				);
-				HEADER_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = Theo.xcodeproj/TheoTests_Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = "$(inherited)";
-				OTHER_SWIFT_FLAGS = "$(inherited)";
-				TARGET_NAME = TheoTests;
-			};
-			name = Release;
-		};
 		OBJ_4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -336,9 +797,187 @@
 			};
 			name = Release;
 		};
+		OBJ_57 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/packstream_swift_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = packstream_swift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = "packstream-swift";
+			};
+			name = Debug;
+		};
+		OBJ_58 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/packstream_swift_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = packstream_swift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = "packstream-swift";
+			};
+			name = Release;
+		};
+		OBJ_74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/Socket_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = Socket;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = Socket;
+			};
+			name = Debug;
+		};
+		OBJ_75 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/Socket_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = Socket;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = Socket;
+			};
+			name = Release;
+		};
+		OBJ_83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/SSLService_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = SSLService;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = SSLService;
+			};
+			name = Debug;
+		};
+		OBJ_84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/SSLService_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = SSLService;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = SSLService;
+			};
+			name = Release;
+		};
+		OBJ_92 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/bolt_swift_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = bolt_swift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = "bolt-swift";
+			};
+			name = Debug;
+		};
+		OBJ_93 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = Theo.xcodeproj/bolt_swift_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = bolt_swift;
+				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				TARGET_NAME = "bolt-swift";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		OBJ_111 /* Build configuration list for PBXNativeTarget "Theo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_112 /* Debug */,
+				OBJ_113 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_132 /* Build configuration list for PBXNativeTarget "TheoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_133 /* Debug */,
+				OBJ_134 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		OBJ_2 /* Build configuration list for PBXProject "Theo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -348,20 +987,38 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_25 /* Build configuration list for PBXNativeTarget "Theo" */ = {
+		OBJ_56 /* Build configuration list for PBXNativeTarget "packstream-swift" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_26 /* Debug */,
-				OBJ_27 /* Release */,
+				OBJ_57 /* Debug */,
+				OBJ_58 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		OBJ_37 /* Build configuration list for PBXNativeTarget "TheoTests" */ = {
+		OBJ_73 /* Build configuration list for PBXNativeTarget "Socket" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				OBJ_38 /* Debug */,
-				OBJ_39 /* Release */,
+				OBJ_74 /* Debug */,
+				OBJ_75 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_82 /* Build configuration list for PBXNativeTarget "SSLService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_83 /* Debug */,
+				OBJ_84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		OBJ_91 /* Build configuration list for PBXNativeTarget "bolt-swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				OBJ_92 /* Debug */,
+				OBJ_93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

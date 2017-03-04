@@ -19,3 +19,7 @@ Pods
 Source/Theo/TheoTests/TheoConfig.json
 Tests/TheoTests/TheoConfig.json
 .build
+Packages
+/Theo.xcodeproj/project.xcworkspace/xcshareddata
+/Tests/TheoTests/TheoBoltConfig.json
+/Tests/TheoTests/TheoRestConfig.json

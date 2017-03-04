@@ -1,5 +1,5 @@
 //
-//  Config.swift
+//  RestConfig.swift
 //  Theo
 //
 //  Created by Cory D. Wiles on 9/21/14.
@@ -9,7 +9,7 @@
 import Foundation
 
 
-struct Config {
+struct RestConfig {
     let username: String
     let password: String
     let host: String
