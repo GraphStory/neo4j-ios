@@ -31,6 +31,8 @@ open class BoltClient {
     private let encrypted: Bool
     private let connection: Connection
     
+    private var currentTransaction: Transaction?
+    
     required public init(hostname: String = "localhost", port: Int = 7687, username: String = "neo4j", password: String = "neo4j", encrypted: Bool = true) throws {
 
         self.hostname = hostname
@@ -77,6 +79,8 @@ open class BoltClient {
     public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction, _ completionBlock: () throws -> ()) throws -> ()) throws {
         
         let transaction = Transaction()
+        currentTransaction = transaction
+        
         let beginRequest = BoltRequest.run(statement: "BEGIN", parameters: Map(dictionary: [:]))
         
         let transactionGroup = DispatchGroup()
@@ -95,15 +99,18 @@ open class BoltClient {
                             if !success {
                                 print("Error committing transaction: \(response)")
                             }
+                            self.currentTransaction = nil
                             transactionGroup.leave()
                         }
                     } else {
+                        
                         let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
                         try connection.request(rollbackRequest) { (success, response) in
                             try pullSynchronouslyAndIgnore()
                             if !success {
                                 print("Error rolling back transaction: \(response)")
                             }
+                            self.currentTransaction = nil
                             transactionGroup.leave()
                         }
                     }
@@ -143,9 +150,19 @@ open class BoltClient {
                 if success == true {
                     let pullRequest = BoltRequest.pullAll()
                     try self.connection.request(pullRequest) { (success, response) in
+                        
+                        if let currentTransaction = self.currentTransaction,
+                           success == false {
+                            currentTransaction.markAsFailed()
+                        }
+                        
                         dispatchGroup.leave()
                     }
+                    
                 } else {
+                    if let currentTransaction = self.currentTransaction {
+                        currentTransaction.markAsFailed()
+                    }
                     dispatchGroup.leave()
                 }
             }
