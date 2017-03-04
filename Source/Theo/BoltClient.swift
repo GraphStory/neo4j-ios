@@ -32,6 +32,7 @@ open class BoltClient {
     private let connection: Connection
     
     private var currentTransaction: Transaction?
+    private var currentTransactionBookmark: String?
     
     required public init(hostname: String = "localhost", port: Int = 7687, username: String = "neo4j", password: String = "neo4j", encrypted: Bool = true) throws {
 
@@ -65,11 +66,21 @@ open class BoltClient {
 
     }
     
+    private func parseMeta(_ map: Map) {
+        if let bookmark = map.dictionary["bookmark"] as? String {
+            self.currentTransactionBookmark = bookmark
+        }
+    }
+    
     private func pullSynchronouslyAndIgnore() throws {
         let dispatchGroup = DispatchGroup()
         let pullRequest = BoltRequest.pullAll()
         dispatchGroup.enter()
         try self.connection.request(pullRequest) { (success, response) in
+            if let responseItems = response?.items,
+               let meta = responseItems.first as? Map {
+                parseMeta(meta)
+            }
             dispatchGroup.leave()
         }
         dispatchGroup.wait()
