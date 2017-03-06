@@ -67,7 +67,7 @@ public struct RelationshipDirection {
     public static var OUT: String = "out"
 }
 
-open class Relationship {
+public struct Relationship {
 
     // MARK: Public Properties
     
@@ -98,7 +98,7 @@ open class Relationship {
     
     // MARK: Private Properties
 
-    open fileprivate (set) var relationshipMeta: RelationshipMeta?
+    public fileprivate (set) var relationshipMeta: RelationshipMeta?
     fileprivate (set) var relationshipCreateMeta: [String:Any] = [String:Any]()
     fileprivate (set) var relationshipData: [String:Any]       = [String:Any]()
 
@@ -156,7 +156,7 @@ open class Relationship {
     ///
     /// - parameter Dictionary<String,Any>: data
     /// - returns: Relationship
-    public required init(data: Dictionary<String,Any>?) {
+    public init(data: Dictionary<String,Any>?) {
         
         self.relationshipCreateMeta = [String:Any]()
         self.relationshipData       = [String:Any]()
@@ -177,7 +177,7 @@ open class Relationship {
     /// calls init(data:) with the param value as nil
     ///
     /// - returns: Relationship
-    public convenience init() {
+    public init() {
         self.init(data: nil)
     }
     
@@ -187,7 +187,7 @@ open class Relationship {
     /// - parameter Node: toNode
     /// - parameter String: type (see RelationshipDirection)
     /// - returns: Void
-    open func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
+    public mutating func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
     
         self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as Any?
         self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as Any?
@@ -197,7 +197,7 @@ open class Relationship {
     /// A list of available properties for Relationship
     ///
     /// - returns: [String]
-    open var allProperties: [String] {
+    public var allProperties: [String] {
         get {
             return relationshipData.map({ (key, _) -> String in
                 return key
@@ -209,7 +209,7 @@ open class Relationship {
     ///
     /// - parameter String: propertyName
     /// - returns: Any?
-    open func getProp(_ propertyName: String) -> Any? {
+    public func getProp(_ propertyName: String) -> Any? {
         
         if let object: Any = self.relationshipData[propertyName] {
             return object
@@ -222,7 +222,7 @@ open class Relationship {
     ///
     /// - parameter String: propertyName
     /// - returns: Void
-    open func removeProp(_ propertyName: String) -> Void {
+    public mutating func removeProp(_ propertyName: String) -> Void {
         
         self.relationshipData.removeValue(forKey: propertyName)
     }
@@ -232,7 +232,7 @@ open class Relationship {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
+    public mutating func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
         
         if let propertyValue = propertyValue {
             let objectValue: Any = propertyValue
@@ -244,7 +244,7 @@ open class Relationship {
     }
     
     /// Equivalent subscripts
-    open subscript(propertyName: String) -> Any? {
+    public subscript(propertyName: String) -> Any? {
         get {
             return getProp(propertyName)
         }
@@ -261,7 +261,7 @@ open class Relationship {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Bool
-    open func isDataEmpty() -> Bool {
+    public func isDataEmpty() -> Bool {
         return self.relationshipData.keys.isEmpty
     }
 }

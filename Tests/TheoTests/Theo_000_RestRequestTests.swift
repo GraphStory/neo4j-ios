@@ -190,15 +190,15 @@ class Theo_000_RestRequestTests: XCTestCase {
         createDispatchGroup.notify(queue: DispatchQueue.main) {
 
             // Data
-            let followingRelationship = Relationship()
+            var followingRelationship = Relationship()
             followingRelationship.relate(userNode, toNode: followingNode, type: RelationshipType.FOLLOWS)
             followingRelationship.setProp("startTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
-            let lastPostRelationship = Relationship()
+            var lastPostRelationship = Relationship()
             lastPostRelationship.relate(followingNode, toNode: postNode, type: RelationshipType.LASTPOST)
             lastPostRelationship.setProp("postTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
-            let nextPostRelationship = Relationship()
+            var nextPostRelationship = Relationship()
             nextPostRelationship.relate(postNode, toNode: userNode, type: RelationshipType.NEXTPOST)
             nextPostRelationship.setProp("scheduledTime", propertyValue: dateFormatter.string(from: Date()) as Any)
 
@@ -351,7 +351,7 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         var parentNode: Node?
         var relatedNode: Node?
-        let relationship: Relationship = Relationship()
+        var relationship: Relationship = Relationship()
 
         /**
          * Fetch the parent node
@@ -841,15 +841,6 @@ class Theo_000_RestRequestTests: XCTestCase {
         ("test_998_successfullyDeleteExistingNode", test_998_successfullyDeleteExistingNode),
         ("test_999_cleanupTests", test_999_cleanupTests)
     ]
-}
-
-
-extension Relationship {
-    func setProp(_ propertyName: String, propertyValue: String) -> Void {
-
-        let value: Any = propertyValue as String
-        self.setProp(propertyName, propertyValue: value)
-    }
 }
 
 public struct RelationshipType {

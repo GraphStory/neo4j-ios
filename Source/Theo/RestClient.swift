@@ -488,6 +488,7 @@ open class RestClient {
     /// - returns: Void
     open func createRelationship(_ relationship: Relationship, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
+        var relationship = relationship
         let relationshipResource: String = relationship.fromNode
         let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest:RestRequest = RestRequest(url: relationshipURL, credentials: self.credentials)
@@ -533,6 +534,7 @@ open class RestClient {
         let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest:RestRequest = RestRequest(url: relationshipURL, credentials: self.credentials)
 
+        var relationship = relationship
         relationship.updatingProperties = true
 
         for (name, value) in properties {
