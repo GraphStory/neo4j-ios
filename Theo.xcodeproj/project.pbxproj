@@ -28,7 +28,7 @@
 		OBJ_118 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_39 /* Node.swift */; };
 		OBJ_119 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_40 /* Relationship.swift */; };
 		OBJ_120 /* RestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_41 /* RestRequest.swift */; };
-		OBJ_121 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_42 /* Session.swift */; };
+		OBJ_121 /* RestSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_42 /* RestSession.swift */; };
 		OBJ_123 /* packstream_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* packstream_swift.framework */; };
 		OBJ_124 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
 		OBJ_125 /* SSLService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* SSLService.framework */; };
@@ -186,7 +186,7 @@
 		OBJ_39 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		OBJ_40 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		OBJ_41 /* RestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestRequest.swift; sourceTree = "<group>"; };
-		OBJ_42 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		OBJ_42 /* RestSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestSession.swift; sourceTree = "<group>"; };
 		OBJ_45 /* RestConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestConfig.swift; sourceTree = "<group>"; };
 		OBJ_46 /* Theo_000_RestRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_RestRequestTests.swift; sourceTree = "<group>"; };
 		OBJ_47 /* XCTestManifests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestManifests.swift; sourceTree = "<group>"; };
@@ -302,7 +302,7 @@
 				OBJ_39 /* Node.swift */,
 				OBJ_40 /* Relationship.swift */,
 				OBJ_41 /* RestRequest.swift */,
-				OBJ_42 /* Session.swift */,
+				OBJ_42 /* RestSession.swift */,
 				OBJ_36 /* RestClient.swift */,
 				853737011E68AED200A01F58 /* BoltClient.swift */,
 				853737031E68AEF400A01F58 /* ClientProtocol.swift */,
@@ -548,7 +548,7 @@
 				OBJ_119 /* Relationship.swift in Sources */,
 				853737041E68AEF400A01F58 /* ClientProtocol.swift in Sources */,
 				OBJ_120 /* RestRequest.swift in Sources */,
-				OBJ_121 /* Session.swift in Sources */,
+				OBJ_121 /* RestSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

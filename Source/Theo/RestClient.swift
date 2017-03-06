@@ -20,7 +20,7 @@ open class RestClient {
     open let password: String?
 
     lazy open var parsingQueue: DispatchQueue = {
-        if let underlyingQueue = Session.sharedInstance.sessionDelegateQueue.underlyingQueue {
+        if let underlyingQueue = RestSession.sharedInstance.sessionDelegateQueue.underlyingQueue {
             return underlyingQueue
         } else {
             print("Warning, missing Session's underlying queue, creating one")
@@ -31,7 +31,7 @@ open class RestClient {
 
 
 
-    lazy fileprivate var operationQueue = Session.sharedInstance.sessionDelegateQueue
+    lazy fileprivate var operationQueue = RestSession.sharedInstance.sessionDelegateQueue
 
     // MARK: Lazy properties
 
@@ -256,7 +256,7 @@ open class RestClient {
         /// we append the labels param values to the returned node
 
         var createdNodeWithoutLabels: Node?
-        let nodeSaveOperationQueue = Session.sharedInstance.sessionDelegateQueue
+        let nodeSaveOperationQueue = RestSession.sharedInstance.sessionDelegateQueue
 
         let createNodeOperation: BlockOperation = BlockOperation(block: {
 

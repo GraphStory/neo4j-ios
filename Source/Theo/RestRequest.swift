@@ -26,9 +26,9 @@ class RestRequest {
 
     // MARK: Lazy properties
 
-    lazy var httpSession: Session = {
+    lazy var httpSession: RestSession = {
 
-        return Session.sharedInstance
+        return RestSession.sharedInstance
     }()
 
     lazy var sessionConfiguration: URLSessionConfiguration = {

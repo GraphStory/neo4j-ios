@@ -1,5 +1,5 @@
 //
-//  Session.swift
+//  RestSession.swift
 //  Cory D. Wiles
 //
 //  Created by Cory D. Wiles on 9/11/14.
@@ -49,9 +49,9 @@ open class Configuration {
 // TODO: Move all session request to utilize this delegate.
 // Right now these are NOT called because I'm setting the URLCredential on the
 // session configuration
-private class TheoTaskSessionDelegate: NSObject {
+private class TheoTaskRestSessionDelegate: NSObject {
 
-    // For Session based challenges
+    // For RestSession based challenges
 #if os(Linux)
     func URLSession(_ session: Foundation.URLSession, didReceiveChallenge challenge: URLAuthenticationChallenge, completionHandler: (Foundation.URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         print("session based challenge")
@@ -74,17 +74,17 @@ private class TheoTaskSessionDelegate: NSObject {
     #endif
 }
 
-class Session {
+class RestSession {
 
 
     // MARK: Private properties
 
-    fileprivate let sessionDescription = "com.graphstory.session"
+    fileprivate let sessionDescription = "net.theo.restsession"
     fileprivate struct Static {
         static var token : Int = 0
-        static var instance : Session?
+        static var instance : RestSession?
     }
-    fileprivate let sessionDelegate: TheoTaskSessionDelegate = TheoTaskSessionDelegate()
+    fileprivate let sessionDelegate: TheoTaskRestSessionDelegate = TheoTaskRestSessionDelegate()
 
     // MARK: Public properties
 
@@ -92,13 +92,13 @@ class Session {
     var sessionDelegateQueue: OperationQueue
     var configuration: Configuration = Configuration()
     
-    static var sharedInstance: Session = {
+    static var sharedInstance: RestSession = {
         let queue = OperationQueue()
-        queue.name = "com.theo.session.queue"
+        queue.name = "net.theo.restsession.queue"
         queue.maxConcurrentOperationCount = 1
         queue.underlyingQueue = DispatchQueue(label: TheoParsingQueueName, attributes: DispatchQueue.Attributes.concurrent)
 
-        let session = Session(queue: queue)
+        let session = RestSession(queue: queue)
         return session
     }()
 
@@ -110,14 +110,14 @@ class Session {
     /// delegate
     ///
     /// - parameter NSOperationQueue?: queue
-    /// - returns: Session
+    /// - returns: RestSession
     required init(queue: OperationQueue?) {
 
         if let operationQueue = queue {
             self.sessionDelegateQueue = operationQueue
         } else {
             
-            let operationQueue = Session.sharedInstance.sessionDelegateQueue
+            let operationQueue = RestSession.sharedInstance.sessionDelegateQueue
             self.sessionDelegateQueue = operationQueue
         }
 
@@ -131,7 +131,7 @@ class Session {
     /// The operation queue param is set to nil which translates to using
     /// a new concurrent OperationQueue
     ///
-    /// - returns: Session
+    /// - returns: RestSession
     convenience init() {
         self.init(queue: nil)
     }
