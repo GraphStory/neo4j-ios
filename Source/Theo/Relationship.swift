@@ -189,8 +189,8 @@ public struct Relationship {
     /// - returns: Void
     public mutating func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
     
-        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as Any?
-        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as Any?
+        self.relationshipCreateMeta[RelationshipDataFromNodeKey] = "\(fromNode.id)"
+        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = "\(toNode.id)"
         self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as Any?
     }
     

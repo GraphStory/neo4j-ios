@@ -270,7 +270,7 @@ open class RestClient {
 
                         if var nodeWithLabels: Node = createdNodeWithoutLabels {
 
-                            let nodeID: String = nodeWithLabels.meta!.nodeID()
+                            let nodeID: String = "\(returnedNode.id)"
                             let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                             let nodeURL: URL = URL(string: nodeResource)!
                             let nodeRequest:RestRequest = RestRequest(url: nodeURL, credentials: self.credentials)
@@ -343,7 +343,7 @@ open class RestClient {
     /// - returns: Void
     open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
 
-        let nodeID: String = node.meta!.nodeID()
+        let nodeID: String = "\(node.id)"
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest:RestRequest = RestRequest(url: nodeURL, credentials: self.credentials)
@@ -489,7 +489,8 @@ open class RestClient {
     open func createRelationship(_ relationship: Relationship, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
         var relationship = relationship
-        let relationshipResource: String = relationship.fromNode
+        let fromNode = relationship.fromNode
+        let relationshipResource = "\(self.baseURL)/db/data/node/\(fromNode)/relationships"
         let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest:RestRequest = RestRequest(url: relationshipURL, credentials: self.credentials)
 

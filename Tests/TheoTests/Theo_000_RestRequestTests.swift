@@ -116,10 +116,9 @@ class Theo_000_RestRequestTests: XCTestCase {
         createDispatchGroup.enter()
         theo.createNode(postNode) { (node, error) in
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
-            if let identifier = node?.meta?.nodeID() {
+            if let identifier = node?.stringId {
                 TheoNodeID = identifier
             } else {
                 XCTFail("Could not get newly created node identifier")
@@ -140,10 +139,9 @@ class Theo_000_RestRequestTests: XCTestCase {
         createDispatchGroup.enter()
         theo.createNode(userNode) { (node, error) in
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
-            if let identifier = node?.meta?.nodeID() {
+            if let identifier = node?.stringId {
                 TheoNodeIDForUser = identifier
             } else {
                 XCTFail("Could not get newly created node identifier")
@@ -164,10 +162,9 @@ class Theo_000_RestRequestTests: XCTestCase {
         createDispatchGroup.enter()
         theo.createNode(followingNode) { (node, error) in
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
-            if let identifier = node?.meta?.nodeID() {
+            if let identifier = node?.stringId {
                 TheoNodeIDForRelationship = identifier
             } else {
                 XCTFail("Could not get newly created node identifier")
@@ -252,7 +249,6 @@ class Theo_000_RestRequestTests: XCTestCase {
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
             XCTAssertNotNil(node, "Node data can't be nil")
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
             exp.fulfill()
@@ -270,7 +266,6 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -296,7 +291,6 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -326,7 +320,6 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         theo.createNode(node, completionBlock: {(node, error) in
 
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -360,7 +353,6 @@ class Theo_000_RestRequestTests: XCTestCase {
         fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeID, completionBlock: {(node, error) in
 
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -378,7 +370,6 @@ class Theo_000_RestRequestTests: XCTestCase {
         fetchDispatchGroup.enter()
         theo.fetchNode(TheoNodeIDForRelationship, completionBlock: {(node, error) in
 
-            XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -448,8 +439,6 @@ class Theo_000_RestRequestTests: XCTestCase {
             if let nodeObject: Node = node {
 
                 updateNode = nodeObject
-
-                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
             }
 
             fetchDispatchGroup.leave()
@@ -503,14 +492,8 @@ class Theo_000_RestRequestTests: XCTestCase {
             XCTAssertNotNil(node, "Node data can't be nil")
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
-            if let nodeObject: Node = node {
-
-                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
-
-                nodeIDWithRelationships = nodeObject.meta!.nodeID()
-
-                XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil")
-            }
+            nodeIDWithRelationships = node?.stringId
+            XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil")
 
             fetchDispatchGroup.leave()
         })
@@ -585,14 +568,10 @@ class Theo_000_RestRequestTests: XCTestCase {
             }
 
             // Then test cleanup
-            if let id = savedNode.meta?.nodeID() {
-                theo.deleteNode(id, completionBlock: { (deleteError) in
-                    XCTAssertNil(deleteError)
-                    exp.fulfill()
-                })
-            } else {
-                XCTFail("Could not get node ID")
-            }
+            theo.deleteNode(savedNode.stringId, completionBlock: { (deleteError) in
+                XCTAssertNil(deleteError)
+                exp.fulfill()
+            })
 
         })
 
@@ -643,9 +622,7 @@ class Theo_000_RestRequestTests: XCTestCase {
 
             if let nodeObject: Node = node {
 
-                XCTAssertNotNil(node?.meta, "Meta data can't be nil")
-
-                nodeIDWithRelationships = nodeObject.meta!.nodeID()
+                nodeIDWithRelationships = nodeObject.stringId
 
                 XCTAssertNotNil(nodeIDWithRelationships, "nodeIDWithRelationships for relationships deletion can't be nil")
             }
@@ -732,7 +709,7 @@ class Theo_000_RestRequestTests: XCTestCase {
             XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
             XCTAssertNotNil(savedNode, "Saved node can't be nil")
 
-            nodeIDForDeletion = savedNode?.meta?.nodeID()
+            nodeIDForDeletion = savedNode?.stringId
 
             createDispatchGroup.leave()
         })
@@ -856,4 +833,12 @@ public struct RelationshipType {
     public static var FOLLOWS: String  = "FOLLOWS"
     public static var LASTPOST: String = "LASTPOST"
     public static var NEXTPOST: String = "NEXTPOST"
+}
+
+extension Node {
+    public var stringId: String {
+        get {
+            return "\(id)"
+        }
+    }
 }
