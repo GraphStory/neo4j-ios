@@ -268,7 +268,7 @@ open class RestClient {
 
                         createdNodeWithoutLabels = returnedNode
 
-                        if let nodeWithLabels: Node = createdNodeWithoutLabels {
+                        if var nodeWithLabels: Node = createdNodeWithoutLabels {
 
                             let nodeID: String = nodeWithLabels.meta!.nodeID()
                             let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"

@@ -259,6 +259,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8537371A1E6D353B00A01F58 /* Rest */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_41 /* RestRequest.swift */,
+				OBJ_42 /* RestSession.swift */,
+				OBJ_36 /* RestClient.swift */,
+			);
+			name = Rest;
+			sourceTree = "<group>";
+		};
+		8537371B1E6D354600A01F58 /* Bolt */ = {
+			isa = PBXGroup;
+			children = (
+				8537370A1E6B36CA00A01F58 /* Response+TheoExtension.swift */,
+				853737011E68AED200A01F58 /* BoltClient.swift */,
+			);
+			name = Bolt;
+			sourceTree = "<group>";
+		};
 		OBJ_20 /* Socket */ = {
 			isa = PBXGroup;
 			children = (
@@ -297,16 +316,13 @@
 		OBJ_35 /* Theo */ = {
 			isa = PBXGroup;
 			children = (
+				8537371B1E6D354600A01F58 /* Bolt */,
+				8537371A1E6D353B00A01F58 /* Rest */,
 				OBJ_37 /* Cypher.swift */,
 				OBJ_38 /* DBMeta.swift */,
 				OBJ_39 /* Node.swift */,
 				OBJ_40 /* Relationship.swift */,
-				OBJ_41 /* RestRequest.swift */,
-				OBJ_42 /* RestSession.swift */,
-				OBJ_36 /* RestClient.swift */,
-				853737011E68AED200A01F58 /* BoltClient.swift */,
 				853737031E68AEF400A01F58 /* ClientProtocol.swift */,
-				8537370A1E6B36CA00A01F58 /* Response+TheoExtension.swift */,
 			);
 			name = Theo;
 			path = Source/Theo;

@@ -77,7 +77,7 @@ public struct NodeMeta: CustomStringConvertible {
     }
 }
 
-open class Node {
+public struct Node {
 
     // MARK: Private Setters and Public Getters
 
@@ -87,7 +87,7 @@ open class Node {
 
     // MARK: Public Properties
     
-    open var meta: NodeMeta? = nil {
+    public var meta: NodeMeta? = nil {
 
         didSet {
         
@@ -103,7 +103,7 @@ open class Node {
     ///
     /// - parameter Dictionary<String,Any>?: data
     /// - returns: Node
-    public required init(data: Dictionary<String,Any>?) {
+    public init(data: Dictionary<String,Any>?) {
         
         if let dictionaryData: [String:Any] = data {
 
@@ -133,14 +133,14 @@ open class Node {
     /// calls init(data:) with the param value as nil
     ///
     /// - returns: Node
-    public convenience init() {
+    public init() {
         self.init(data: nil)
     }
     
     /// A list of available properties for Node
     ///
     /// - returns: [String]
-    open var allProperties: [String] {
+    public var allProperties: [String] {
         get {
             return nodeData.map({ (key, _) -> String in
                 return key
@@ -152,7 +152,7 @@ open class Node {
     ///
     /// - parameter String: propertyName
     /// - returns: Any?
-    open func getProp(_ propertyName: String) -> Any? {
+    public func getProp(_ propertyName: String) -> Any? {
 
         if let object: Any = self.nodeData[propertyName] {
             return object
@@ -165,7 +165,7 @@ open class Node {
     ///
     /// - parameter String: propertyName
     /// - returns: Void
-    open func removeProp(_ propertyName: String) -> Void {
+    public mutating func removeProp(_ propertyName: String) -> Void {
         
         self.nodeData.removeValue(forKey: propertyName)
     }
@@ -175,7 +175,7 @@ open class Node {
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
-    open func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
+    public mutating func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
         
         if let propertyValue = propertyValue {
             let objectValue: Any = propertyValue
@@ -187,7 +187,7 @@ open class Node {
     }
     
     /// Equivalent subscripts
-    open subscript(propertyName: String) -> Any? {
+    public subscript(propertyName: String) -> Any? {
         get {
             return getProp(propertyName)
         }
@@ -201,7 +201,7 @@ open class Node {
     ///
     /// - parameter String: label
     /// - returns: Void
-    open func addLabel(_ label: String) -> Void {
+    public mutating func addLabel(_ label: String) -> Void {
         self.labels.append(label)
     }
     
@@ -209,7 +209,7 @@ open class Node {
     ///
     /// - parameter Array<String>: labels
     /// - returns: Void
-    open func addLabels(_ labels: Array<String>) -> Void {
+    public mutating func addLabels(_ labels: Array<String>) -> Void {
 
         let newLabels = Array([self.labels, labels].joined())
         self.labels = newLabels
@@ -220,14 +220,14 @@ open class Node {
     /// This is done by checking for empty keys array
     ///
     /// - returns: Bool
-    open func isEmpty() -> Bool {
+    public func isEmpty() -> Bool {
         return self.nodeData.keys.isEmpty
     }
 
     /// Returns whether the current node has labels
     ///
     /// - returns: Bool
-    open func hasLabels() -> Bool {
+    public func hasLabels() -> Bool {
         return self.labels.isEmpty
     }
 }

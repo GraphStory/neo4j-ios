@@ -318,11 +318,11 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_004_successfullyAddNodeWithOutLabels")
-        let node = Node()
+        var node = Node()
         let randomString: String = NSUUID().uuidString
 
-        node.setProp("unitTestKey_1", propertyValue: ("unitTestValue_1" + randomString) as Any)
-        node.setProp("unitTestKey_2", propertyValue: ("unitTestValue_2" + randomString) as Any)
+        node.setProp("unitTestKey_1", propertyValue: ("unitTestValue_1" + randomString))
+        node.setProp("unitTestKey_2", propertyValue: ("unitTestValue_2" + randomString))
 
         theo.createNode(node, completionBlock: {(node, error) in
 
@@ -558,12 +558,12 @@ class Theo_000_RestRequestTests: XCTestCase {
 
         let theo: RestClient = RestClient(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let exp = self.expectation(description: "test_008_succesfullyAddNodeWithLabel")
-        let node = Node()
+        var node = Node()
         let randomString: String = NSUUID().uuidString
 
         node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
         node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
-        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456 as Any)
+        node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
 
         let expectedLabel = "test_008_succesfullyAddNodeWithLabel_" + randomString
         node.addLabel(expectedLabel)
@@ -717,7 +717,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         let exp = self.expectation(description: "test_999_successfullyDeleteExistingNode")
 
         var nodeIDForDeletion: String?
-        let node = Node()
+        var node = Node()
         let randomString: String = NSUUID().uuidString
 
         let createDispatchGroup = DispatchGroup()
@@ -843,13 +843,6 @@ class Theo_000_RestRequestTests: XCTestCase {
     ]
 }
 
-extension Node {
-    func setProp(_ propertyName: String, propertyValue: String) -> Void {
-
-        let value: Any = propertyValue as String
-        self.setProp(propertyName, propertyValue: value)
-    }
-}
 
 extension Relationship {
     func setProp(_ propertyName: String, propertyValue: String) -> Void {
