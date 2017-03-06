@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import packstream_swift
 
 let TheoNodeExtensions: String                 = "extensions"
 let TheoNodePagedTraverse: String              = "paged_traverse"
@@ -82,6 +83,7 @@ open class Node {
 
     fileprivate (set) var nodeData: [String:Any] = [String:Any]()
     fileprivate (set) var labels: [String] = [String]()
+    public let id: UInt64
 
     // MARK: Public Properties
     
@@ -111,6 +113,19 @@ open class Node {
                 self.nodeData = metaForNode.data
             }
         }
+        
+        if let nodeId = self.meta?.nodeID() {
+            self.id = UInt64(nodeId) ?? 0
+        } else {
+            self.id = 0
+        }
+    }
+    
+
+    public init(id: UInt64, labels: [String], properties: [String: PackProtocol]) {
+        self.id = id
+        self.labels = labels
+        self.nodeData = properties
     }
     
     /// Convenience initializer
