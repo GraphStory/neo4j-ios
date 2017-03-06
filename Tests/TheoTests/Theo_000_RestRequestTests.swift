@@ -45,6 +45,10 @@ class ConfigLoader: NSObject {
 
 }
 
+
+
+
+
 class Theo_000_RestRequestTests: XCTestCase {
 
     let configuration: RestConfig = ConfigLoader.loadRestConfig()
@@ -855,7 +859,15 @@ extension Relationship {
     }
 }
 
-extension RelationshipType {
+public struct RelationshipType {
+    
+    public static var KNOWS: String   = "KNOWS"
+    public static var know: String    = "know"
+    public static var FRIENDS: String = "FRIENDS"
+    public static var likes: String   = "likes"
+    public static var has: String     = "has"
+    public static var knows: String   = "knows"
+    public static var LOVES: String   = "LOVES"
 
     public static var FOLLOWS: String  = "FOLLOWS"
     public static var LASTPOST: String = "LASTPOST"

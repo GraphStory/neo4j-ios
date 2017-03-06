@@ -60,17 +60,6 @@ public struct RelationshipMeta: CustomStringConvertible {
     }
 }
 
-public struct RelationshipType {
-
-    public static var KNOWS: String   = "KNOWS"
-    public static var know: String    = "know"
-    public static var FRIENDS: String = "FRIENDS"
-    public static var likes: String   = "likes"
-    public static var has: String     = "has"
-    public static var knows: String   = "knows"
-    public static var LOVES: String   = "LOVES"
-}
-
 public struct RelationshipDirection {
     
     public static var ALL: String = "all"
