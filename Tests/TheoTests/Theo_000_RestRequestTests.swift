@@ -400,7 +400,6 @@ class Theo_000_RestRequestTests: XCTestCase {
 
             theo.createRelationship(relationship, completionBlock: {(rel, error) in
 
-                XCTAssertNotNil(rel?.relationshipMeta, "Meta data can't be nil")
                 XCTAssertNotNil(rel, "Node data can't be nil")
                 XCTAssertNil(error, "Error must be nil \(error?.description ?? "Error undefined")")
 
@@ -516,9 +515,7 @@ class Theo_000_RestRequestTests: XCTestCase {
 
                 if let foundRelationship: Relationship = relationships[0] as Relationship! {
 
-                    if let relMeta: RelationshipMeta = foundRelationship.relationshipMeta {
-                        relationshipIDToDelete = relMeta.relationshipID()
-                    }
+                    relationshipIDToDelete = "\(foundRelationship.id)"
 
                     XCTAssertNotNil(relationshipIDToDelete, "relationshipIDToDelete can't be nil")
 
@@ -752,21 +749,17 @@ class Theo_000_RestRequestTests: XCTestCase {
                 XCTAssertNil(error)
                 DispatchQueue.main.async {
                     for relationship in relationships {
-                        if let relId = relationship.relationshipMeta?.relationshipID() {
-                            if !doneIds.contains(relId) {
-                                doneIds.append(relId)
-                                cleanupRelationshipsDispatchGroup.enter()
-                                theo.deleteRelationship(relId, completionBlock: { (error) in
-                                    XCTAssertNil(error)
-                                    DispatchQueue.main.async {
-                                        cleanupRelationshipsDispatchGroup.leave()
-                                    }
-                                })
-                            }
-                        } else {
-                            XCTFail("Could not get relationship ID")
+                        let relId = "\(relationship.id)"
+                        if !doneIds.contains(relId) {
+                            doneIds.append(relId)
+                            cleanupRelationshipsDispatchGroup.enter()
+                            theo.deleteRelationship(relId, completionBlock: { (error) in
+                                XCTAssertNil(error)
+                                DispatchQueue.main.async {
+                                    cleanupRelationshipsDispatchGroup.leave()
+                                }
+                            })
                         }
-                        
                     }
                     
                     cleanupRelationshipsDispatchGroup.leave()

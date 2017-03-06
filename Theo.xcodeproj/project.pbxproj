@@ -20,6 +20,7 @@
 		853737181E6B389100A01F58 /* SocketProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737111E6B389100A01F58 /* SocketProtocol.swift */; };
 		853737191E6B389100A01F58 /* UnencryptedSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853737121E6B389100A01F58 /* UnencryptedSocket.swift */; };
 		8537371E1E6D3A2600A01F58 /* NodeMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8537371C1E6D3A0B00A01F58 /* NodeMeta.swift */; };
+		853737211E6D40AD00A01F58 /* RelationshipMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8537371F1E6D40A900A01F58 /* RelationshipMeta.swift */; };
 		OBJ_104 /* packstream_swift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* packstream_swift.framework */; };
 		OBJ_105 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* Socket.framework */; };
 		OBJ_106 /* SSLService.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_51 /* SSLService.framework */; };
@@ -168,6 +169,7 @@
 		853737111E6B389100A01F58 /* SocketProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SocketProtocol.swift; path = "Packages/bolt-swift-0.1.1/Sources/SocketProtocol.swift"; sourceTree = SOURCE_ROOT; };
 		853737121E6B389100A01F58 /* UnencryptedSocket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UnencryptedSocket.swift; path = "Packages/bolt-swift-0.1.1/Sources/UnencryptedSocket.swift"; sourceTree = SOURCE_ROOT; };
 		8537371C1E6D3A0B00A01F58 /* NodeMeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeMeta.swift; sourceTree = "<group>"; };
+		8537371F1E6D40A900A01F58 /* RelationshipMeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelationshipMeta.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Float.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		OBJ_12 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 				OBJ_42 /* RestSession.swift */,
 				OBJ_36 /* RestClient.swift */,
 				8537371C1E6D3A0B00A01F58 /* NodeMeta.swift */,
+				8537371F1E6D40A900A01F58 /* RelationshipMeta.swift */,
 			);
 			name = Rest;
 			sourceTree = "<group>";
@@ -560,6 +563,7 @@
 			files = (
 				OBJ_115 /* RestClient.swift in Sources */,
 				OBJ_116 /* Cypher.swift in Sources */,
+				853737211E6D40AD00A01F58 /* RelationshipMeta.swift in Sources */,
 				8537370B1E6B36CA00A01F58 /* Response+TheoExtension.swift in Sources */,
 				OBJ_117 /* DBMeta.swift in Sources */,
 				853737021E68AED200A01F58 /* BoltClient.swift in Sources */,

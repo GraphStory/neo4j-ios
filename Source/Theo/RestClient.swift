@@ -531,7 +531,7 @@ open class RestClient {
     /// - returns: Void
     open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
-        let relationshipResource: String = self.baseURL + "/db/data/relationship/" + relationship.relationshipMeta!.relationshipID() + "/properties"
+        let relationshipResource: String = self.baseURL + "/db/data/relationship/\(relationship.id)/properties"
         let relationshipURL: URL = URL(string: relationshipResource)!
         let relationshipRequest:RestRequest = RestRequest(url: relationshipURL, credentials: self.credentials)
 
