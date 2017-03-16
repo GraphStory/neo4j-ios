@@ -103,6 +103,36 @@ class Theo_001_BoltClientTests: XCTestCase {
         self.waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error, "\(error ?? "Error undefined")")
         })
-
     }
+    
+    func testGettingStartedExample() throws {
+        let client = try makeClient()
+        let exp = self.expectation(description: "testGettingStartedExample")
+        
+        try client.executeAsTransaction() { (tx, completionBlock) in
+            try client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
+                                     params: ["name": "Arthur", "title": "King"])
+            try completionBlock()
+            
+            try client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
+            "RETURN a.name AS name, a.title AS title", params: ["name": "Arthur"]) { success in
+                
+                exp.fulfill()
+            }
+            
+        }
+        
+        self.waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error, "\(error ?? "Error undefined")")
+        })
+    }
+    
+    static var allTests = [
+        ("testSucceedingTransaction", testSucceedingTransaction),
+        ("testFailingTransaction", testFailingTransaction),
+        ("testCancellingTransaction", testCancellingTransaction),
+        ("testTransactionResultsInBookmark", testTransactionResultsInBookmark),
+        ("testGettingStartedExample", testGettingStartedExample),
+    ]
+
 }

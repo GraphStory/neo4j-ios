@@ -2,6 +2,10 @@ import Foundation
 import bolt_swift
 import packstream_swift
 
+#if os(Linux)
+import Dispatch
+#endif
+    
 public struct QueryWithParameters {
     let query: String
     let parameters: Dictionary<String,Any>
