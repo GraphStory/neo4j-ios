@@ -176,4 +176,8 @@ open class BoltClient {
         
     }
     
+    public func getBookmark() -> String? {
+        return connection.currentTransactionBookmark
+    }
+    
 }

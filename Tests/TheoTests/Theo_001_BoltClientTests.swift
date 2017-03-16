@@ -83,4 +83,26 @@ class Theo_001_BoltClientTests: XCTestCase {
         })
 
     }
+    
+    func testTransactionResultsInBookmark() throws {
+        let client = try makeClient()
+        let exp = self.expectation(description: "testTransactionResultsInBookmark")
+        
+        try client.executeAsTransaction() { (tx, completionBlock) in
+            try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
+            try completionBlock()
+            
+            if let bookmark = client.getBookmark() {
+                XCTAssertNotEqual("", bookmark)
+            } else {
+                XCTFail("Bookmark should not be nil")
+            }
+            exp.fulfill()
+        }
+        
+        self.waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error, "\(error ?? "Error undefined")")
+        })
+
+    }
 }
