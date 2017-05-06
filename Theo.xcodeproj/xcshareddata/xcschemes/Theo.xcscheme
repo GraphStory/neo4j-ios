@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_55"
-               BuildableName = "packstream_swift.framework"
-               BlueprintName = "packstream-swift"
+               BlueprintIdentifier = "OBJ_69"
+               BuildableName = "PackStream.framework"
+               BlueprintName = "PackStream"
                ReferencedContainer = "container:Theo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_72"
+               BlueprintIdentifier = "OBJ_86"
                BuildableName = "Socket.framework"
                BlueprintName = "Socket"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_81"
+               BlueprintIdentifier = "OBJ_95"
                BuildableName = "SSLService.framework"
                BlueprintName = "SSLService"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -56,9 +56,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_90"
-               BuildableName = "bolt_swift.framework"
-               BlueprintName = "bolt-swift"
+               BlueprintIdentifier = "OBJ_104"
+               BuildableName = "ShellOut.framework"
+               BlueprintName = "ShellOut"
                ReferencedContainer = "container:Theo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -70,7 +70,21 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_110"
+               BlueprintIdentifier = "OBJ_111"
+               BuildableName = "Bolt.framework"
+               BlueprintName = "Bolt"
+               ReferencedContainer = "container:Theo.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "OBJ_134"
                BuildableName = "Theo.framework"
                BlueprintName = "Theo"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -88,7 +102,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_131"
+               BlueprintIdentifier = "OBJ_162"
                BuildableName = "TheoTests.xctest"
                BlueprintName = "TheoTests"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -111,9 +125,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "OBJ_55"
-            BuildableName = "packstream_swift.framework"
-            BlueprintName = "packstream-swift"
+            BlueprintIdentifier = "OBJ_69"
+            BuildableName = "PackStream.framework"
+            BlueprintName = "PackStream"
             ReferencedContainer = "container:Theo.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

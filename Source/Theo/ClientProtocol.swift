@@ -1,5 +1,5 @@
 import Foundation
-import packstream_swift
+import PackStream
 
 public protocol ClientProtocol {
     

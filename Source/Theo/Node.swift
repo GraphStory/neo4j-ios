@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import packstream_swift
+import PackStream
 
 public struct Node {
 

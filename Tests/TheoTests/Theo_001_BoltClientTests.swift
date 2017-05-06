@@ -40,7 +40,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
         
         self.waitForExpectations(timeout: 10, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
     
@@ -64,7 +64,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
         
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
     
@@ -79,7 +79,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
         
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
 
     }
@@ -101,7 +101,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
         
         self.waitForExpectations(timeout: 10, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
     
@@ -123,7 +123,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
         
         self.waitForExpectations(timeout: 10, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
     

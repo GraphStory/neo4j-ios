@@ -1,0 +1,36 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "Bolt",
+      "reason": null,
+      "repositoryURL": "https://github.com/niklassaers/bolt-swift.git",
+      "version": "0.8.1"
+    },
+    {
+      "package": "PackStream",
+      "reason": null,
+      "repositoryURL": "https://github.com/niklassaers/PackStream-swift.git",
+      "version": "0.8.0"
+    },
+    {
+      "package": "SSLService",
+      "reason": null,
+      "repositoryURL": "https://github.com/niklassaers/BlueSSLService.git",
+      "version": "0.12.33"
+    },
+    {
+      "package": "ShellOut",
+      "reason": null,
+      "repositoryURL": "https://github.com/JohnSundell/ShellOut.git",
+      "version": "1.1.0"
+    },
+    {
+      "package": "Socket",
+      "reason": null,
+      "repositoryURL": "https://github.com/IBM-Swift/BlueSocket.git",
+      "version": "0.12.46"
+    }
+  ],
+  "version": 1
+}

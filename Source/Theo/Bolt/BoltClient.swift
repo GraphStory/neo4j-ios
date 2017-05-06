@@ -1,6 +1,6 @@
 import Foundation
-import bolt_swift
-import packstream_swift
+import PackStream
+import Bolt
 
 #if os(Linux)
 import Dispatch
@@ -24,7 +24,7 @@ public class Transaction {
     }
 }
 
-typealias BoltRequest = bolt_swift.Request
+typealias BoltRequest = Bolt.Request
 
 open class BoltClient {
     
@@ -47,7 +47,37 @@ open class BoltClient {
         
         let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1a1")
         
-        self.connection = try Connection(hostname: hostname, port: port, settings: settings)
+        let generator = SSLKeyGeneratorConfig(
+            signingRequestFileName: "csr.csr",
+            countryName: "DK",
+            stateOrProvinceName: "Esbjerg",
+            localityName: "",
+            organizationName: "Theo",
+            orgUnitName: "",
+            commonName: "",
+            emailAddress: "",
+            companyName: "")
+        
+        let sslConfig = SSLConfiguration(
+            temporarySSLKeyPath: "/tmp/boltTestKeys",
+            certificatePKCS12FileName: "cert.pfx",
+            certificatePKCS12Password: "1234",
+            keyFileName: "key.pem",
+            certificatePEMFilename: "cert.pem",
+            generator: generator)
+        
+        let configuration = EncryptedSocket.defaultConfiguration(
+            sslConfig: sslConfig,
+            allowHostToBeSelfSigned: true)
+        
+        let socket = try EncryptedSocket(
+            hostname: hostname,
+            port: port,
+            configuration: configuration)
+        
+        self.connection = Connection(
+            socket: socket,
+            settings: settings)
     }
     
     public func connect(completionBlock: ((Bool) -> ())? = nil) throws {

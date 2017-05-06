@@ -1,6 +1,6 @@
 import Foundation
-import bolt_swift
-import packstream_swift
+import PackStream
+import Bolt
 
 public extension Response {
     public func asNode() -> Node? {

@@ -78,7 +78,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-          XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -237,7 +237,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -255,7 +255,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -279,7 +279,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -304,7 +304,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -327,7 +327,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -408,7 +408,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -467,7 +467,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -530,7 +530,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -573,7 +573,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -596,7 +596,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -661,7 +661,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -681,7 +681,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         })
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -728,7 +728,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
@@ -789,7 +789,7 @@ class Theo_000_RestRequestTests: XCTestCase {
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error, "\(error ?? "Error undefined")")
+            XCTAssertNil(error)
         })
     }
 
