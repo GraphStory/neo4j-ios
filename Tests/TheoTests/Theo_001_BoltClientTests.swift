@@ -94,6 +94,7 @@ class Theo_001_BoltClientTests: XCTestCase {
             
             if let bookmark = client.getBookmark() {
                 XCTAssertNotEqual("", bookmark)
+                XCTAssertEqual("neo4j:bookmark:v1", bookmark.substring(to: bookmark.index(bookmark.startIndex, offsetBy: 17)))
             } else {
                 XCTFail("Bookmark should not be nil")
             }
@@ -112,14 +113,23 @@ class Theo_001_BoltClientTests: XCTestCase {
         try client.executeAsTransaction() { (tx, completionBlock) in
             try client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
                                      params: ["name": "Arthur", "title": "King"])
-            try completionBlock()
+            
             
             try client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
-            "RETURN a.name AS name, a.title AS title", params: ["name": "Arthur"]) { success in
+            "RETURN a.name AS name, a.title AS title", params: ["name": "Arthur"])  { success in
                 
-                exp.fulfill()
+                do {
+                    try client.pullAll() { (success, response) in
+                        
+                        print("\(response.count) results")
+                        exp.fulfill()
+                    }
+                } catch(let error) {
+                    XCTFail("\(error)")
+                }
             }
             
+            try completionBlock()
         }
         
         self.waitForExpectations(timeout: 10, handler: { error in

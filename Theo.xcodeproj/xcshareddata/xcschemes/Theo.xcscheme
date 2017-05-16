@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_69"
+               BlueprintIdentifier = "OBJ_68"
                BuildableName = "PackStream.framework"
                BlueprintName = "PackStream"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_86"
+               BlueprintIdentifier = "OBJ_84"
                BuildableName = "Socket.framework"
                BlueprintName = "Socket"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_95"
+               BlueprintIdentifier = "OBJ_93"
                BuildableName = "SSLService.framework"
                BlueprintName = "SSLService"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -56,7 +56,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_104"
+               BlueprintIdentifier = "OBJ_102"
                BuildableName = "ShellOut.framework"
                BlueprintName = "ShellOut"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -70,7 +70,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_111"
+               BlueprintIdentifier = "OBJ_109"
                BuildableName = "Bolt.framework"
                BlueprintName = "Bolt"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -84,7 +84,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_134"
+               BlueprintIdentifier = "OBJ_132"
                BuildableName = "Theo.framework"
                BlueprintName = "Theo"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -102,7 +102,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_162"
+               BlueprintIdentifier = "OBJ_160"
                BuildableName = "TheoTests.xctest"
                BlueprintName = "TheoTests"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -125,7 +125,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "OBJ_69"
+            BlueprintIdentifier = "OBJ_68"
             BuildableName = "PackStream.framework"
             BlueprintName = "PackStream"
             ReferencedContainer = "container:Theo.xcodeproj">

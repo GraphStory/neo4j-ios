@@ -5,18 +5,18 @@
       "package": "Bolt",
       "reason": null,
       "repositoryURL": "https://github.com/niklassaers/bolt-swift.git",
-      "version": "0.8.1"
+      "version": "0.8.4"
     },
     {
       "package": "PackStream",
       "reason": null,
       "repositoryURL": "https://github.com/niklassaers/PackStream-swift.git",
-      "version": "0.8.0"
+      "version": "0.8.1"
     },
     {
       "package": "SSLService",
       "reason": null,
-      "repositoryURL": "https://github.com/niklassaers/BlueSSLService.git",
+      "repositoryURL": "https://github.com/IBM-Swift/BlueSSLService.git",
       "version": "0.12.33"
     },
     {
@@ -29,7 +29,7 @@
       "package": "Socket",
       "reason": null,
       "repositoryURL": "https://github.com/IBM-Swift/BlueSocket.git",
-      "version": "0.12.46"
+      "version": "0.12.48"
     }
   ],
   "version": 1

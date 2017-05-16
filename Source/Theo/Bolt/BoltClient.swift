@@ -111,7 +111,15 @@ open class BoltClient {
         dispatchGroup.wait()
 
     }
-    
+
+    public func pullAll(completionBlock: (Bool, [Response]) -> ()) throws {
+        let pullRequest = BoltRequest.pullAll()
+        try self.connection.request(pullRequest) { (success, response) in
+            completionBlock(success, response)
+        }
+        
+    }
+
     public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction, _ completionBlock: () throws -> ()) throws -> ()) throws {
         
         let transaction = Transaction()
