@@ -35,7 +35,7 @@ public struct NodeMeta {
     
     let labels: String
     
-    let outgoing_relationships: String
+    var outgoing_relationships: String
     
     let traverse: String
     
