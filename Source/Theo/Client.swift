@@ -334,7 +334,7 @@ open class Client {
 
                         if let nodeWithLabels: Node = createdNodeWithoutLabels {
 
-                            let nodeID: String = nodeWithLabels.meta!.nodeID()
+                            let nodeID: String = nodeWithLabels.meta!.nodeID
                             let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/labels"
                             let nodeURL: URL = URL(string: nodeResource)!
                             let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
@@ -407,7 +407,7 @@ open class Client {
     /// - returns: Void
     open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: TheoNodeRequestCompletionBlock?) -> Void {
 
-        let nodeID: String = node.meta!.nodeID()
+        let nodeID: String = node.meta!.nodeID
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
         let nodeURL: URL = URL(string: nodeResource)!
         let nodeRequest: Request = Request(url: nodeURL, credentials: self.credentials)
@@ -761,12 +761,17 @@ open class Client {
 
                     self.parsingQueue.async(execute: {
 
-                        let JSON = try? JSONSerialization.jsonObject(with: responseData, options: JSONSerialization.ReadingOptions.allowFragments)
+                        if let JSON = try? JSONSerialization.jsonObject(with: responseData,
+                                                                     options: JSONSerialization.ReadingOptions.allowFragments),
+                            let jsonAsDictionary = JSON as? [String: [Any]],
+                            let cypher: Cypher = try? Cypher(metaData: jsonAsDictionary) {
+                            
+                            completionBlock(cypher, nil)
 
-                        let jsonAsDictionary = JSON as! [String:[Any]]
-                        let cypher: Cypher = Cypher(metaData: jsonAsDictionary)
-
-                        completionBlock(cypher, nil)
+                        } else {
+                           
+                            completionBlock(nil, self.failedParsingError(response))
+                        }
                     })
 
                 } else {
@@ -801,5 +806,17 @@ open class Client {
         let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
 
         return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorBadServerResponse, userInfo: errorDictionary)
+    }
+    
+    fileprivate func failedParsingError(_ response: URLResponse) -> NSError {
+        
+        let statusCode: Int = {
+            let httpResponse: HTTPURLResponse = response as! HTTPURLResponse
+            return httpResponse.statusCode
+        }()
+        let localizedErrorString: String = "The response code was fine, but the parser failed"
+        let errorDictionary: [String:String] = ["NSLocalizedDescriptionKey" : localizedErrorString, "TheoResponseCode" : "\(statusCode)", "TheoResponse" : response.description]
+        
+        return NSError(domain: TheoNetworkErrorDomain, code: NSURLErrorDownloadDecodingFailedToComplete, userInfo: errorDictionary)
     }
 }
