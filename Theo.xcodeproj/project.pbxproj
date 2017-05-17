@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		011B39511ECBD1E800A5775C /* DecodableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39501ECBD1E800A5775C /* DecodableType.swift */; };
+		011B39531ECBD28700A5775C /* StringProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39521ECBD28700A5775C /* StringProtocol.swift */; };
+		011B39551ECBD2C200A5775C /* Dictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39541ECBD2C200A5775C /* Dictionary+Extensions.swift */; };
+		011B39571ECBD46E00A5775C /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39561ECBD46E00A5775C /* Errors.swift */; };
+		011B39591ECBD59000A5775C /* NSDictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */; };
 		OBJ_29 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Client.swift */; };
 		OBJ_30 /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Cypher.swift */; };
 		OBJ_31 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Node.swift */; };
@@ -30,6 +35,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		011B39501ECBD1E800A5775C /* DecodableType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableType.swift; sourceTree = "<group>"; };
+		011B39521ECBD28700A5775C /* StringProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringProtocol.swift; sourceTree = "<group>"; };
+		011B39541ECBD2C200A5775C /* Dictionary+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extensions.swift"; sourceTree = "<group>"; };
+		011B39561ECBD46E00A5775C /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDictionary+Extensions.swift"; sourceTree = "<group>"; };
 		OBJ_10 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		OBJ_12 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
@@ -114,10 +124,15 @@
 			children = (
 				OBJ_9 /* Client.swift */,
 				OBJ_10 /* Cypher.swift */,
+				011B39501ECBD1E800A5775C /* DecodableType.swift */,
+				011B39541ECBD2C200A5775C /* Dictionary+Extensions.swift */,
+				011B39561ECBD46E00A5775C /* Errors.swift */,
 				OBJ_11 /* Node.swift */,
+				011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */,
 				OBJ_12 /* Relationship.swift */,
 				OBJ_13 /* Request.swift */,
 				OBJ_14 /* Session.swift */,
+				011B39521ECBD28700A5775C /* StringProtocol.swift */,
 			);
 			name = Theo;
 			path = Source/Theo;
@@ -190,9 +205,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				011B39531ECBD28700A5775C /* StringProtocol.swift in Sources */,
 				OBJ_29 /* Client.swift in Sources */,
+				011B39551ECBD2C200A5775C /* Dictionary+Extensions.swift in Sources */,
 				OBJ_30 /* Cypher.swift in Sources */,
+				011B39511ECBD1E800A5775C /* DecodableType.swift in Sources */,
 				OBJ_31 /* Node.swift in Sources */,
+				011B39571ECBD46E00A5775C /* Errors.swift in Sources */,
+				011B39591ECBD59000A5775C /* NSDictionary+Extensions.swift in Sources */,
 				OBJ_32 /* Relationship.swift in Sources */,
 				OBJ_33 /* Request.swift in Sources */,
 				OBJ_34 /* Session.swift in Sources */,
