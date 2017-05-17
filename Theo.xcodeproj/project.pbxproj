@@ -12,6 +12,7 @@
 		011B39551ECBD2C200A5775C /* Dictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39541ECBD2C200A5775C /* Dictionary+Extensions.swift */; };
 		011B39571ECBD46E00A5775C /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39561ECBD46E00A5775C /* Errors.swift */; };
 		011B39591ECBD59000A5775C /* NSDictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */; };
+		01D087831ECC8019009875CD /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D087821ECC8019009875CD /* Result.swift */; };
 		OBJ_29 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Client.swift */; };
 		OBJ_30 /* Cypher.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* Cypher.swift */; };
 		OBJ_31 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Node.swift */; };
@@ -40,6 +41,7 @@
 		011B39541ECBD2C200A5775C /* Dictionary+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extensions.swift"; sourceTree = "<group>"; };
 		011B39561ECBD46E00A5775C /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDictionary+Extensions.swift"; sourceTree = "<group>"; };
+		01D087821ECC8019009875CD /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		OBJ_12 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				011B39581ECBD59000A5775C /* NSDictionary+Extensions.swift */,
 				OBJ_12 /* Relationship.swift */,
 				OBJ_13 /* Request.swift */,
+				01D087821ECC8019009875CD /* Result.swift */,
 				OBJ_14 /* Session.swift */,
 				011B39521ECBD28700A5775C /* StringProtocol.swift */,
 			);
@@ -211,6 +214,7 @@
 				OBJ_30 /* Cypher.swift in Sources */,
 				011B39511ECBD1E800A5775C /* DecodableType.swift in Sources */,
 				OBJ_31 /* Node.swift in Sources */,
+				01D087831ECC8019009875CD /* Result.swift in Sources */,
 				011B39571ECBD46E00A5775C /* Errors.swift in Sources */,
 				011B39591ECBD59000A5775C /* NSDictionary+Extensions.swift in Sources */,
 				OBJ_32 /* Relationship.swift in Sources */,

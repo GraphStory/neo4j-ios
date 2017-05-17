@@ -102,15 +102,14 @@ open class Client {
         }
     }()
 
-    public typealias TheoMetaDataCompletionBlock = (_ metaData: DBMeta?, _ error: NSError?) -> Void
-    public typealias TheoNodeRequestCompletionBlock = (_ node: Node?, _ error: NSError?) -> Void
-    public typealias TheoNodeRequestDeleteCompletionBlock = (_ error: NSError?) -> Void
-    public typealias TheoNodeRequestRelationshipCompletionBlock = (_ relationship: Relationship?, _ error: NSError?) -> Void
-    public typealias TheoRelationshipRequestCompletionBlock = (_ relationships:Array<Relationship>, _ error: NSError?) -> Void
-    public typealias TheoRawRequestCompletionBlock = (_ response: Any?, _ error: NSError?) -> Void
-    public typealias TheoTransactionCompletionBlock = (_ response: Dictionary<String, Any>, _ error: NSError?) -> Void
-    public typealias TheoCypherQueryCompletionBlock = (_ cypher: Cypher?, _ error: NSError?) -> Void
-
+    public typealias TheoMetaDataCompletionBlock = TheoFetchClosure<DBMeta>
+    public typealias TheoNodeRequestCompletionBlock = TheoFetchClosure<Node>
+    public typealias TheoNodeRequestDeleteCompletionBlock = TheoFetchClosure<Bool>
+    public typealias TheoNodeRequestRelationshipCompletionBlock = TheoFetchClosure<Relationship>
+    public typealias TheoRelationshipRequestCompletionBlock = TheoFetchClosure<Array<Relationship>>
+    public typealias TheoRawRequestCompletionBlock = TheoFetchClosure<Any>
+    public typealias TheoTransactionCompletionBlock = TheoFetchClosure<Dictionary<String, Any>>
+    public typealias TheoCypherQueryCompletionBlock = TheoFetchClosure<Cypher>
 
     lazy fileprivate var operationQueue = Session.sharedInstance.sessionDelegateQueue
 
