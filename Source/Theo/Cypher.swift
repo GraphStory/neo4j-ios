@@ -11,16 +11,32 @@ import Foundation
 let TheoCypherColumns: String = "columns"
 let TheoCypherData: String    = "data"
 
-public struct CypherMeta: CustomStringConvertible {
+public struct CypherMeta {
     
-    let columns: Array<String>
-    let data: Array<Any>
+    // MARK: Internal (properties)
     
-    init(dictionary: Dictionary<String, Any>) {
+    public let columns: Array<String>
+    
+    public let data: Array<Any>
+    
+    // MARK: Initializers
+    
+    init(_ dictionary: Dictionary<String, Any>) throws {
         
-        self.columns = dictionary[TheoCypherColumns] as! Array
-        self.data    = dictionary[TheoCypherData]    as! Array
+        guard let columns: Array<String> = dictionary.decodingKey(TheoCypherColumns),
+            let data: Array<Any> = dictionary.decodingKey(TheoCypherData) else {
+            
+                throw JSONSerializationError.invalid("Invalid Dictionary", dictionary)
+        }
+        
+        self.columns = columns
+        self.data = data
     }
+}
+
+// MARK: - Printable
+
+extension CypherMeta: CustomStringConvertible {
     
     public var description: String {
         return "Columns: \(columns), data \(data)"
@@ -29,14 +45,23 @@ public struct CypherMeta: CustomStringConvertible {
 
 open class Cypher {
 
+    // MARK: Internal (properties)
+    
     var meta: CypherMeta?
-    open fileprivate(set) var data: Array<Dictionary<String, Any>> = Array<Dictionary<String, Any>>()
-    
-    public required init(metaData: Dictionary<String, Any>?) {
-    
-        if let dictionaryData = metaData {
 
-            self.meta = CypherMeta(dictionary: dictionaryData as Dictionary<String, Any>)
+    open fileprivate(set) var data: Array<Dictionary<String, Any>> = [[String: Any]]()
+    
+    // MARK: Initializers
+    
+    public required init(metaData: Dictionary<String, Any>?) throws {
+    
+        if let dictionaryData: Dictionary<String, Any> = metaData {
+
+            guard let meta: CypherMeta = try? CypherMeta(dictionaryData as Dictionary<String, Any>) else {
+                throw JSONSerializationError.invalid("Invalid Dictionary", dictionaryData)
+            }
+
+            self.meta = meta
             
             if let metaForCypher: CypherMeta = self.meta {
 
@@ -55,10 +80,6 @@ open class Cypher {
                 }
             }
         }
-    }
-    
-    public convenience init() {
-        self.init(metaData: nil)
     }
 }
 
