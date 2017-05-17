@@ -201,7 +201,7 @@ open class Relationship {
     open func relate(_ fromNode: Node, toNode: Node, type: String) -> Void {
     
         self.relationshipCreateMeta[RelationshipDataFromNodeKey] = fromNode.meta?.create_relationship as Any?
-        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID() as Any?
+        self.relationshipCreateMeta[RelationshipDataToNodeKey]   = toNode.meta?.nodeID as Any?
         self.relationshipCreateMeta[RelationshipDataTypeKey]     = type as Any?
     }
     
