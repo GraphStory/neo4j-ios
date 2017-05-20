@@ -175,47 +175,51 @@ open class BoltClient {
         
     }
     
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Bool) -> ())? = nil) throws -> Void {
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil) throws -> Bool {
+        
+        var success = false
+        
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+
+        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
+
+        try connection.request(cypherRequest) { (theSuccess, response) in
+            success = theSuccess
+            
+            if theSuccess == true {
+                let pullRequest = BoltRequest.pullAll()
+                try self.connection.request(pullRequest) { (theSuccess, response) in
+                    
+                    success = theSuccess
+                    if let currentTransaction = self.currentTransaction,
+                        theSuccess == false {
+                        currentTransaction.markAsFailed()
+                    }
+                    
+                    dispatchGroup.leave()
+                }
+                
+            } else {
+                if let currentTransaction = self.currentTransaction {
+                    currentTransaction.markAsFailed()
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.wait()
+        
+        return success
+    }
+    
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Bool) throws -> ())) throws -> Void {
         
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
         
-        if let completionBlock = completionBlock {
-            try connection.request(cypherRequest) { (success, response) in
-                completionBlock(success)
-            }
+        try connection.request(cypherRequest) { (success, response) in
+            try completionBlock(success)
         }
-        
-        else { // synchronous request
-            
-            let dispatchGroup = DispatchGroup()
-            dispatchGroup.enter()
-            
-            try connection.request(cypherRequest) { (success, response) in
-                if success == true {
-                    let pullRequest = BoltRequest.pullAll()
-                    try self.connection.request(pullRequest) { (success, response) in
-                        
-                        if let currentTransaction = self.currentTransaction,
-                           success == false {
-                            currentTransaction.markAsFailed()
-                        }
-                        
-                        dispatchGroup.leave()
-                    }
-                    
-                } else {
-                    if let currentTransaction = self.currentTransaction {
-                        currentTransaction.markAsFailed()
-                    }
-                    dispatchGroup.leave()
-                }
-            }
-
-            dispatchGroup.wait()
-            
-        }
-        
-        
     }
     
     public func getBookmark() -> String? {
