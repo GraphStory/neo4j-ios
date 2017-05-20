@@ -31,11 +31,10 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testSucceedingTransaction")
         
-        try client.executeAsTransaction() { (tx, completionBlock) in
+        try client.executeAsTransaction() { (tx) in
             try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
             try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n")
             try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n")
-            try completionBlock()
             exp.fulfill()
         }
         
@@ -48,7 +47,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testFailingTransaction")
 
-        try client.executeAsTransaction() { (tx, completionBlock) in
+        try client.executeAsTransaction() { (tx) in
             do {
                 try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
                 try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n")
@@ -57,8 +56,6 @@ class Theo_001_BoltClientTests: XCTestCase {
                 tx.markAsFailed()
             }
 
-            try completionBlock()
-            
             XCTAssertFalse(tx.succeed)
             exp.fulfill()
         }
@@ -72,9 +69,8 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testCancellingTransaction")
         
-        try client.executeAsTransaction() { (tx, completionBlock) in
+        try client.executeAsTransaction() { (tx) in
             tx.markAsFailed()
-            try completionBlock()
             exp.fulfill()
         }
         
@@ -88,19 +84,19 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testTransactionResultsInBookmark")
         
-        try client.executeAsTransaction() { (tx, completionBlock) in
+        try client.executeAsTransaction() { (tx) in
             try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
-            try completionBlock()
             
-            if let bookmark = client.getBookmark() {
-                XCTAssertNotEqual("", bookmark)
-                XCTAssertEqual("neo4j:bookmark:v1", bookmark.substring(to: bookmark.index(bookmark.startIndex, offsetBy: 17)))
-            } else {
-                XCTFail("Bookmark should not be nil")
-            }
             exp.fulfill()
         }
-        
+
+        if let bookmark = client.getBookmark() {
+            XCTAssertNotEqual("", bookmark)
+            XCTAssertEqual("neo4j:bookmark:v1", bookmark.substring(to: bookmark.index(bookmark.startIndex, offsetBy: 17)))
+        } else {
+            XCTFail("Bookmark should not be nil")
+        }
+
         self.waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error)
         })
@@ -110,7 +106,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testGettingStartedExample")
         
-        try client.executeAsTransaction() { (tx, completionBlock) in
+        try client.executeAsTransaction() { (tx) in
             try client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
                                      params: ["name": "Arthur", "title": "King"])
             
@@ -128,8 +124,6 @@ class Theo_001_BoltClientTests: XCTestCase {
                     XCTFail("\(error)")
                 }
             }
-            
-            try completionBlock()
         }
         
         self.waitForExpectations(timeout: 10, handler: { error in

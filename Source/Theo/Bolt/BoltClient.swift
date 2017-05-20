@@ -120,7 +120,7 @@ open class BoltClient {
         
     }
 
-    public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction, _ completionBlock: () throws -> ()) throws -> ()) throws {
+    public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction) throws -> ()) throws {
         
         let transaction = Transaction()
         currentTransaction = transaction
@@ -135,30 +135,30 @@ open class BoltClient {
                 
                 try pullSynchronouslyAndIgnore()
 
-                try transactionBlock(transaction) {
-                    if transaction.succeed {
-                        let commitRequest = BoltRequest.run(statement: "COMMIT", parameters: Map(dictionary: [:]))
-                        try connection.request(commitRequest) { (success, response) in
-                            try pullSynchronouslyAndIgnore()
-                            if !success {
-                                print("Error committing transaction: \(response)")
-                            }
-                            self.currentTransaction = nil
-                            transactionGroup.leave()
+                try transactionBlock(transaction)
+                if transaction.succeed {
+                    let commitRequest = BoltRequest.run(statement: "COMMIT", parameters: Map(dictionary: [:]))
+                    try connection.request(commitRequest) { (success, response) in
+                        try pullSynchronouslyAndIgnore()
+                        if !success {
+                            print("Error committing transaction: \(response)")
                         }
-                    } else {
-                        
-                        let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
-                        try connection.request(rollbackRequest) { (success, response) in
-                            try pullSynchronouslyAndIgnore()
-                            if !success {
-                                print("Error rolling back transaction: \(response)")
-                            }
-                            self.currentTransaction = nil
-                            transactionGroup.leave()
+                        self.currentTransaction = nil
+                        transactionGroup.leave()
+                    }
+                } else {
+                    
+                    let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
+                    try connection.request(rollbackRequest) { (success, response) in
+                        try pullSynchronouslyAndIgnore()
+                        if !success {
+                            print("Error rolling back transaction: \(response)")
                         }
+                        self.currentTransaction = nil
+                        transactionGroup.leave()
                     }
                 }
+                
 
             } else {
                 print("Error beginning transaction: \(response)")
