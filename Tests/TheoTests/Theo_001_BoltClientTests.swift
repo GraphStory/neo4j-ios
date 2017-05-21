@@ -152,9 +152,7 @@ class Theo_001_BoltClientTests: XCTestCase {
                 try client.pullAll() { (success, response) in
                     
                     XCTAssertTrue(success)
-                    XCTAssertEqual(2, response.count)
-                    
-                    XCTAssertEqual(numberOfKingArthurs + 1, response[0].items.count)
+                    XCTAssertEqual(numberOfKingArthurs + 2, response.count)
 
                     tx.markAsFailed() // This should undo the beginning CREATE even though we have pulled it here
                     exp.fulfill()

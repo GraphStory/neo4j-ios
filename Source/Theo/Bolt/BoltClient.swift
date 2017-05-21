@@ -13,10 +13,12 @@ public struct QueryWithParameters {
 
 public class Transaction {
     
-    var succeed: Bool
+    public var succeed: Bool = true
+    public var bookmark: String? = nil
+    public var autocommit: Bool = true
+    internal var commitBlock: (Bool) throws -> Void = { _ in }
     
     public init() {
-        succeed = true
     }
     
     public func markAsFailed() {
@@ -106,6 +108,9 @@ open class BoltClient {
         dispatchGroup.enter()
         try self.connection.request(pullRequest) { (success, response) in
             
+            if let bookmark = self.getBookmark() {
+                currentTransaction?.bookmark = bookmark
+            }
             dispatchGroup.leave()
         }
         dispatchGroup.wait()
@@ -122,53 +127,59 @@ open class BoltClient {
 
     public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction) throws -> ()) throws {
         
+        let transactionGroup = DispatchGroup()
+
         let transaction = Transaction()
+        transaction.commitBlock = { succeed in
+            if succeed {
+                let commitRequest = BoltRequest.run(statement: "COMMIT", parameters: Map(dictionary: [:]))
+                try self.connection.request(commitRequest) { (success, response) in
+                    try self.pullSynchronouslyAndIgnore()
+                    if !success {
+                        print("Error committing transaction: \(response)")
+                    }
+                    self.currentTransaction = nil
+                    transactionGroup.leave()
+                }
+            } else {
+                
+                let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
+                try self.connection.request(rollbackRequest) { (success, response) in
+                    try self.pullSynchronouslyAndIgnore()
+                    if !success {
+                        print("Error rolling back transaction: \(response)")
+                    }
+                    self.currentTransaction = nil
+                    transactionGroup.leave()
+                }
+            }
+        }
+        
         currentTransaction = transaction
         
         let beginRequest = BoltRequest.run(statement: "BEGIN", parameters: Map(dictionary: [:]))
         
-        let transactionGroup = DispatchGroup()
         transactionGroup.enter()
         
         try connection.request(beginRequest) { (success, response) in
             if success {
                 
                 try pullSynchronouslyAndIgnore()
-
-                try transactionBlock(transaction)
-                if transaction.succeed {
-                    let commitRequest = BoltRequest.run(statement: "COMMIT", parameters: Map(dictionary: [:]))
-                    try connection.request(commitRequest) { (success, response) in
-                        try pullSynchronouslyAndIgnore()
-                        if !success {
-                            print("Error committing transaction: \(response)")
-                        }
-                        self.currentTransaction = nil
-                        transactionGroup.leave()
-                    }
-                } else {
-                    
-                    let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
-                    try connection.request(rollbackRequest) { (success, response) in
-                        try pullSynchronouslyAndIgnore()
-                        if !success {
-                            print("Error rolling back transaction: \(response)")
-                        }
-                        self.currentTransaction = nil
-                        transactionGroup.leave()
-                    }
-                }
                 
+                try transactionBlock(transaction)
+                if transaction.autocommit == true {
+                    try transaction.commitBlock(transaction.succeed)
+                    transaction.commitBlock = { _ in }
+                }
 
             } else {
                 print("Error beginning transaction: \(response)")
+                transaction.commitBlock = { _ in }
                 transactionGroup.leave()
             }
         }
         
         transactionGroup.wait()
-        
-        
     }
     
     public func executeTransaction(parameteredQueries: [QueryWithParameters], completionBlock: ClientProtocol.TheoCypherQueryCompletionBlock? = nil) -> Void {
