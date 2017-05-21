@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		85BAE2081ED222E20020D3D7 /* CypherMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85BAE2061ED2228A0020D3D7 /* CypherMeta.swift */; };
 		OBJ_104 /* SSLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* SSLService.swift */; };
 		OBJ_106 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_68 /* Socket.framework */; };
 		OBJ_113 /* ShellOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_48 /* ShellOut.swift */; };
@@ -187,6 +188,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		85BAE2061ED2228A0020D3D7 /* CypherMeta.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CypherMeta.swift; sourceTree = "<group>"; };
 		OBJ_10 /* Cypher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cypher.swift; sourceTree = "<group>"; };
 		OBJ_11 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		OBJ_12 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 				OBJ_20 /* RestClient.swift */,
 				OBJ_21 /* RestRequest.swift */,
 				OBJ_22 /* RestSession.swift */,
+				85BAE2061ED2228A0020D3D7 /* CypherMeta.swift */,
 			);
 			path = Rest;
 			sourceTree = "<group>";
@@ -414,7 +417,7 @@
 			path = ".build/checkouts/BlueSSLService.git--6577639804771281610/Sources";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -423,7 +426,6 @@
 				OBJ_36 /* Dependencies */,
 				OBJ_66 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_51 /* Socket 0.12.49 */ = {
@@ -638,7 +640,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_66 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -698,6 +700,7 @@
 				OBJ_147 /* BoltClient.swift in Sources */,
 				OBJ_148 /* Response+TheoExtension.swift in Sources */,
 				OBJ_149 /* DBMeta.swift in Sources */,
+				85BAE2081ED222E20020D3D7 /* CypherMeta.swift in Sources */,
 				OBJ_150 /* NodeMeta.swift in Sources */,
 				OBJ_151 /* RelationshipMeta.swift in Sources */,
 				OBJ_152 /* RestClient.swift in Sources */,

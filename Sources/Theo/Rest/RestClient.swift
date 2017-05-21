@@ -123,7 +123,12 @@ open class RestClient {
                             return
                         }
 
-                        let meta: DBMeta = DBMeta(dictionary: JSONAsDictionaryAny as Dictionary<String, Any>!)
+                        let meta: DBMeta?
+                        do {
+                            meta = try DBMeta(JSONAsDictionaryAny as Dictionary<String, Any>!)
+                        } catch {
+                            meta = nil
+                        }
 
                         completionBlock?(meta, nil)
 

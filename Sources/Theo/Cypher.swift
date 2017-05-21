@@ -1,24 +1,5 @@
 import Foundation
 
-let TheoCypherColumns: String = "columns"
-let TheoCypherData: String    = "data"
-
-public struct CypherMeta: CustomStringConvertible {
-
-    let columns: Array<String>
-    let data: Array<Any>
-
-    init(dictionary: Dictionary<String, Any>) {
-
-        self.columns = dictionary[TheoCypherColumns] as! Array
-        self.data    = dictionary[TheoCypherData]    as! Array
-    }
-
-    public var description: String {
-        return "Columns: \(columns), data \(data)"
-    }
-}
-
 open class Cypher {
 
     var meta: CypherMeta?
@@ -28,7 +9,11 @@ open class Cypher {
 
         if let dictionaryData = metaData {
 
-            self.meta = CypherMeta(dictionary: dictionaryData as Dictionary<String, Any>)
+            do {
+                self.meta = try CypherMeta(dictionaryData as Dictionary<String, Any>)
+            } catch {
+                self.meta = nil
+            }
 
             if let metaForCypher: CypherMeta = self.meta {
 

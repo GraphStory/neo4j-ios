@@ -17,35 +17,52 @@ let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
 public struct DBMeta {
 
-    let extensions: [String: Any] //= [String: Any]()
-    let node: String                    //= ""
-    let node_index: String              //= ""
-    let relationship_index: String      //= ""
-    let extensions_info: String         //= ""
-    let relationship_types: String      //= ""
-    let batch: String                   //= ""
-    let cypher: String                  //= ""
-    let indexes: String                 //= ""
-    let constraints: String             //= ""
-    let transaction: String             //= ""
-    let node_labels: String             //= ""
-    let neo4j_version: String           //= ""
+    let extensions: [String: Any]
+    let node: String
+    let node_index: String
+    let relationship_index: String
+    let extensions_info: String
+    let relationship_types: String
+    let batch: String
+    let cypher: String
+    let indexes: String
+    let constraints: String
+    let transaction: String
+    let node_labels: String
+    let neo4j_version: String
 
-    init(dictionary: Dictionary<String, Any>!) {
+    init(_ dictionary: Dictionary<String, Any>) throws {
 
-        self.extensions             = dictionary[TheoDBMetaExtensionsKey]           as! Dictionary
-        self.node                   = dictionary[TheoDBMetaNodeKey]                 as! String
-        self.node_index             = dictionary[TheoDBMetaNodeIndexKey]            as! String
-        self.relationship_index     = dictionary[TheoDBMetaRelationshipIndexKey]    as! String
-        self.extensions_info        = dictionary[TheoDBMetaExtensionsInfoKey]       as! String
-        self.relationship_types     = dictionary[TheoDBMetaRelationshipTypesKey]    as! String
-        self.batch                  = dictionary[TheoDBMetaBatchKey]                as! String
-        self.cypher                 = dictionary[TheoDBMetaCypherKey]               as! String
-        self.indexes                = dictionary[TheoDBMetaIndexesKey]              as! String
-        self.constraints            = dictionary[TheoDBMetaConstraintsKey]          as! String
-        self.transaction            = dictionary[TheoDBMetaTransactionKey]          as! String
-        self.node_labels            = dictionary[TheoDBMetaNodeLabelsKey]           as! String
-        self.neo4j_version          = dictionary[TheoDBMetaNeo4JVersionKey]         as! String
+        guard let extensions: Dictionary<String, Any> = dictionary.decodingKey(TheoDBMetaExtensionsKey),
+            let node: String = dictionary.decodingKey(TheoDBMetaNodeKey),
+            let nodeIndex: String = dictionary.decodingKey(TheoDBMetaNodeIndexKey),
+            let relationshipIndex: String = dictionary.decodingKey(TheoDBMetaRelationshipIndexKey),
+            let extensionsInfo: String = dictionary.decodingKey(TheoDBMetaExtensionsInfoKey),
+            let relationshipTypes: String = dictionary.decodingKey(TheoDBMetaRelationshipTypesKey),
+            let batch: String = dictionary.decodingKey(TheoDBMetaBatchKey),
+            let cypher: String = dictionary.decodingKey(TheoDBMetaCypherKey),
+            let indexes: String = dictionary.decodingKey(TheoDBMetaIndexesKey),
+            let constraints: String = dictionary.decodingKey(TheoDBMetaConstraintsKey),
+            let transaction: String = dictionary.decodingKey(TheoDBMetaTransactionKey),
+            let nodeLabels: String = dictionary.decodingKey(TheoDBMetaNodeLabelsKey),
+            let version: String = dictionary.decodingKey(TheoDBMetaNeo4JVersionKey) else {
+
+                throw JSONSerializationError.invalid("Invalid Dictionary", dictionary)
+        }
+
+        self.extensions = extensions
+        self.node = node
+        self.node_index = nodeIndex
+        self.relationship_index = relationshipIndex
+        self.extensions_info = extensionsInfo
+        self.relationship_types = relationshipTypes
+        self.batch = batch
+        self.cypher = cypher
+        self.indexes = indexes
+        self.constraints = constraints
+        self.transaction = transaction
+        self.node_labels = nodeLabels
+        self.neo4j_version = version
     }
 }
 
