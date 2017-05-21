@@ -9,10 +9,10 @@ import PackStream
 #endif
 
 class Theo_001_BoltClientTests: XCTestCase {
-    
+
     let configuration: BoltConfig = ConfigLoader.loadBoltConfig()
-    
-    
+
+
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
@@ -25,26 +25,26 @@ class Theo_001_BoltClientTests: XCTestCase {
                                     password: configuration.password,
                                     encrypted: configuration.encrypted)
         try client.connect()
-        
+
         return client
     }
-    
+
     func testSucceedingTransaction() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testSucceedingTransaction")
-        
+
         try client.executeAsTransaction() { (tx) in
             XCTAssertTrue(try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})"))
             XCTAssertTrue(try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n"))
             XCTAssertTrue(try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n"))
             exp.fulfill()
         }
-        
+
         self.waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error)
         })
     }
-    
+
     func testFailingTransaction() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testFailingTransaction")
@@ -62,34 +62,34 @@ class Theo_001_BoltClientTests: XCTestCase {
             XCTAssertFalse(tx.succeed)
             exp.fulfill()
         }
-        
+
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error)
         })
     }
-    
+
     func testCancellingTransaction() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testCancellingTransaction")
-        
+
         try client.executeAsTransaction() { (tx) in
             tx.markAsFailed()
             exp.fulfill()
         }
-        
+
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error)
         })
 
     }
-    
+
     func testTransactionResultsInBookmark() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testTransactionResultsInBookmark")
-        
+
         try client.executeAsTransaction() { (tx) in
             XCTAssertTrue(try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})"))
-            
+
             exp.fulfill()
         }
 
@@ -104,23 +104,23 @@ class Theo_001_BoltClientTests: XCTestCase {
             XCTAssertNil(error)
         })
     }
-    
+
     func testGettingStartedExample() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testGettingStartedExample")
-        
+
         // First, lets determine the number of existing King Arthurs. The test may have been run before
-        
+
         let figureOutNumberOfKingArthurs = DispatchGroup()
         figureOutNumberOfKingArthurs.enter()
         var numberOfKingArthurs = -1
-        
+
         try client.executeCypher("MATCH (a:Person) WHERE a.name = {name} RETURN count(a) AS count", params: ["name": "Arthur"])  { success in
-            
+
             XCTAssertTrue(success)
-            
+
             try client.pullAll() { (success, response) in
-                
+
                 XCTAssertTrue(success)
                 XCTAssertEqual(2, response.count)
                 if let theResponse = response[0].items[0] as? List,
@@ -129,28 +129,28 @@ class Theo_001_BoltClientTests: XCTestCase {
                 } else {
                     XCTFail("Response was not of the kind List")
                 }
-                
+
                 figureOutNumberOfKingArthurs.leave()
             }
         }
         figureOutNumberOfKingArthurs.wait()
         XCTAssertNotEqual(-1, numberOfKingArthurs)
-        
+
         // Now lets run the actual test
-        
+
         try client.executeAsTransaction() { (tx) in
             let success = try client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
                                                    params: ["name": "Arthur", "title": "King"])
             XCTAssertTrue(success)
-            
-            
+
+
             try client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
             "RETURN a.name AS name, a.title AS title", params: ["name": "Arthur"])  { success in
-                
+
                 XCTAssertTrue(success)
-                
+
                 try client.pullAll() { (success, response) in
-                    
+
                     XCTAssertTrue(success)
                     XCTAssertEqual(numberOfKingArthurs + 2, response.count)
 
@@ -159,12 +159,12 @@ class Theo_001_BoltClientTests: XCTestCase {
                 }
             }
         }
-        
+
         self.waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error)
         })
     }
-    
+
     static var allTests = [
         ("testSucceedingTransaction", testSucceedingTransaction),
         ("testFailingTransaction", testFailingTransaction),

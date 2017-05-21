@@ -8,15 +8,15 @@ public extension Response {
             items.count != 1 {
             return nil
         }
-        
+
         let list = items[0] as? List
         guard let items = list?.items,
             items.count == 1,
-            
+
             let structure = items[0] as? Structure,
             structure.signature == Response.RecordType.node,
             structure.items.count == 3,
-            
+
             let nodeId = structure.items.first?.asUInt64(),
             let labelList = structure.items[1] as? List,
             let labels = labelList.items as? [String],
@@ -24,9 +24,9 @@ public extension Response {
             else {
                 return nil
         }
-        
+
         let properties = propertyMap.dictionary
-        
+
         let node = Node(id: UInt64(nodeId), labels: labels, properties: properties)
         return node
     }

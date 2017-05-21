@@ -1,11 +1,3 @@
-//
-//  RestRequest.swift
-//  Cory D. Wiles
-//
-//  Created by Cory D. Wiles on 9/11/14.
-//  Copyright (c) 2014 Theo. All rights reserved.
-//
-
 import Foundation
 
 typealias RequestSuccessBlock = (_ data: Data?, _ response: URLResponse) -> Void

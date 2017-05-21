@@ -11,7 +11,7 @@ let TheoRelationshipDataKey: String       = "data"
 let TheoRelationshipMetaDataKey: String   = "metadata"
 
 public struct RelationshipMeta: CustomStringConvertible {
-    
+
     let extensions: [String: Any]
     let start: String
     let property: String
@@ -20,18 +20,18 @@ public struct RelationshipMeta: CustomStringConvertible {
     let type: String //TODO: add custom function so it will return RelationshipType
     let end: String
     let data: [String: Any]
-    
+
     public let metadata: [String: Any]
-    
+
     public func relationshipID() -> String {
-        
+
         let pathComponents: Array<String> = self.relationship_self.components(separatedBy: "/")
-        
+
         return pathComponents.last!
     }
-    
+
     init(dictionary: Dictionary<String, Any>!) {
-        
+
         self.extensions         = dictionary[TheoRelationshipExtensionsKey] as! Dictionary
         self.start              = dictionary[TheoRelationshipStartKey]      as! String
         self.property           = dictionary[TheoRelationshipPropertyKey]   as! String
@@ -42,7 +42,7 @@ public struct RelationshipMeta: CustomStringConvertible {
         self.data               = dictionary[TheoRelationshipDataKey]       as! Dictionary
         self.metadata           = dictionary[TheoRelationshipMetaDataKey]   as! Dictionary
     }
-    
+
     public var description: String {
         return "Extensions: \(self.extensions), start \(self.start), property \(self.property), self \(self.relationship_self), properties \(self.properties), type \(self.type), end \(self.end), data \(self.data), relationshipID \(self.relationshipID()), metadata \(self.metadata)"
     }

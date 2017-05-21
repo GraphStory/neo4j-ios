@@ -1,11 +1,3 @@
-//
-//  RestSession.swift
-//  Cory D. Wiles
-//
-//  Created by Cory D. Wiles on 9/11/14.
-//  Copyright (c) 2014 Theo. All rights reserved.
-//
-
 import Foundation
 
 #if os(Linux)
@@ -91,7 +83,7 @@ class RestSession {
     var session: URLSession
     var sessionDelegateQueue: OperationQueue
     var configuration: Configuration = Configuration()
-    
+
     static var sharedInstance: RestSession = {
         let queue = OperationQueue()
         queue.name = "net.theo.restsession.queue"
@@ -116,7 +108,7 @@ class RestSession {
         if let operationQueue = queue {
             self.sessionDelegateQueue = operationQueue
         } else {
-            
+
             let operationQueue = RestSession.sharedInstance.sessionDelegateQueue
             self.sessionDelegateQueue = operationQueue
         }

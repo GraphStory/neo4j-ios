@@ -18,7 +18,7 @@ let TheoNodeData: String                       = "data"
 let TheoNodeMetaData: String                   = "metadata"
 
 public struct NodeMeta: CustomStringConvertible {
-    
+
     let extensions: [String: Any]
     let page_traverse: String
     let labels: String
@@ -35,16 +35,16 @@ public struct NodeMeta: CustomStringConvertible {
     let create_relationship: String
     let data: [String: Any]
     let metadata: [String: Any]
-    
+
     public func nodeID() -> String {
-        
+
         let pathComponents: Array<String> = self.node_self.components(separatedBy: "/")
-        
+
         return pathComponents.last!
     }
-    
+
     public init(dictionary: Dictionary<String, Any>!) {
-        
+
         self.extensions                     = dictionary[TheoNodeExtensions]                    as! Dictionary
         self.page_traverse                  = dictionary[TheoNodePagedTraverse]                 as! String
         self.labels                         = dictionary[TheoNodeLabels]                        as! String
@@ -62,7 +62,7 @@ public struct NodeMeta: CustomStringConvertible {
         self.data                           = dictionary[TheoNodeData]                          as! Dictionary
         self.metadata                       = dictionary[TheoNodeMetaData]                      as! Dictionary
     }
-    
+
     public var description: String {
         return "Extensions: \(self.extensions), page_traverse \(self.page_traverse), labels \(self.labels), outgoing_relationships \(self.outgoing_relationships), traverse \(self.traverse), all_typed_relationships \(self.all_typed_relationships), all_typed_relationships \(self.all_typed_relationships), property \(self.property), all_relationships \(self.all_relationships), self \(self.node_self), outgoing_typed_relationships \(self.outgoing_typed_relationships), properties \(self.properties), incoming_relationships \(self.incoming_relationships), incoming_typed_relationships \(self.incoming_typed_relationships), create_relationship \(self.create_relationship), data \(self.data), metadata \(self.metadata), nodeID \(self.nodeID())"
     }

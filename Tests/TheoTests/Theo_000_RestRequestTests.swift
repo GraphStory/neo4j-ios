@@ -1,11 +1,3 @@
-//
-//  TheoTests.swift
-//  TheoTests
-//
-//  Created by Cory D. Wiles on 9/15/14.
-//  Copyright (c) 2014 Theo. All rights reserved.
-//
-
 import Foundation
 import XCTest
 @testable import Theo
@@ -34,12 +26,12 @@ class ConfigLoader: NSObject {
     }
 
     class func loadBoltConfig() -> BoltConfig {
-        
+
         let testPath = URL(fileURLWithPath: #file)
             .deletingLastPathComponent().path
-        
+
         let filePath = "\(testPath)/TheoBoltConfig.json"
-        
+
         return BoltConfig(pathToFile: filePath)
     }
 
@@ -761,7 +753,7 @@ class Theo_000_RestRequestTests: XCTestCase {
                             })
                         }
                     }
-                    
+
                     cleanupRelationshipsDispatchGroup.leave()
                 }
             })
@@ -814,7 +806,7 @@ class Theo_000_RestRequestTests: XCTestCase {
 }
 
 public struct RelationshipType {
-    
+
     public static var KNOWS: String   = "KNOWS"
     public static var know: String    = "know"
     public static var FRIENDS: String = "FRIENDS"

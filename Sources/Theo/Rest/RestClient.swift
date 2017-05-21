@@ -1,11 +1,3 @@
-//
-//  RestClient.swift
-//  Cory D. Wiles
-//
-//  Created by Cory D. Wiles on 9/14/14.
-//  Copyright (c) 2014 Theo. All rights reserved.
-//
-
 import Foundation
 #if os(Linux)
     import Dispatch

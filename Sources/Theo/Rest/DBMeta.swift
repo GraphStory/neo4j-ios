@@ -16,7 +16,7 @@ let TheoDBMetaNodeLabelsKey: String        = "node_labels"
 let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
 public struct DBMeta {
-    
+
     let extensions: [String: Any] //= [String: Any]()
     let node: String                    //= ""
     let node_index: String              //= ""
@@ -30,9 +30,9 @@ public struct DBMeta {
     let transaction: String             //= ""
     let node_labels: String             //= ""
     let neo4j_version: String           //= ""
-    
+
     init(dictionary: Dictionary<String, Any>!) {
-        
+
         self.extensions             = dictionary[TheoDBMetaExtensionsKey]           as! Dictionary
         self.node                   = dictionary[TheoDBMetaNodeKey]                 as! String
         self.node_index             = dictionary[TheoDBMetaNodeIndexKey]            as! String
@@ -50,7 +50,7 @@ public struct DBMeta {
 }
 
 extension DBMeta: CustomStringConvertible {
-    
+
     public var description: String {
         return "Extensions: \(self.extensions) node: \(self.node) node_index: \(self.node_index) relationship_index: \(self.relationship_index) extensions_info : \(self.extensions_info), relationship_types: \(self.relationship_types) batch: \(self.batch) cypher: \(self.cypher) indexes: \(self.indexes) constraints: \(self.constraints) transaction: \(self.transaction) node_labels: \(self.node_labels) neo4j_version: \(self.neo4j_version)"
     }

@@ -1,11 +1,3 @@
-//
-//  Node.swift
-//  Theo
-//
-//  Created by Cory D. Wiles on 9/19/14.
-//  Copyright (c) 2014 Theo. All rights reserved.
-//
-
 import Foundation
 import PackStream
 
@@ -16,15 +8,15 @@ public struct Node {
     fileprivate (set) var nodeData: [String:Any] = [String:Any]()
     fileprivate (set) var labels: [String] = [String]()
     public let id: UInt64
-    
+
     // MARK: Constructors
-    
+
     /// Initializer for Rest
     ///
     /// - parameter Dictionary<String,Any>?: data
     /// - returns: Node
     public init(data: Dictionary<String,Any>?) {
-        
+
         if let dictionaryData: [String:Any] = data {
 
             if let properties = dictionaryData[TheoNodeData] as? [String:Any] {
@@ -36,19 +28,19 @@ public struct Node {
             } else {
                 self.id = 0
             }
-            
+
         } else {
             self.id = 0
         }
     }
-    
+
 
     public init(id: UInt64, labels: [String], properties: [String: PackProtocol]) {
         self.id = id
         self.labels = labels
         self.nodeData = properties
     }
-    
+
     /// Convenience initializer
     ///
     /// calls init(data:) with the param value as nil
@@ -57,7 +49,7 @@ public struct Node {
     public init() {
         self.init(data: nil)
     }
-    
+
     /// A list of available properties for Node
     ///
     /// - returns: [String]
@@ -68,7 +60,7 @@ public struct Node {
             })
         }
     }
-    
+
     /// Gets a specified property for the Node
     ///
     /// - parameter String: propertyName
@@ -78,26 +70,26 @@ public struct Node {
         if let object: Any = self.nodeData[propertyName] {
             return object
         }
-        
+
         return nil
     }
-    
+
     /// Unsets the property for the node
     ///
     /// - parameter String: propertyName
     /// - returns: Void
     public mutating func removeProp(_ propertyName: String) -> Void {
-        
+
         self.nodeData.removeValue(forKey: propertyName)
     }
-    
+
     /// Sets the property for the node. Use value nil to unset it
     ///
     /// - parameter String: propertyName
     /// - parameter String: propertyValue
     /// - returns: Void
     public mutating func setProp(_ propertyName: String, propertyValue: Any?) -> Void {
-        
+
         if let propertyValue = propertyValue {
             let objectValue: Any = propertyValue
             self.nodeData[propertyName] = objectValue
@@ -106,18 +98,18 @@ public struct Node {
             removeProp(propertyName)
         }
     }
-    
+
     /// Equivalent subscripts
     public subscript(propertyName: String) -> Any? {
         get {
             return getProp(propertyName)
         }
-        
+
         set {
             setProp(propertyName, propertyValue: newValue)
         }
     }
-    
+
     /// Adds label to array of labels for the node
     ///
     /// - parameter String: label
@@ -125,7 +117,7 @@ public struct Node {
     public mutating func addLabel(_ label: String) -> Void {
         self.labels.append(label)
     }
-    
+
     /// Adds labels to existing array of labels for the node
     ///
     /// - parameter Array<String>: labels
@@ -135,7 +127,7 @@ public struct Node {
         let newLabels = Array([self.labels, labels].joined())
         self.labels = newLabels
     }
-    
+
     /// Returns whether or not the nodeData is empty
     ///
     /// This is done by checking for empty keys array
@@ -156,17 +148,16 @@ public struct Node {
 // MARK: - Printable
 
 extension Node: CustomStringConvertible {
-    
+
     public var description: String {
-        
+
         var returnString: String = ""
-            
+
         for (key, value) in self.nodeData {
             returnString += "\(key): \(value) "
         }
-        
+
         return returnString
     }
 }
-
 

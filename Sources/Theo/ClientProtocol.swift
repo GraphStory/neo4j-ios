@@ -2,7 +2,7 @@ import Foundation
 import PackStream
 
 public protocol ClientProtocol {
-    
+
     typealias TheoMetaDataCompletionBlock = (_ metaData: DBMeta?, _ error: NSError?) -> Void
     typealias TheoNodeRequestCompletionBlock = (_ node: Node?, _ error: NSError?) -> Void
     typealias TheoNodeRequestDeleteCompletionBlock = (_ error: NSError?) -> Void
