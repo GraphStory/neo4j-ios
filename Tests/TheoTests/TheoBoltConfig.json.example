@@ -1,7 +1,25 @@
 {
-	"username" : "neo4j",
-	"password" : "<passcode>",
-	"hostname" : "localhost",
-	"port": 7687,
-	"encrypted": true
+        "username": "neo4j",
+        "password": "<passcode>",
+        "hostname": "localhost",
+        "port": 7687,
+        "hostUsesSelfSignedCertificate": true,
+        "certificateProperties": {
+                "temporarySSLKeyPath": "/tmp/boltTestKeys",
+                "certificatePKCS12FileName": "cert.pfx",
+                "certificatePKCS12Password": "1234",
+                "generator": {
+                        "keyFileName": "key.pem",
+                        "signingRequestFileName": "csr.csr",
+                        "certificatePEMFilename": "cert.pem",
+                        "countryName": "DK",
+                        "stateOrProvinceName": "Esbjerg",
+                        "localityName": "",
+                        "organizationName": "Bolt-swift",
+                        "orgUnitName": "",
+                        "commonName": "",
+                        "emailAddress": "",
+                        "companyName": ""
+                }
+        }
 }
