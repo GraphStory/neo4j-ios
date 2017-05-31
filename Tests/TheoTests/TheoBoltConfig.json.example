@@ -3,6 +3,7 @@
         "password": "<passcode>",
         "hostname": "localhost",
         "port": 7687,
+		"encrypted": true,
         "hostUsesSelfSignedCertificate": true,
         "certificateProperties": {
                 "temporarySSLKeyPath": "/tmp/boltTestKeys",
