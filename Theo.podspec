@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
     - CRUD operations for Nodes and Relationships
     - Transaction statement execution
     - Bolt support
-                   DESC
+DESC
 
   s.homepage     = "https://github.com/GraphStory/neo4j-ios"
   s.license      = { :type => "MIT", :file => "LICENSE" }
@@ -21,9 +21,11 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "#{s.version}" }
 
-  s.source_files  = "Classes", "Source/Theo/*.swift"
+  s.source_files  = "Classes", "Sources/**/*.swift"
   
   s.ios.deployment_target = "9.0"
   s.osx.deployment_target = "10.11"
+  
+  s.dependency 'BoltProtocol', '~> 0.8.6'
   
 end
