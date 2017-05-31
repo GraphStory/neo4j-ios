@@ -1,5 +1,5 @@
 {
-"username" : "",
-"password" : "",
-"host" : ""
+"username" : "neo4j",
+"password" : "<passcode>",
+"host" : "localhost"
 }
