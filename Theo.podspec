@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Theo"
-  s.version      = "3.0.0"
+  s.version      = "3.1.0"
   s.summary      = "Open Source Neo4j library for iOS"
 
   s.description  = <<-DESC
@@ -9,6 +9,7 @@ Pod::Spec.new do |s|
     Features:
     - CRUD operations for Nodes and Relationships
     - Transaction statement execution
+    - Bolt support
                    DESC
 
   s.homepage     = "https://github.com/GraphStory/neo4j-ios"
