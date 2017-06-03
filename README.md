@@ -38,7 +38,7 @@ Add the following to your Podfile:
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, ‘9.0’
+platform :ios, ‘10.0’
 use_frameworks!
 
 target '<Your Target Name>' do
@@ -51,9 +51,9 @@ Run `pod install` to configure your updated workspace. Open the .xcworkspace gen
 Add the following to your Cartfile:
 
 ```ogdl
-github "GraphStory/neo4j-ios" ~> 4.0
+github "GraphStory/neo4j-ios" ~> 3.1
 ```
-Run `carthage update` to build the framework and drag the built `Theo.framework` into your Xcode project.
+Run `carthage update --platform iOS` to build the framework and drag the built `Theo.framework` into your Xcode project.
 
 ###git submodule
 
@@ -241,10 +241,6 @@ There is a file called, `TheoConfig.json.example` which you should copy to `Theo
 
 * Select the unit test target
 * Hit `CMD-U`
-
-## Known issues
-Swift 3.0.1 on Ubuntu Linux 14.04 sometimes looses all headers in an URL request, thus making the server return a HTTP status code 401 where 200 was expected. In your code where you handle retries for unexpected network results, you may want to take this into account If you are interested in this issue, you can follow [this bug report](https://bugs.swift.org/browse/SR-3463) and [this stack overflow post](http://stackoverflow.com/questions/41601863/urlsession-on-linux-giving-different-result-than-on-ios)
-
 
 ## Authors
 
