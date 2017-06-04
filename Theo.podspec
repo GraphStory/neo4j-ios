@@ -19,13 +19,13 @@ DESC
   s.authors             = { "Cory Wiles" => "corywiles@icloud.com",
                             "Niklas Saers" => "niklas@saers.com" }
 
-  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "v#{s.version}" }
 
   s.source_files  = "Classes", "Sources/**/*.swift"
   
-  s.ios.deployment_target = "9.0"
-  s.osx.deployment_target = "10.11"
+  s.ios.deployment_target = "10.0"
+  #s.osx.deployment_target = "10.12"
   
-  s.dependency 'BoltProtocol', '~> 0.8.6'
+  s.dependency 'BoltProtocol', '~> 0.8.7'
   
 end
