@@ -47,7 +47,7 @@ open class BoltClient {
         self.password = password
         self.encrypted = encrypted
 
-        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1.1")
+        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1.2")
 
         let noConfig = SSLConfiguration(json: [:])
         let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
