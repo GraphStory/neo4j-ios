@@ -4,23 +4,5 @@
         "hostname": "localhost",
         "port": 7687,
 		"encrypted": true,
-        "hostUsesSelfSignedCertificate": true,
-        "certificateProperties": {
-                "temporarySSLKeyPath": "/tmp/boltTestKeys",
-                "certificatePKCS12FileName": "cert.pfx",
-                "certificatePKCS12Password": "1234",
-                "generator": {
-                        "keyFileName": "key.pem",
-                        "signingRequestFileName": "csr.csr",
-                        "certificatePEMFilename": "cert.pem",
-                        "countryName": "DK",
-                        "stateOrProvinceName": "Esbjerg",
-                        "localityName": "",
-                        "organizationName": "Bolt-swift",
-                        "orgUnitName": "",
-                        "commonName": "",
-                        "emailAddress": "",
-                        "companyName": ""
-                }
-        }
+        "hostUsesSelfSignedCertificate": true
 }
