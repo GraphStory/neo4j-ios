@@ -13,9 +13,9 @@
 
 ## Requirements
 
-* iOS 9.0 or higher / macOS 10.11 or higher / Ubuntu Linux 14.04 or higher 
-* Xcode 8.1 or newer for iOS or macOS
-* Swift 3.0 for iOS or macOS, 3.0.2 for Linux
+* iOS 10.0 or higher / macOS 10.12 or higher / Ubuntu Linux 14.04 or higher 
+* Xcode 8.3.2 or newer for iOS or macOS
+* Swift 3.1.1
 
 ## Feedback
 

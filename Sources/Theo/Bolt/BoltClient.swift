@@ -47,29 +47,10 @@ open class BoltClient {
         self.password = password
         self.encrypted = encrypted
 
-        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1a1")
+        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1.2")
 
-        let generator = SSLKeyGeneratorConfig(
-            signingRequestFileName: "csr.csr",
-            countryName: "DK",
-            stateOrProvinceName: "Esbjerg",
-            localityName: "",
-            organizationName: "Theo",
-            orgUnitName: "",
-            commonName: "",
-            emailAddress: "",
-            companyName: "")
-
-        let sslConfig = SSLConfiguration(
-            temporarySSLKeyPath: "/tmp/boltTestKeys",
-            certificatePKCS12FileName: "cert.pfx",
-            certificatePKCS12Password: "1234",
-            keyFileName: "key.pem",
-            certificatePEMFilename: "cert.pem",
-            generator: generator)
-
-        let configuration = EncryptedSocket.defaultConfiguration(
-            sslConfig: sslConfig,
+        let noConfig = SSLConfiguration(json: [:])
+        let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
             allowHostToBeSelfSigned: true)
 
         let socket = try EncryptedSocket(
