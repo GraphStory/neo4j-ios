@@ -19,7 +19,7 @@ DESC
   s.authors             = { "Cory Wiles" => "corywiles@icloud.com",
                             "Niklas Saers" => "niklas@saers.com" }
 
-  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "v#{s.version}" }
 
   s.source_files  = "Classes", "Sources/**/*.swift"
   
