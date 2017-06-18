@@ -3,6 +3,7 @@ import Foundation
     import Dispatch
 #endif
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 open class RestClient {
 
     // MARK: Public properties
@@ -99,9 +100,9 @@ open class RestClient {
 
     /// Fetches meta information for the Neo4j instance
     ///
-    /// - parameter ClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func metaDescription(_ completionBlock: ClientProtocol.TheoMetaDataCompletionBlock? = nil) -> Void {
+    open func metaDescription(_ completionBlock: RestClientProtocol.TheoMetaDataCompletionBlock? = nil) -> Void {
 
         let metaResource = self.baseURL + "/db/data/"
         let metaURL: URL = URL(string: metaResource)!
@@ -152,9 +153,9 @@ open class RestClient {
     /// Fetches node for a given ID
     ///
     /// - parameter String: nodeID
-    /// - parameter ClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func fetchNode(_ nodeID: String, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    open func fetchNode(_ nodeID: String, completionBlock: RestClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeResource = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: URL = URL(string: nodeResource)!
@@ -192,9 +193,9 @@ open class RestClient {
     /// Saves a new node instance that doesn't have labels
     ///
     /// - parameter Node: node
-    /// - parameter ClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createNode(_ node: Node, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    open func createNode(_ node: Node, completionBlock: RestClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeResource: String = self.baseURL + "/db/data/node"
         let nodeURL: URL = URL(string: nodeResource)!
@@ -244,9 +245,9 @@ open class RestClient {
     ///
     /// - parameter Node: node
     /// - parameter Array<String>: labels
-    /// - parameter ClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createNode(_ node: Node, labels: Array<String>, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    open func createNode(_ node: Node, labels: Array<String>, completionBlock: RestClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         /// Node creation returns node http://neo4j.com/docs/2.3.2/rest-api-nodes.html#rest-api-create-node
         /// However, creating labels doesn't return anything http://neo4j.com/docs/2.3.2/rest-api-node-labels.html#rest-api-adding-a-label-to-a-node in the response, so in the completion block
@@ -336,9 +337,9 @@ open class RestClient {
     ///
     /// - parameter Node: node
     /// - parameter Dictionary<String,String>: properties
-    /// - parameter ClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoMetaDataCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: RestClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
 
         let nodeID: String = "\(node.id)"
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID + "/properties"
@@ -387,9 +388,9 @@ open class RestClient {
     /// Delete node instance. This will fail if there is a set relationship
     ///
     /// - parameter Node: nodeID
-    /// - parameter ClientProtocol.TheoNodeRequestDeleteCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    open func deleteNode(_ nodeID: String, completionBlock: ClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
+    open func deleteNode(_ nodeID: String, completionBlock: RestClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
 
         let nodeResource: String = self.baseURL + "/db/data/node/" + nodeID
         let nodeURL: URL = URL(string: nodeResource)!
@@ -417,9 +418,9 @@ open class RestClient {
     /// - parameter String: nodeID
     /// - parameter String?: direction
     /// - parameter Array<String>?: types
-    /// - parameter ClientProtocol.TheoRelationshipRequestCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoRelationshipRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    open func fetchRelationshipsForNode(_ nodeID: String, direction: String? = nil, types: Array<String>? = nil, completionBlock: ClientProtocol.TheoRelationshipRequestCompletionBlock? = nil) -> Void {
+    open func fetchRelationshipsForNode(_ nodeID: String, direction: String? = nil, types: Array<String>? = nil, completionBlock: RestClientProtocol.TheoRelationshipRequestCompletionBlock? = nil) -> Void {
 
         var relationshipResource: String = self.baseURL + "/db/data/node/" + nodeID
 
@@ -481,9 +482,9 @@ open class RestClient {
     /// Creates a relationship instance
     ///
     /// - parameter Relationship: relationship
-    /// - parameter ClientProtocol..TheoNodeRequestRelationshipCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol..TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    open func createRelationship(_ relationship: Relationship, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
+    open func createRelationship(_ relationship: Relationship, completionBlock: RestClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
         var relationship = relationship
         let fromNode = relationship.fromNode
@@ -524,9 +525,9 @@ open class RestClient {
     ///
     /// - parameter Relationship: relationship
     /// - parameter Dictionary<String,Any>: properties
-    /// - parameter ClientProtocol.TheoNodeRequestRelationshipCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoNodeRequestRelationshipCompletionBlock?: completionBlock
     /// - returns: Void
-    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
+    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: RestClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
 
         let relationshipResource: String = self.baseURL + "/db/data/relationship/\(relationship.id)/properties"
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -560,9 +561,9 @@ open class RestClient {
     /// Deletes a relationship instance for a given ID
     ///
     /// - parameter String: relationshipID
-    /// - parameter ClientProtocol.TheoNodeRequestDeleteCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoNodeRequestDeleteCompletionBlock?: completionBlock
     /// - returns: Void
-    open func deleteRelationship(_ relationshipID: String, completionBlock: ClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
+    open func deleteRelationship(_ relationshipID: String, completionBlock: RestClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
 
         let relationshipResource = self.baseURL + "/db/data/relationship/" + relationshipID
         let relationshipURL: URL = URL(string: relationshipResource)!
@@ -594,9 +595,9 @@ open class RestClient {
     /// Executes raw Neo4j statements
     ///
     /// - parameter Array<Dictionary<String,: Any>> statements
-    /// - parameter ClientProtocol.TheoTransactionCompletionBlock?: completionBlock
+    /// - parameter RestClientProtocol.TheoTransactionCompletionBlock?: completionBlock
     /// - returns: Void
-    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: ClientProtocol.TheoTransactionCompletionBlock? = nil) -> Void {
+    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: RestClientProtocol.TheoTransactionCompletionBlock? = nil) -> Void {
 
         let transactionPayload: Dictionary<String, Array<Any>> = ["statements" : statements as Array<Any>]
         let transactionResource = self.baseURL + "/db/data/transaction/commit"
@@ -636,7 +637,7 @@ open class RestClient {
     /// - parameter String: uri
     /// - parameter TheoRawRequestCompletionBlock?: completionBlock
     /// - returns: Void
-    open func executeRequest(_ uri: String, completionBlock: ClientProtocol.TheoRawRequestCompletionBlock? = nil) -> Void {
+    open func executeRequest(_ uri: String, completionBlock: RestClientProtocol.TheoRawRequestCompletionBlock? = nil) -> Void {
 
         let queryResource: String = self.baseURL + "/db/data" + uri
         let queryURL: URL = URL(string: queryResource)!
@@ -675,7 +676,7 @@ open class RestClient {
     /// - parameter Dictionary<String,Any>: params
     /// - parameter TheoRawRequestCompletionBlock: completionBlock
     /// - returns: Void
-    open func executeCypher(_ query: String, params: Dictionary<String,Any>? = nil, completionBlock: ClientProtocol.TheoCypherQueryCompletionBlock? = nil) -> Void {
+    open func executeCypher(_ query: String, params: Dictionary<String,Any>? = nil, completionBlock: RestClientProtocol.TheoCypherQueryCompletionBlock? = nil) -> Void {
 
         // TODO: need to move this over to use transation http://docs.neo4j.org/chunked/stable/rest-api-cypher.html
 

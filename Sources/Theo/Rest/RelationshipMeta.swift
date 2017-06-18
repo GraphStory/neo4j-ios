@@ -10,6 +10,7 @@ let TheoRelationshipEndKey: String        = "end"
 let TheoRelationshipDataKey: String       = "data"
 let TheoRelationshipMetaDataKey: String   = "metadata"
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 public struct RelationshipMeta: CustomStringConvertible {
 
     let extensions: [String: Any]

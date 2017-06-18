@@ -14,6 +14,7 @@ public struct AllowedHTTPMethods {
     static var DELETE: String = "DELETE"
 }
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 class RestRequest {
 
     // MARK: Lazy properties

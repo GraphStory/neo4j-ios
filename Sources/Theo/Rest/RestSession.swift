@@ -4,6 +4,7 @@ import Foundation
     import Dispatch
 #endif
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 open class Configuration {
 
     fileprivate let requestTimeout: Double  = 10
@@ -41,6 +42,7 @@ open class Configuration {
 // TODO: Move all session request to utilize this delegate.
 // Right now these are NOT called because I'm setting the URLCredential on the
 // session configuration
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 private class TheoTaskRestSessionDelegate: NSObject {
 
     // For RestSession based challenges
@@ -66,6 +68,7 @@ private class TheoTaskRestSessionDelegate: NSObject {
     #endif
 }
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 class RestSession {
 
 

@@ -37,17 +37,18 @@ public struct Relationship {
     //    {
     //      "happy" : false
     //    }
-    // This is initalized to false, but if you are upating then you'll have to
+    // This is initalized to false, but if you are updating then you'll have to
     // toggle it. If you forget then the update will fail with a 400
 
+    @available(*, deprecated, message: "Will be removed in Theo 4.0")
     var updatingProperties: Bool
 
     // MARK: Private Properties
-
     fileprivate (set) var relationshipCreateMeta: [String:Any] = [String:Any]()
+
     fileprivate (set) var relationshipData: [String:Any]       = [String:Any]()
 
-    public let id: UInt64
+    public let id: UInt64?
 
     // MARK: Lazy Properties
 

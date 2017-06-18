@@ -47,7 +47,7 @@ open class BoltClient {
         self.password = password
         self.encrypted = encrypted
 
-        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1.2")
+        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.2.0")
 
         let noConfig = SSLConfiguration(json: [:])
         let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
@@ -218,4 +218,42 @@ open class BoltClient {
         return connection.currentTransactionBookmark
     }
 
+}
+
+extension BoltClient {
+    open func fetchNode(_ nodeID: NodeID, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func createNode(_ node: Node, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func createNode(_ node: Node, labels: Array<String>, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func updateNode(_ node: Node, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func deleteNode(_ nodeID: NodeID, completionBlock: ClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
+    }
+    
+    open func fetchRelationshipsForNode(_ nodeID: NodeID, direction: String? = nil, types: Array<String>? = nil, completionBlock: ClientProtocol.TheoRelationshipRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func createRelationship(_ relationship: Relationship, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
+    }
+    
+    open func updateRelationship(_ relationship: Relationship, properties: Dictionary<String,Any>, completionBlock: ClientProtocol.TheoNodeRequestRelationshipCompletionBlock? = nil) -> Void {
+    }
+    
+    open func deleteRelationship(_ relationshipID: String, completionBlock: ClientProtocol.TheoNodeRequestDeleteCompletionBlock? = nil) -> Void {
+    }
+    
+    open func executeTransaction(_ statements: Array<Dictionary<String, Any>>, completionBlock: ClientProtocol.TheoTransactionCompletionBlock? = nil) -> Void {
+    }
+    
+    open func executeRequest(_ uri: String, completionBlock: ClientProtocol.TheoRawRequestCompletionBlock? = nil) -> Void {
+    }
+    
+    open func executeCypher(_ query: String, params: Dictionary<String,Any>? = nil, completionBlock: ClientProtocol.TheoCypherQueryCompletionBlock? = nil) -> Void {
+    }
 }

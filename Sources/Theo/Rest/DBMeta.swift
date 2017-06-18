@@ -15,6 +15,7 @@ let TheoDBMetaTransactionKey: String       = "transaction"
 let TheoDBMetaNodeLabelsKey: String        = "node_labels"
 let TheoDBMetaNeo4JVersionKey: String      = "neo4j_version"
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 public struct DBMeta {
 
     let extensions: [String: Any]

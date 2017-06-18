@@ -17,6 +17,7 @@ let TheoNodeCreateRelationship: String         = "create_relationship"
 let TheoNodeData: String                       = "data"
 let TheoNodeMetaData: String                   = "metadata"
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 public struct NodeMeta {
 
     // MARK: Internal (properties)

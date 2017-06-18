@@ -7,14 +7,16 @@ public struct Node {
 
     fileprivate (set) var nodeData: [String:Any] = [String:Any]()
     fileprivate (set) var labels: [String] = [String]()
-    public let id: UInt64
+    public let id: UInt64?
 
     // MARK: Constructors
 
+    
     /// Initializer for Rest
     ///
     /// - parameter Dictionary<String,Any>?: data
     /// - returns: Node
+    @available(*, deprecated, message: "Will be removed in Theo 4.0")
     public init(data: Dictionary<String,Any>?) {
 
         if let dictionaryData: [String:Any] = data {
@@ -34,8 +36,13 @@ public struct Node {
         }
     }
 
-
-    public init(id: UInt64, labels: [String], properties: [String: PackProtocol]) {
+    /// Default initializer
+    ///
+    /// - parameter UInt64: id
+    /// - parameter [String]: labels
+    /// - parameter Dictionary<String,Any>?: properties
+    /// - returns: Node
+    public init(id: UInt64?, labels: [String], properties: [String: PackProtocol]) {
         self.id = id
         self.labels = labels
         self.nodeData = properties
@@ -43,11 +50,11 @@ public struct Node {
 
     /// Convenience initializer
     ///
-    /// calls init(data:) with the param value as nil
+    /// calls init(id:labels:properties:) with empty parameter values
     ///
     /// - returns: Node
     public init() {
-        self.init(data: nil)
+        self.init(id: nil, labels: [], properties: [:])
     }
 
     /// A list of available properties for Node
@@ -151,10 +158,26 @@ extension Node: CustomStringConvertible {
 
     public var description: String {
 
-        var returnString: String = ""
+        var returnString: String = "["
+        var comma = false
+        for label in labels {
+            if comma {
+                returnString += ", \(label)"
+            } else {
+                returnString += "\(label)"
+                comma = true
+            }
+        }
+        returnString += "] "
 
+        comma = false
         for (key, value) in self.nodeData {
-            returnString += "\(key): \(value) "
+            if comma {
+                returnString += ", \(key): \(value)"
+            } else {
+                returnString += "\(key): \(value)"
+                comma = true
+            }
         }
 
         return returnString

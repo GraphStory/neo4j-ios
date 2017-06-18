@@ -3,6 +3,7 @@ import Foundation
 let TheoCypherColumns: String = "columns"
 let TheoCypherData: String    = "data"
 
+@available(*, deprecated, message: "Will be removed in Theo 4.0")
 public struct CypherMeta {
 
     // MARK: Internal (properties)
