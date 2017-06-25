@@ -1,6 +1,7 @@
 import Foundation
 import PackStream
 import Bolt
+import Result
 
 #if os(Linux)
 import Dispatch
@@ -61,6 +62,11 @@ open class BoltClient {
         self.connection = Connection(
             socket: socket,
             settings: settings)
+    }
+    
+    public enum BoltClientError: Error {
+        case notImplemented // TODO: Remove me
+        case syntaxError(message: String)
     }
 
     public func connect(completionBlock: ((Bool) -> ())? = nil) throws {
@@ -167,42 +173,75 @@ open class BoltClient {
 
     }
 
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil) throws -> Bool {
+    public typealias QueryMetaResult = [Bolt.Response]
+    public typealias QueryResult = [Bolt.Response]
+    
+    
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> Result<(QueryMetaResult, QueryResult), BoltClientError> {
 
         var success = false
-
+        
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
-
+        
+        var queryMetaResult: QueryMetaResult? = nil
+        var queryResult: QueryResult? = nil
+        
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
-
-        try connection.request(cypherRequest) { (theSuccess, response) in
-            success = theSuccess
-
-            if theSuccess == true {
-                let pullRequest = BoltRequest.pullAll()
-                try self.connection.request(pullRequest) { (theSuccess, response) in
-
-                    success = theSuccess
-                    if let currentTransaction = self.currentTransaction,
-                        theSuccess == false {
+        do {
+            try connection.request(cypherRequest) { (theSuccess, response) in
+                queryMetaResult = response
+                success = theSuccess
+                
+                if theSuccess == true {
+                    let pullRequest = BoltRequest.pullAll()
+                    try self.connection.request(pullRequest) { (theSuccess, response) in
+                        queryResult = response
+                        success = theSuccess
+                        
+                        if let currentTransaction = self.currentTransaction,
+                            theSuccess == false {
+                            currentTransaction.markAsFailed()
+                        }
+                        
+                        dispatchGroup.leave()
+                    }
+                    
+                } else {
+                    if let currentTransaction = self.currentTransaction {
                         currentTransaction.markAsFailed()
                     }
-
                     dispatchGroup.leave()
                 }
-
-            } else {
-                if let currentTransaction = self.currentTransaction {
-                    currentTransaction.markAsFailed()
-                }
-                dispatchGroup.leave()
             }
+            
+            dispatchGroup.wait()
+        } catch (let error as Response.ResponseError) {
+            
+            switch error {
+            case let .syntaxError(message: message):
+                return .failure(BoltClientError.syntaxError(message: message))
+            default:
+                print(error)
+                assert(false)
+                return .failure(BoltClientError.notImplemented) // TODO: Return proper error
+                
+            }
+            
+        } catch (let error) {
+            print(error)
+            assert(false)
+            return .failure(BoltClientError.notImplemented) // TODO: Return proper error
+
         }
 
-        dispatchGroup.wait()
-
-        return success
+        if success,
+            let queryMetaResult = queryMetaResult,
+            let queryResult = queryResult {
+            return .success((queryMetaResult, queryResult))
+        } else {
+            return .failure(BoltClientError.notImplemented)
+        }
     }
 
     public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Bool) throws -> ())) throws -> Void {

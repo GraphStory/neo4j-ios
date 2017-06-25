@@ -34,9 +34,21 @@ class Theo_001_BoltClientTests: XCTestCase {
         let exp = self.expectation(description: "testSucceedingTransaction")
 
         try client.executeAsTransaction() { (tx) in
-            XCTAssertTrue(try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})"))
-            XCTAssertTrue(try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n"))
-            XCTAssertTrue(try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n"))
+            var result = client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
+            if case .failure(_) = result {
+                XCTFail()
+            }
+            
+            result = client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n")
+            if case .failure(_) = result {
+                XCTFail()
+            }
+
+            result = client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n")
+            if case .failure(_) = result {
+                XCTFail()
+            }
+
             exp.fulfill()
         }
 
@@ -50,15 +62,23 @@ class Theo_001_BoltClientTests: XCTestCase {
         let exp = self.expectation(description: "testFailingTransaction")
 
         try client.executeAsTransaction() { (tx) in
-            do {
-                XCTAssertTrue(try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})"))
-                XCTAssertTrue(try client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n"))
-                let fail = try client.executeCypher("MAXXXTCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n")
-                XCTAssertFalse(fail)
-            } catch {
-                tx.markAsFailed()
+            var result = client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
+            if case .failure(_) = result {
+                XCTFail()
             }
-
+            
+            result = client.executeCypher("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n")
+            if case .failure(_) = result {
+                XCTFail()
+            }
+            
+            result = client.executeCypher("MAXXXTCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n")
+            if case .failure(_) = result {
+                tx.markAsFailed()
+            } else {
+                XCTFail()
+            }
+            
             XCTAssertFalse(tx.succeed)
             exp.fulfill()
         }
@@ -88,7 +108,10 @@ class Theo_001_BoltClientTests: XCTestCase {
         let exp = self.expectation(description: "testTransactionResultsInBookmark")
 
         try client.executeAsTransaction() { (tx) in
-            XCTAssertTrue(try client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})"))
+            let result = client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})")
+            if case .failure(_) = result {
+                XCTFail()
+            }
 
             exp.fulfill()
         }
@@ -139,9 +162,11 @@ class Theo_001_BoltClientTests: XCTestCase {
         // Now lets run the actual test
 
         try client.executeAsTransaction() { (tx) in
-            let success = try client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
-                                                   params: ["name": "Arthur", "title": "King"])
-            XCTAssertTrue(success)
+            let result = client.executeCypher("CREATE (a:Person {name: {name}, title: {title}})",
+                                               params: ["name": "Arthur", "title": "King"])
+            if case .failure(_) = result {
+                XCTFail()
+            }
 
 
             try client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
