@@ -337,7 +337,12 @@ class RestRequest {
 
         let nsRange = NSMakeRange(200, 100)
 
-        return IndexSet(integersIn: nsRange.toRange() ?? 0..<0)
+        #if swift(>=4.0)
+            let range = Range(nsRange) ?? 0..<0
+            return IndexSet(integersIn: range)
+        #elseif swift(>=3.0)
+            return IndexSet(integersIn: nsRange.toRange() ?? 0..<0)
+        #endif
     }
 
     // MARK: Private Methods
