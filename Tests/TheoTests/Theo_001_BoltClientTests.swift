@@ -95,7 +95,15 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         if let bookmark = client.getBookmark() {
             XCTAssertNotEqual("", bookmark)
-            XCTAssertEqual("neo4j:bookmark:v1", bookmark.substring(to: bookmark.index(bookmark.startIndex, offsetBy: 17)))
+
+            #if swift(>=4.0)
+                let endIndex = bookmark.index(bookmark.startIndex, offsetBy: 17)
+                let substring = bookmark[..<endIndex]
+                XCTAssertEqual("neo4j:bookmark:v1", String(substring))
+            #elseif swift(>=3.0)
+                XCTAssertEqual("neo4j:bookmark:v1", bookmark.substring(to: bookmark.index(bookmark.startIndex, offsetBy: 17)))
+            #endif
+
         } else {
             XCTFail("Bookmark should not be nil")
         }
