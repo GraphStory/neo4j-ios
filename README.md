@@ -25,7 +25,7 @@ find a bug please file an issue or issue a PR for any features or fixes.
 ## Installation
 You can install Theo in a number of ways
 
-###Swift Package Manager
+### Swift Package Manager
 Add the following line to your Package dependencies array:
 
 ```swift
@@ -33,7 +33,7 @@ Add the following line to your Package dependencies array:
 ```
 Run `swift build` to build your project, now with Theo included and ready to be used from your source
 
-###CococaPods
+### CococaPods
 Add the following to your Podfile:
 
 ```ruby
@@ -47,7 +47,7 @@ end
 ```
 Run `pod install` to configure your updated workspace. Open the .xcworkspace generated, your project is now ready to use Theo
 
-###Carthage
+### Carthage
 Add the following to your Cartfile:
 
 ```ogdl
@@ -55,7 +55,7 @@ github "GraphStory/neo4j-ios" ~> 3.1
 ```
 Run `carthage update --platform iOS` to build the framework and drag the built `Theo.framework` into your Xcode project.
 
-###git submodule
+### git submodule
 
   1. Add it as a submodule to your existing project. `git submodule add git@github.com:GraphStory/neo4j-ios.git`
   2. Open the Theo folder, and drag Theo.xcodeproj into the file navigator of your Xcode project.
