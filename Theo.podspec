@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Theo"
-  s.version      = "3.1.2"
+  s.version      = "4.0.0"
   s.summary      = "Open Source Neo4j library for iOS"
 
   s.description  = <<-DESC
@@ -25,9 +25,8 @@ DESC
   
   s.ios.deployment_target = "10.0"
   s.osx.deployment_target = "10.12"
-  s.watchos.deployment_target = "3.0"
   s.tvos.deployment_target = "10.0"
   
-  s.dependency 'BoltProtocol', '~> 0.9.0'
+  s.dependency 'BoltProtocol', '~> 4.0.0'
   
 end

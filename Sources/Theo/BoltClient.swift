@@ -1,6 +1,8 @@
 import Foundation
 import PackStream
 import Bolt
+import Result
+import Socket
 
 #if os(Linux)
 import Dispatch
@@ -63,48 +65,96 @@ open class BoltClient {
             settings: settings)
     }
 
-    public func connect(completionBlock: ((Bool) -> ())? = nil) throws {
+    public func connect(completionBlock: ((Result<Bool, Socket.Error>) -> ())? = nil) {
 
-        if let completionBlock = completionBlock {
-            try self.connection.connect { (success) in
-                completionBlock(success)
+        do {
+            try self.connection.connect { (connected) in
+                completionBlock?(.success(connected))
             }
+        } catch let error as Socket.Error {
+            completionBlock?(.failure(error))
+        } catch let error {
+            print("Unhandled error while connecting: \(error.localizedDescription)")
         }
-
-        else {
-            let dispatchGroup = DispatchGroup()
-            dispatchGroup.enter()
-            try self.connection.connect { (success) in
-                dispatchGroup.leave()
-            }
-            dispatchGroup.wait()
-        }
-
     }
 
+    public func connectSync() -> Result<Bool, Socket.Error> {
 
-    private func pullSynchronouslyAndIgnore() throws {
+        var theResult: Result<Bool, Socket.Error>! = nil
         let dispatchGroup = DispatchGroup()
-        let pullRequest = BoltRequest.pullAll()
         dispatchGroup.enter()
-        try self.connection.request(pullRequest) { (success, response) in
+        connect() { result in
+            theResult = result
+            dispatchGroup.leave()
+        }
+        dispatchGroup.wait()
+        return theResult
+    }
 
-            if let bookmark = self.getBookmark() {
-                currentTransaction?.bookmark = bookmark
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<Bool, Socket.Error>) -> ())? = nil) {
+
+        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
+
+        do {
+            try connection.request(cypherRequest) { (successResponse, response) in
+                completionBlock?(.success(successResponse))
+
+                //TODO: Handle response object
+            }
+
+        } catch let error as Socket.Error {
+            completionBlock?(.failure(error))
+        } catch let error {
+            print("Unhandled error while executing cypher: \(error.localizedDescription)")
+        }
+    }
+
+    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<[Response], Socket.Error>) {
+
+        var theResult: Result<[Response], Socket.Error>! = nil
+        let dispatchGroup = DispatchGroup()
+
+        // Perform query
+        dispatchGroup.enter()
+        executeCypher(query, params: params) { result in
+            switch result {
+            case let .failure(error):
+                print("Error: \(error)")
+                theResult = .failure(error)
+            case let .success(isSuccess):
+                if isSuccess == false {
+                    print("Query not successful")
+                }
             }
             dispatchGroup.leave()
         }
         dispatchGroup.wait()
-
-    }
-
-    public func pullAll(completionBlock: (Bool, [Response]) -> ()) throws {
-        let pullRequest = BoltRequest.pullAll()
-        try self.connection.request(pullRequest) { (success, response) in
-            completionBlock(success, response)
+        if theResult != nil {
+            return theResult
         }
 
+        // Stream and parse results
+        dispatchGroup.enter()
+        pullAll() { result in
+            switch result {
+            case let .failure(error):
+                print("Error: \(error)")
+                theResult = .failure(error)
+            case let .success(isSuccess, results):
+                if isSuccess == false {
+                    print("Query not successful")
+                } else {
+                    theResult = .success(results)
+                }
+            }
+
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.wait()
+        return theResult
     }
+
 
     public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction) throws -> ()) throws {
 
@@ -115,7 +165,7 @@ open class BoltClient {
             if succeed {
                 let commitRequest = BoltRequest.run(statement: "COMMIT", parameters: Map(dictionary: [:]))
                 try self.connection.request(commitRequest) { (success, response) in
-                    try self.pullSynchronouslyAndIgnore()
+                    self.pullSynchronouslyAndIgnore()
                     if !success {
                         print("Error committing transaction: \(response)")
                     }
@@ -126,7 +176,7 @@ open class BoltClient {
 
                 let rollbackRequest = BoltRequest.run(statement: "ROLLBACK", parameters: Map(dictionary: [:]))
                 try self.connection.request(rollbackRequest) { (success, response) in
-                    try self.pullSynchronouslyAndIgnore()
+                    self.pullSynchronouslyAndIgnore()
                     if !success {
                         print("Error rolling back transaction: \(response)")
                     }
@@ -145,7 +195,7 @@ open class BoltClient {
         try connection.request(beginRequest) { (success, response) in
             if success {
 
-                try pullSynchronouslyAndIgnore()
+                pullSynchronouslyAndIgnore()
 
                 try transactionBlock(transaction)
                 if transaction.autocommit == true {
@@ -163,55 +213,38 @@ open class BoltClient {
         transactionGroup.wait()
     }
 
-    public func executeTransaction(parameteredQueries: [QueryWithParameters], completionBlock: ClientProtocol.TheoCypherQueryCompletionBlock? = nil) -> Void {
-
-    }
-
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil) throws -> Bool {
-
-        var success = false
-
+    private func pullSynchronouslyAndIgnore() {
         let dispatchGroup = DispatchGroup()
+        let pullRequest = BoltRequest.pullAll()
         dispatchGroup.enter()
+        do {
+            try self.connection.request(pullRequest) { (success, response) in
 
-        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
-
-        try connection.request(cypherRequest) { (theSuccess, response) in
-            success = theSuccess
-
-            if theSuccess == true {
-                let pullRequest = BoltRequest.pullAll()
-                try self.connection.request(pullRequest) { (theSuccess, response) in
-
-                    success = theSuccess
-                    if let currentTransaction = self.currentTransaction,
-                        theSuccess == false {
-                        currentTransaction.markAsFailed()
-                    }
-
-                    dispatchGroup.leave()
-                }
-
-            } else {
-                if let currentTransaction = self.currentTransaction {
-                    currentTransaction.markAsFailed()
+                if let bookmark = self.getBookmark() {
+                    currentTransaction?.bookmark = bookmark
                 }
                 dispatchGroup.leave()
             }
+        } catch let error {
+            print("Unhandled error while pulling to ignore all response data: \(error.localizedDescription)")
+            dispatchGroup.leave()
         }
-
         dispatchGroup.wait()
 
-        return success
     }
 
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Bool) throws -> ())) throws -> Void {
-
-        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
-
-        try connection.request(cypherRequest) { (success, response) in
-            try completionBlock(success)
+    public func pullAll(completionBlock: ((Result<(Bool, [Response]), Socket.Error>) -> ())? = nil) {
+        let pullRequest = BoltRequest.pullAll()
+        do {
+            try self.connection.request(pullRequest) { (successResponse, response) in
+            completionBlock?(.success((successResponse, response)))
         }
+        } catch let error as Socket.Error {
+            completionBlock?(.failure(error))
+        } catch let error {
+            print("Unhandled error while pulling all response data: \(error.localizedDescription)")
+        }
+
     }
 
     public func getBookmark() -> String? {
