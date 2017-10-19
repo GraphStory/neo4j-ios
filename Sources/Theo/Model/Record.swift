@@ -1,5 +1,5 @@
 import Foundation
 
-class Reord  {
+class Reord: ResponseItem  {
 
 }

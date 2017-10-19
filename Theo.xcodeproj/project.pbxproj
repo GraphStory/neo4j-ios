@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		85536BAF1F96A52A0090A0B5 /* QueryResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85536BAD1F96A5030090A0B5 /* QueryResult.swift */; };
 		85FADDC01F8EB10200A3B834 /* QueryStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FADDBE1F8EAE4E00A3B834 /* QueryStats.swift */; };
 		85FADDC21F8EB54800A3B834 /* QuerySummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FADDC11F8EB54800A3B834 /* QuerySummary.swift */; };
 		85FADDC41F924A9600A3B834 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FADDC31F924A9600A3B834 /* Node.swift */; };
@@ -201,6 +202,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		85536BAD1F96A5030090A0B5 /* QueryResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryResult.swift; sourceTree = "<group>"; };
 		85FADDBE1F8EAE4E00A3B834 /* QueryStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryStats.swift; sourceTree = "<group>"; };
 		85FADDC11F8EB54800A3B834 /* QuerySummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuerySummary.swift; sourceTree = "<group>"; };
 		85FADDC31F924A9600A3B834 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 				85FADDC51F924AEB00A3B834 /* Relationship.swift */,
 				85FADDC71F924B7D00A3B834 /* Path.swift */,
 				85FADDC91F924E0500A3B834 /* Record.swift */,
+				85536BAD1F96A5030090A0B5 /* QueryResult.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -828,6 +831,7 @@
 				OBJ_166 /* DecodableType.swift in Sources */,
 				85FADDC61F924AEB00A3B834 /* Relationship.swift in Sources */,
 				OBJ_167 /* Dictionary+Extensions.swift in Sources */,
+				85536BAF1F96A52A0090A0B5 /* QueryResult.swift in Sources */,
 				OBJ_168 /* Errors.swift in Sources */,
 				OBJ_169 /* NSDictionary+Extensions.swift in Sources */,
 				OBJ_170 /* StringProtocol.swift in Sources */,
@@ -1148,7 +1152,7 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGET_NAME = Result;
 			};
 			name = Debug;
@@ -1170,7 +1174,7 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGET_NAME = Result;
 			};
 			name = Release;
@@ -1192,7 +1196,7 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGET_NAME = Bolt;
 			};
 			name = Debug;
@@ -1214,7 +1218,7 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TARGET_NAME = Bolt;
 			};
 			name = Release;

@@ -91,13 +91,13 @@ open class BoltClient {
         return theResult
     }
 
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<Bool, Socket.Error>) -> ())? = nil) {
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, [Response]), Socket.Error>) -> ())? = nil) {
 
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
 
         do {
             try connection.request(cypherRequest) { (successResponse, response) in
-                completionBlock?(.success(successResponse))
+                completionBlock?(.success((successResponse, response)))
 
                 //TODO: Handle response object
             }
@@ -109,21 +109,25 @@ open class BoltClient {
         }
     }
 
-    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<[Response], Socket.Error>) {
+    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, Socket.Error>) {
 
-        var theResult: Result<[Response], Socket.Error>! = nil
+        var theResult: Result<QueryResult, Socket.Error>! = nil
         let dispatchGroup = DispatchGroup()
 
         // Perform query
         dispatchGroup.enter()
+        var partialResult: QueryResult? = nil
         executeCypher(query, params: params) { result in
             switch result {
             case let .failure(error):
                 print("Error: \(error)")
                 theResult = .failure(error)
-            case let .success(isSuccess):
+            case let .success((isSuccess, responses)):
                 if isSuccess == false {
                     print("Query not successful")
+                } else {
+                    partialResult = self.parseResponses(responses: responses)
+
                 }
             }
             dispatchGroup.leave()
@@ -140,11 +144,12 @@ open class BoltClient {
             case let .failure(error):
                 print("Error: \(error)")
                 theResult = .failure(error)
-            case let .success(isSuccess, results):
+            case let .success(isSuccess, responses):
                 if isSuccess == false {
                     print("Query not successful")
                 } else {
-                    theResult = .success(results)
+                    let parsedResponses = self.parseResponses(responses: responses, result: partialResult ?? QueryResult())
+                    theResult = .success(parsedResponses)
                 }
             }
 
@@ -153,6 +158,79 @@ open class BoltClient {
 
         dispatchGroup.wait()
         return theResult
+    }
+    
+    
+    
+    private func parseResponses(responses: [Response], result: QueryResult = QueryResult()) -> QueryResult {
+        let fields = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["fields"] }.first as? List)?.items.flatMap { $0 as? String }
+        if let fields = fields {
+            result.fields = fields
+        }
+        
+        let stats = responses.flatMap { $0.items.flatMap { $0 as? Map }.flatMap { QueryStats(data: $0) } }.first
+        if let stats = stats {
+            result.stats = stats
+        }
+        
+        if let resultAvailableAfter = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["result_available_after"] }.first?.uintValue()) {
+            result.stats.resultAvailableAfter = resultAvailableAfter
+        }
+        
+        if let resultConsumedAfter = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["result_consumed_after"]?.uintValue()) {
+            result.stats.resultConsumedAfter = resultConsumedAfter
+        }
+        
+        if let type = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["type"] as? String) {
+            result.stats.type = type
+        }
+
+        
+        
+        let candidateList = responses.flatMap { $0.items.flatMap { ($0 as? List)?.items } }.reduce( [], +)
+        var nodes = [UInt64:Node]()
+        var relationships = [UInt64:Relationship]()
+        var paths = [Path]()
+        var responseItemDicts = [[String:ResponseItem]]()
+        var responseItemDict = [String:ResponseItem]()
+        
+        for i in 0..<candidateList.count {
+            if i > 0 && i % result.fields.count == 0 {
+                responseItemDicts.append(responseItemDict)
+                responseItemDict = [String:ResponseItem]()
+            }
+            
+            let field = result.fields[i % result.fields.count]
+            let candidate = candidateList[i]
+
+            if let node = Node(data: candidate) {
+                if let nodeId = node.id {
+                    nodes[nodeId] = node
+                }
+                responseItemDict[field] = node
+            }
+            
+            else if let relationship = Relationship(data: candidate) {
+                if let relationshipId = relationship.id {
+                    relationships[relationshipId] = relationship
+                }
+                responseItemDict[field] = relationship
+            }
+            
+            else if let path = Path(data: candidate) {
+                paths.append(path)
+                responseItemDict[field] = path
+            }
+        }
+        responseItemDicts.append(responseItemDict)
+
+        result.nodes.merge(nodes) { (n, _) -> Node in return n }
+        result.relationships.merge(relationships) { (r, _) -> Relationship in return r }
+        result.paths += paths
+        result.responseItemDicts += responseItemDicts
+        
+        return result
+
     }
 
 

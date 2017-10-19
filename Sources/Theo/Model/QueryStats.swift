@@ -2,35 +2,50 @@ import Foundation
 import Bolt
 import PackStream
 
-public struct QueryStats {
+public class QueryStats {
 
-    public let propertiesSetCount: UInt64
-    public let labelsAddedCount: UInt64
-    public let nodesCreatedCount: UInt64
+    public var propertiesSetCount: UInt64
+    public var labelsAddedCount: UInt64
+    public var nodesCreatedCount: UInt64
+    
+    public var resultAvailableAfter: UInt64
+    public var resultConsumedAfter: UInt64
+    public var type: String
 
-    init(response: Response) {
+    init(propertiesSetCount: UInt64 = 0,
+         labelsAddedCount: UInt64 = 0,
+         nodesCreatedCount: UInt64 = 0,
+         resultAvailableAfter: UInt64 = 0,
+         resultConsumedAfter: UInt64 = 0,
+         type: String = "") {
+        
+        self.propertiesSetCount = propertiesSetCount
+        self.labelsAddedCount = labelsAddedCount
+        self.nodesCreatedCount = nodesCreatedCount
+        self.resultAvailableAfter = resultAvailableAfter
+        self.resultConsumedAfter = resultConsumedAfter
+        self.type = type
+    }
+    
+    init?(data: PackProtocol) {
 
-        var setPSC: UInt64 = 0
-        var setLAC: UInt64 = 0
-        var setNCC: UInt64 = 0
-
-        for item in response.items {
-            if let map = item as? Map,
-               let stats = map.dictionary["stats"] as? Map,
-               let propertiesSetCount = stats.dictionary["properties-set"]?.uintValue(),
-               let labelsAddedCount = stats.dictionary["labels-added"]?.uintValue(),
-               let nodesCreatedCount = stats.dictionary["nodes-created"]?.uintValue() {
-
-                setPSC = propertiesSetCount
-                setLAC = labelsAddedCount
-                setNCC = nodesCreatedCount
-                break
-            }
+        if let map = data as? Map,
+            let stats = map.dictionary["stats"] as? Map,
+            let propertiesSetCount = stats.dictionary["properties-set"]?.uintValue(),
+            let labelsAddedCount = stats.dictionary["labels-added"]?.uintValue(),
+            let nodesCreatedCount = stats.dictionary["nodes-created"]?.uintValue() {
+            
+            self.propertiesSetCount = propertiesSetCount
+            self.labelsAddedCount = labelsAddedCount
+            self.nodesCreatedCount = nodesCreatedCount
+            
+            self.resultAvailableAfter = 0
+            self.resultConsumedAfter = 0
+            self.type = "N/A"
+        } else {
+            return nil
         }
-
-        self.propertiesSetCount = setPSC
-        self.labelsAddedCount = setLAC
-        self.nodesCreatedCount = setNCC
+        
     }
 
 

@@ -81,7 +81,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let exp = self.expectation(description: "testNodeResult")
 
-        XCTAssertTrue(try client.executeCypherSync("MATCH (n:TheoTestNode { foo: \"bar\", baz: 3}) RETURN n").isSuccess)
+        XCTAssertTrue(client.executeCypherSync("CREATE (n:TheoTestNodeWithALongLabel { foo: \"bar\", baz: 3}) RETURN n").isSuccess)
         exp.fulfill()
 
         self.waitForExpectations(timeout: 10, handler: { error in
@@ -100,7 +100,7 @@ class Theo_001_BoltClientTests: XCTestCase {
                     RETURN b,r,e
                     """
 
-        XCTAssertTrue(try client.executeCypherSync(query).isSuccess)
+        XCTAssertTrue(client.executeCypherSync(query).isSuccess)
         exp.fulfill()
 
         self.waitForExpectations(timeout: 10, handler: { error in
@@ -122,9 +122,9 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         queries.append(
                    """
-                      MATCH  (you:Person {name:"You"})
-                      CREATE (you)-[like:LIKE]->(neo:Database {name:"Neo4j" })
-                      RETURN you,like,neo
+                      MATCH  (you22:Person {name:"You"})
+                      CREATE (you22)-[like33:LIKE]->(neo44:Database {name:"Neo4j" })
+                      RETURN you22,like33,neo44
                    """)
 
         queries.append(
@@ -157,7 +157,7 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         for query in queries {
             print(query)
-            XCTAssertTrue(try client.executeCypherSync(query).isSuccess)
+            XCTAssertTrue(client.executeCypherSync(query).isSuccess)
 
         }
         exp.fulfill()
@@ -309,6 +309,7 @@ class Theo_001_BoltClientTests: XCTestCase {
                     case .failure(_):
                         XCTFail("Failed to pull response data")
                     case let.success((success, response)):
+                        XCTAssertTrue(success)
                         XCTAssertTrue(result.isSuccess)
                         XCTAssertEqual(numberOfKingArthurs + 2, response.count)
 
