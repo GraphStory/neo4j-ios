@@ -19,7 +19,9 @@ public class Relationship: ResponseItem {
     public var name: String
 
     public var fromNodeId: UInt64
+    public var fromNode: Node?
     public var toNodeId: UInt64
+    public var toNode: Node?
     public var type: RelationshipType
 
     public init?(fromNode: Node, toNode: Node, name: String, type: RelationshipType) {

@@ -225,7 +225,16 @@ open class BoltClient {
         responseItemDicts.append(responseItemDict)
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
-        result.relationships.merge(relationships) { (r, _) -> Relationship in return r }
+        
+        let mapper: (UInt64, Relationship) -> (UInt64, Relationship) = { (key: UInt64, rel: Relationship) in
+            rel.fromNode = nodes[rel.fromNodeId]
+            rel.toNode = nodes[rel.toNodeId]
+            return (key, rel)
+        }
+        
+        let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.map(mapper))
+        result.relationships.merge(updatedRelationships) { (r, _) -> Relationship in return r }
+        
         result.paths += paths
         result.responseItemDicts += responseItemDicts
         

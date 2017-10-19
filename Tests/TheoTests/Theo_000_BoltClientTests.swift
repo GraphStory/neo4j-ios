@@ -122,9 +122,9 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         queries.append(
                    """
-                      MATCH  (you22:Person {name:"You"})
-                      CREATE (you22)-[like33:LIKE]->(neo44:Database {name:"Neo4j" })
-                      RETURN you22,like33,neo44
+                      MATCH  (you:Person {name:"You"})
+                      CREATE (you)-[like:LIKE]->(neo:Database {name:"Neo4j" })
+                      RETURN you,like,neo
                    """)
 
         queries.append(
