@@ -227,8 +227,29 @@ class Theo_001_BoltClientTests: XCTestCase {
         let exp = self.expectation(description: "testTransactionResultsInBookmark")
 
         try client.executeAsTransaction() { (tx) in
-            client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})") {
-                XCTAssertTrue($0.isSuccess)
+            client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})") { result in
+                var partialQueryResult: QueryResult? = nil
+                switch result {
+                case let .failure(error):
+                    print("Error in cypher: \(error)")
+                case let .success((success, _partialQueryResult)):
+                    if success {
+                        partialQueryResult = _partialQueryResult
+                        client.pullAll() { result in
+                            switch result {
+                            case let .failure(error):
+                                print("Error in cypher: \(error)")
+                            case let .success((success, responses)):
+                                print("So how does responses pair with paritalQueryResult?")
+                            }
+                        }
+                    } else {
+                        print("Query failed somehow")
+                    }
+                    
+                }
+                
+                XCTAssertTrue(result.isSuccess)
             }
 
             exp.fulfill()

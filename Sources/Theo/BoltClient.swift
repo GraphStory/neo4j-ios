@@ -91,27 +91,28 @@ open class BoltClient {
         return theResult
     }
 
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, [Response]), Socket.Error>) -> ())? = nil) {
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
 
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
 
         do {
             try connection.request(cypherRequest) { (successResponse, response) in
-                completionBlock?(.success((successResponse, response)))
-
-                //TODO: Handle response object
+                let queryResponse = parseResponses(responses: response)
+                completionBlock?(.success((successResponse, queryResponse)))
             }
 
         } catch let error as Socket.Error {
-            completionBlock?(.failure(error))
+            completionBlock?(.failure(AnyError(error)))
+        } catch let error as Response.ResponseError {
+            completionBlock?(.failure(AnyError(error)))
         } catch let error {
             print("Unhandled error while executing cypher: \(error.localizedDescription)")
         }
     }
 
-    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, Socket.Error>) {
+    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, AnyError>) {
 
-        var theResult: Result<QueryResult, Socket.Error>! = nil
+        var theResult: Result<QueryResult, AnyError>! = nil
         let dispatchGroup = DispatchGroup()
 
         // Perform query
@@ -122,12 +123,11 @@ open class BoltClient {
             case let .failure(error):
                 print("Error: \(error)")
                 theResult = .failure(error)
-            case let .success((isSuccess, responses)):
+            case let .success((isSuccess, _partialResult)):
                 if isSuccess == false {
                     print("Query not successful")
                 } else {
-                    partialResult = self.parseResponses(responses: responses)
-
+                    partialResult = _partialResult
                 }
             }
             dispatchGroup.leave()
@@ -320,16 +320,17 @@ open class BoltClient {
 
     }
 
-    public func pullAll(completionBlock: ((Result<(Bool, [Response]), Socket.Error>) -> ())? = nil) {
+    public func pullAll(completionBlock: ((Result<(Bool, [Response]), AnyError>) -> ())? = nil) {
         let pullRequest = BoltRequest.pullAll()
         do {
             try self.connection.request(pullRequest) { (successResponse, response) in
             completionBlock?(.success((successResponse, response)))
         }
         } catch let error as Socket.Error {
-            completionBlock?(.failure(error))
+            completionBlock?(.failure(AnyError(error)))
         } catch let error {
-            print("Unhandled error while pulling all response data: \(error.localizedDescription)")
+            completionBlock?(.failure(AnyError(error)))
+            print("Unexpected error while pulling all response data: \(error.localizedDescription)")
         }
 
     }
