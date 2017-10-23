@@ -200,45 +200,63 @@ open class BoltClient {
                 responseItemDict = [String:ResponseItem]()
             }
             
-            let field = result.fields[i % result.fields.count]
+            let field = result.fields.count > 0 ? result.fields[i % result.fields.count] : nil
             let candidate = candidateList[i]
 
             if let node = Node(data: candidate) {
                 if let nodeId = node.id {
                     nodes[nodeId] = node
                 }
-                responseItemDict[field] = node
+
+                if let field = field {
+                    responseItemDict[field] = node
+                }
             }
             
             else if let relationship = Relationship(data: candidate) {
                 if let relationshipId = relationship.id {
                     relationships[relationshipId] = relationship
                 }
-                responseItemDict[field] = relationship
+                
+                if let field = field {
+                    responseItemDict[field] = relationship
+                }
             }
             
             else if let path = Path(data: candidate) {
                 paths.append(path)
-                responseItemDict[field] = path
+                
+                if let field = field {
+                    responseItemDict[field] = path
+                }
             }
             
             else if let record = candidate.uintValue() {
-                responseItemDict[field] = record
+                if let field = field {
+                    responseItemDict[field] = record
+                }
             }
                 
             else if let record = candidate.intValue() {
-                responseItemDict[field] = record
+                if let field = field {
+                    responseItemDict[field] = record
+                }
             }
                 
             else if let record = candidate as? ResponseItem {
-                responseItemDict[field] = record
+                if let field = field {
+                    responseItemDict[field] = record
+                }
             }
                 
             else {
                 let record = Record(entry: candidate)
-                responseItemDict[field] = record
+                if let field = field {
+                    responseItemDict[field] = record
+                }
             }
         }
+
         if responseItemDict.count > 0 {
             responseItemDicts.append(responseItemDict)
         }
