@@ -167,6 +167,38 @@ class Theo_001_BoltClientTests: XCTestCase {
         })
     }
 
+    func testSetOfQueries() throws {
+        
+        let client = try makeClient()
+        let exp = self.expectation(description: "testSetOfQueries")
+        var queries = [String]()
+        
+        queries.append(
+            """
+              CREATE (you:Person {name:"You", weight: 80})
+              RETURN you.name, sum(you.weight) as singleSum
+            """)
+        
+        queries.append(
+            """
+              MATCH (you:Person {name:"You"})
+              RETURN you.name, sum(you.weight) as allSum, you
+            """)
+        
+
+        for query in queries {
+            print(query)
+            XCTAssertTrue(client.executeCypherSync(query).isSuccess)
+            
+        }
+        exp.fulfill()
+        
+        self.waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error)
+        })
+    }
+
+    
     func testSucceedingTransactionSync() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testSucceedingTransaction")
@@ -347,6 +379,10 @@ class Theo_001_BoltClientTests: XCTestCase {
     }
 
     static var allTests = [
+        ("testNodeResult", testNodeResult),
+        ("testRelationshipResult", testRelationshipResult),
+        ("testIntroToCypher", testIntroToCypher),
+        ("testSetOfQueries", testSetOfQueries),
         ("testSucceedingTransactionSync", testSucceedingTransactionSync),
         ("testFailingTransactionSync", testFailingTransactionSync),
         ("testCancellingTransaction", testCancellingTransaction),

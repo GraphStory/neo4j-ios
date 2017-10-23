@@ -533,6 +533,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_189 /* Build configuration list for PBXNativeTarget "Bolt" */;
 			buildPhases = (
+				85B6E1C31F9E6F2900AC7B46 /* TODOs */,
 				OBJ_192 /* Sources */,
 				OBJ_202 /* Frameworks */,
 			);
@@ -566,6 +567,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_225 /* Build configuration list for PBXNativeTarget "PackStream" */;
 			buildPhases = (
+				85B6E1C41F9E6F3700AC7B46 /* TODOs */,
 				OBJ_228 /* Sources */,
 				OBJ_239 /* Frameworks */,
 			);
@@ -701,6 +703,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_149 /* Build configuration list for PBXNativeTarget "Theo" */;
 			buildPhases = (
+				85B6E1C21F9E6EDB00AC7B46 /* TODOs */,
 				OBJ_152 /* Sources */,
 				OBJ_171 /* Frameworks */,
 			);
@@ -777,6 +780,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		85B6E1C21F9E6EDB00AC7B46 /* TODOs */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = TODOs;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO:|FIXME:|DevTeam:|XXX:\"\nfind \"${SRCROOT}\" \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | xargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | perl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+		};
+		85B6E1C31F9E6F2900AC7B46 /* TODOs */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = TODOs;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO:|FIXME:|DevTeam:|XXX:\"\nfind \"${SRCROOT}\" \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | xargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | perl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+		};
+		85B6E1C41F9E6F3700AC7B46 /* TODOs */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = TODOs;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "KEYWORDS=\"TODO:|FIXME:|DevTeam:|XXX:\"\nfind \"${SRCROOT}\" \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | xargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | perl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		OBJ_100 /* Sources */ = {

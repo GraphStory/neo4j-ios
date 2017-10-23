@@ -221,8 +221,27 @@ open class BoltClient {
                 paths.append(path)
                 responseItemDict[field] = path
             }
+            
+            else if let record = candidate.uintValue() {
+                responseItemDict[field] = record
+            }
+                
+            else if let record = candidate.intValue() {
+                responseItemDict[field] = record
+            }
+                
+            else if let record = candidate as? ResponseItem {
+                responseItemDict[field] = record
+            }
+                
+            else {
+                let record = Record(entry: candidate)
+                responseItemDict[field] = record
+            }
         }
-        responseItemDicts.append(responseItemDict)
+        if responseItemDict.count > 0 {
+            responseItemDicts.append(responseItemDict)
+        }
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
         

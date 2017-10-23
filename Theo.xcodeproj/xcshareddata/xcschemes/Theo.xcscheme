@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_72"
+               BlueprintIdentifier = "PackStream::PackStream"
                BuildableName = "PackStream.framework"
                BlueprintName = "PackStream"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_88"
+               BlueprintIdentifier = "Socket::Socket"
                BuildableName = "Socket.framework"
                BlueprintName = "Socket"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_97"
+               BlueprintIdentifier = "SSLService::SSLService"
                BuildableName = "SSLService.framework"
                BlueprintName = "SSLService"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -56,7 +56,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_106"
+               BlueprintIdentifier = "Bolt::Bolt"
                BuildableName = "Bolt.framework"
                BlueprintName = "Bolt"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -70,7 +70,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_127"
+               BlueprintIdentifier = "Theo::Theo"
                BuildableName = "Theo.framework"
                BlueprintName = "Theo"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -82,13 +82,15 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      language = ""
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_159"
+               BlueprintIdentifier = "Theo::TheoTests"
                BuildableName = "TheoTests.xctest"
                BlueprintName = "TheoTests"
                ReferencedContainer = "container:Theo.xcodeproj">
@@ -102,6 +104,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -111,7 +114,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "OBJ_72"
+            BlueprintIdentifier = "PackStream::PackStream"
             BuildableName = "PackStream.framework"
             BlueprintName = "PackStream"
             ReferencedContainer = "container:Theo.xcodeproj">
