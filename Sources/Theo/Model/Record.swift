@@ -21,7 +21,7 @@ extension Structure: ResponseItem {}
 public class Record: ResponseItem  {
 
     public let entry: PackProtocol
-    
+
     public init(entry: PackProtocol) {
         self.entry = entry
     }

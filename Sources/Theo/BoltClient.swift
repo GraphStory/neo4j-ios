@@ -159,47 +159,47 @@ open class BoltClient {
         dispatchGroup.wait()
         return theResult
     }
-    
-    
-    
+
+
+
     private func parseResponses(responses: [Response], result: QueryResult = QueryResult()) -> QueryResult {
         let fields = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["fields"] }.first as? List)?.items.flatMap { $0 as? String }
         if let fields = fields {
             result.fields = fields
         }
-        
+
         let stats = responses.flatMap { $0.items.flatMap { $0 as? Map }.flatMap { QueryStats(data: $0) } }.first
         if let stats = stats {
             result.stats = stats
         }
-        
+
         if let resultAvailableAfter = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["result_available_after"] }.first?.uintValue()) {
             result.stats.resultAvailableAfter = resultAvailableAfter
         }
-        
+
         if let resultConsumedAfter = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["result_consumed_after"]?.uintValue()) {
             result.stats.resultConsumedAfter = resultConsumedAfter
         }
-        
+
         if let type = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["type"] as? String) {
             result.stats.type = type
         }
 
-        
-        
+
+
         let candidateList = responses.flatMap { $0.items.flatMap { ($0 as? List)?.items } }.reduce( [], +)
         var nodes = [UInt64:Node]()
         var relationships = [UInt64:Relationship]()
         var paths = [Path]()
         var responseItemDicts = [[String:ResponseItem]]()
         var responseItemDict = [String:ResponseItem]()
-        
+
         for i in 0..<candidateList.count {
             if i > 0 && i % result.fields.count == 0 {
                 responseItemDicts.append(responseItemDict)
                 responseItemDict = [String:ResponseItem]()
             }
-            
+
             let field = result.fields.count > 0 ? result.fields[i % result.fields.count] : nil
             let candidate = candidateList[i]
 
@@ -212,43 +212,43 @@ open class BoltClient {
                     responseItemDict[field] = node
                 }
             }
-            
+
             else if let relationship = Relationship(data: candidate) {
                 if let relationshipId = relationship.id {
                     relationships[relationshipId] = relationship
                 }
-                
+
                 if let field = field {
                     responseItemDict[field] = relationship
                 }
             }
-            
+
             else if let path = Path(data: candidate) {
                 paths.append(path)
-                
+
                 if let field = field {
                     responseItemDict[field] = path
                 }
             }
-            
+
             else if let record = candidate.uintValue() {
                 if let field = field {
                     responseItemDict[field] = record
                 }
             }
-                
+
             else if let record = candidate.intValue() {
                 if let field = field {
                     responseItemDict[field] = record
                 }
             }
-                
+
             else if let record = candidate as? ResponseItem {
                 if let field = field {
                     responseItemDict[field] = record
                 }
             }
-                
+
             else {
                 let record = Record(entry: candidate)
                 if let field = field {
@@ -262,19 +262,19 @@ open class BoltClient {
         }
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
-        
+
         let mapper: (UInt64, Relationship) -> (UInt64, Relationship) = { (key: UInt64, rel: Relationship) in
             rel.fromNode = nodes[rel.fromNodeId]
             rel.toNode = nodes[rel.toNodeId]
             return (key, rel)
         }
-        
+
         let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.map(mapper))
         result.relationships.merge(updatedRelationships) { (r, _) -> Relationship in return r }
-        
+
         result.paths += paths
         result.responseItemDicts += responseItemDicts
-        
+
         return result
 
     }

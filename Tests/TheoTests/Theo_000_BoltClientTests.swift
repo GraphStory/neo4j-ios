@@ -116,6 +116,12 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         queries.append(
                    """
+                     MATCH (n)
+                     DETACH DELETE n
+                   """)
+
+        queries.append(
+                   """
                       CREATE (you:Person {name:"You"})
                       RETURN you
                    """)
@@ -150,9 +156,9 @@ class Theo_001_BoltClientTests: XCTestCase {
         queries.append(
                    """
                       MATCH (you {name:"You"})
-                      MATCH (expert)-[:WORKED_WITH]->(db:Database {name:"Neo4j"})
+                      MATCH (expert)-[w:WORKED_WITH]->(db:Database {name:"Neo4j"})
                       MATCH path = shortestPath( (you)-[:FRIEND*..5]-(expert) )
-                      RETURN db,expert,path
+                      RETURN DISTINCT db,w,expert,path
                    """)
 
         for query in queries {
@@ -168,37 +174,37 @@ class Theo_001_BoltClientTests: XCTestCase {
     }
 
     func testSetOfQueries() throws {
-        
+
         let client = try makeClient()
         let exp = self.expectation(description: "testSetOfQueries")
         var queries = [String]()
-        
+
         queries.append(
             """
               CREATE (you:Person {name:"You", weight: 80})
               RETURN you.name, sum(you.weight) as singleSum
             """)
-        
+
         queries.append(
             """
               MATCH (you:Person {name:"You"})
               RETURN you.name, sum(you.weight) as allSum, you
             """)
-        
+
 
         for query in queries {
             print(query)
             XCTAssertTrue(client.executeCypherSync(query).isSuccess)
-            
+
         }
         exp.fulfill()
-        
+
         self.waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error)
         })
     }
 
-    
+
     func testSucceedingTransactionSync() throws {
         let client = try makeClient()
         let exp = self.expectation(description: "testSucceedingTransaction")
@@ -278,9 +284,9 @@ class Theo_001_BoltClientTests: XCTestCase {
                     } else {
                         print("Query failed somehow")
                     }
-                    
+
                 }
-                
+
                 XCTAssertTrue(result.isSuccess)
             }
 

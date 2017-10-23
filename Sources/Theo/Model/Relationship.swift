@@ -3,7 +3,7 @@ import Bolt
 import PackStream
 
 public enum RelationshipType {
-    case from
+    case from //TODO: Are these the names we want?
     case to
     case bidirectional
 }
@@ -15,7 +15,7 @@ public class Relationship: ResponseItem {
     public var updatedTime: Date = Date()
     public var createdTime: Date? = nil
 
-    public var properties: [String: PackProtocol] = [:]
+    public var properties: [String: PackProtocol]
     public var name: String
 
     public var fromNodeId: UInt64
@@ -24,26 +24,29 @@ public class Relationship: ResponseItem {
     public var toNode: Node?
     public var type: RelationshipType
 
-    public init?(fromNode: Node, toNode: Node, name: String, type: RelationshipType) {
+    public init?(fromNode: Node, toNode: Node, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
         guard let fromNodeId = fromNode.id,
               let toNodeId = toNode.id
             else {
                 print("Nodes must have id")
                 return nil
         }
-        
+
+        self.fromNode = fromNode
         self.fromNodeId = fromNodeId
+        self.toNode = toNode
         self.toNodeId = toNodeId
         self.name = name
         self.type = type
-        
+        self.properties = properties
+
         self.modified = false
         self.internalAlias = UUID().uuidString.replacingOccurrences(of: "-", with: "")
 
         self.createdTime = Date()
         self.updatedTime = Date()
     }
-    
+
     init?(data: PackProtocol) {
         if let s = data as? Structure,
             s.signature == 82,
@@ -53,24 +56,24 @@ public class Relationship: ResponseItem {
             let toNodeId = s.items[2].uintValue(),
             let name = s.items[3] as? String,
             let properties = (s.items[4] as? Map)?.dictionary {
-            
+
             self.id = relationshipId
             self.fromNodeId = fromNodeId
             self.toNodeId = toNodeId
             self.name = name
             self.properties = properties
-            
+
             self.modified = false
             self.internalAlias = UUID().uuidString.replacingOccurrences(of: "-", with: "")
             self.type = .from
 
             self.createdTime = Date()
             self.updatedTime = Date()
-            
+
         } else {
             return nil
         }
-        
+
     }
 
 }

@@ -24,20 +24,20 @@ public class Node: ResponseItem {
             let labelsList = s.items[1] as? List,
             let properties = (s.items[2] as? Map)?.dictionary {
             let labels = labelsList.items.flatMap { $0 as? String }
-            
+
             self.id = nodeId
             self.labels = labels
             self.properties = properties
             self.modified = false
             self.internalAlias = UUID().uuidString.replacingOccurrences(of: "-", with: "")
-            
+
             self.createdTime = Date()
             self.updatedTime = Date()
-            
+
         } else {
             return nil
         }
-        
+
 
     }
 }
