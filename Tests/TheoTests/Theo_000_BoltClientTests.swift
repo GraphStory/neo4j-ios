@@ -266,14 +266,12 @@ class Theo_001_BoltClientTests: XCTestCase {
 
         try client.executeAsTransaction() { (tx) in
             client.executeCypher("CREATE (n:TheoTestNode { foo: \"bar\"})") { result in
-                var partialQueryResult: QueryResult? = nil
                 switch result {
                 case let .failure(error):
                     print("Error in cypher: \(error)")
-                case let .success((success, _partialQueryResult)):
+                case let .success((success, partialQueryResult)):
                     if success {
-                        partialQueryResult = _partialQueryResult
-                        client.pullAll() { result in
+                        client.pullAll(partialQueryResult: partialQueryResult) { result in
                             switch result {
                             case let .failure(error):
                                 print("Error in cypher: \(error)")
