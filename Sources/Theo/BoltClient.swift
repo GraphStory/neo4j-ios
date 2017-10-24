@@ -117,7 +117,7 @@ open class BoltClient {
 
         // Perform query
         dispatchGroup.enter()
-        var partialResult: QueryResult? = nil
+        var partialResult = QueryResult()
         executeCypher(query, params: params) { result in
             switch result {
             case let .failure(error):
@@ -139,16 +139,15 @@ open class BoltClient {
 
         // Stream and parse results
         dispatchGroup.enter()
-        pullAll() { result in
+        pullAll(partialQueryResult: partialResult) { result in
             switch result {
             case let .failure(error):
                 print("Error: \(error)")
                 theResult = .failure(error)
-            case let .success(isSuccess, responses):
+            case let .success(isSuccess, parsedResponses):
                 if isSuccess == false {
                     print("Query not successful")
                 } else {
-                    let parsedResponses = self.parseResponses(responses: responses, result: partialResult ?? QueryResult())
                     theResult = .success(parsedResponses)
                 }
             }
@@ -357,19 +356,21 @@ open class BoltClient {
 
     }
 
-    public func pullAll(completionBlock: ((Result<(Bool, [Response]), AnyError>) -> ())? = nil) {
+    public func pullAll(partialQueryResult: QueryResult = QueryResult(), completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         let pullRequest = BoltRequest.pullAll()
         do {
-            try self.connection.request(pullRequest) { (successResponse, response) in
-            completionBlock?(.success((successResponse, response)))
-        }
+            try self.connection.request(pullRequest) { (successResponse, responses) in
+                
+                let result = parseResponses(responses: responses, result: partialQueryResult)
+                completionBlock?(.success((successResponse, result)))
+            }
         } catch let error as Socket.Error {
             completionBlock?(.failure(AnyError(error)))
         } catch let error {
             completionBlock?(.failure(AnyError(error)))
             print("Unexpected error while pulling all response data: \(error.localizedDescription)")
         }
-
+        
     }
 
     public func getBookmark() -> String? {

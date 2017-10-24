@@ -6,11 +6,11 @@ public typealias Segment = Relationship
 
 public class Path: ResponseItem {
 
-    var segments: [Segment] = []
+    public var segments: [Segment] = []
 
-    let nodes: [Node]
-    let unboundRelationships: [UnboundRelationship]
-    let sequence: [Int]
+    internal var nodes: [Node]
+    internal var unboundRelationships: [UnboundRelationship]
+    internal var sequence: [Int]
 
     init?(data: PackProtocol) {
         if let s = data as? Structure,
@@ -31,8 +31,11 @@ public class Path: ResponseItem {
             assert(sequence.count % 2 == 0) // S must always consist of an even number of integers, or be empty
 
             generateSegments(fromNodeSequenceIndex: nil)
-
-            print(segments)
+            
+            self.nodes = []
+            self.unboundRelationships = []
+            self.sequence = []
+            
         } else {
             return nil
         }

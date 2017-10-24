@@ -2,14 +2,14 @@ import Foundation
 
 public class QueryResult {
 
-    var fields: [String]
-    var stats: QueryStats
-    var nodes: [UInt64:Node]
-    var relationships: [UInt64:Relationship]
-    var paths: [Path]
-    var responseItemDicts: [[String:ResponseItem]]
+    public var fields: [String]
+    public var stats: QueryStats
+    public var nodes: [UInt64:Node]
+    public var relationships: [UInt64:Relationship]
+    public var paths: [Path]
+    public var responseItemDicts: [[String:ResponseItem]]
 
-    init(fields: [String] = [],
+    public init(fields: [String] = [],
          stats: QueryStats = QueryStats(),
          nodes: [UInt64:Node] = [:],
          relationships: [UInt64:Relationship] = [:],

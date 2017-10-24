@@ -277,12 +277,21 @@ class Theo_001_BoltClientTests: XCTestCase {
                             switch result {
                             case let .failure(error):
                                 print("Error in cypher: \(error)")
-                            case let .success((success, responses)):
-                                print("So how does responses pair with paritalQueryResult?")
+                            case let .success((success, queryResult)):
+                                XCTAssertTrue(success)
+                                XCTAssertEqual(1, queryResult.stats.propertiesSetCount)
+                                XCTAssertEqual(1, queryResult.stats.labelsAddedCount)
+                                XCTAssertEqual(1, queryResult.stats.nodesCreatedCount)
+                                XCTAssertEqual("w", queryResult.stats.type)
+                                XCTAssertEqual(0, queryResult.fields.count)
+                                XCTAssertEqual(0, queryResult.nodes.count)
+                                XCTAssertEqual(0, queryResult.relationships.count)
+                                XCTAssertEqual(0, queryResult.paths.count)
+                                XCTAssertEqual(0, queryResult.responseItemDicts.count)
                             }
                         }
                     } else {
-                        print("Query failed somehow")
+                        XCTFail("Query failed somehow")
                     }
 
                 }
@@ -326,20 +335,24 @@ class Theo_001_BoltClientTests: XCTestCase {
         client.executeCypher("MATCH (a:Person) WHERE a.name = {name} RETURN count(a) AS count", params: ["name": "Arthur"])  { result in
 
             XCTAssertTrue(result.isSuccess)
+            XCTAssertTrue(result.value!.0)
 
-            client.pullAll() { result in
+            client.pullAll(partialQueryResult: result.value!.1) { response in
                 switch result {
                 case .failure:
                     XCTFail("Failed to pull response data")
-                case let .success((success, response)):
+                case let .success((success, queryResult)):
                     XCTAssertTrue(success)
-                    XCTAssertEqual(2, response.count)
-                    if let theResponse = response[0].items[0] as? List,
-                        let n = Int(theResponse.items[0]) {
-                        numberOfKingArthurs = n
-                    } else {
-                        XCTFail("Response was not of the kind List")
-                    }
+                    XCTAssertEqual(1, queryResult.responseItemDicts.count)
+                    XCTAssertEqual(1, queryResult.responseItemDicts.first!.count)
+                    XCTAssertEqual(0, queryResult.nodes.count)
+                    XCTAssertEqual(0, queryResult.relationships.count)
+                    XCTAssertEqual(0, queryResult.paths.count)
+                    XCTAssertEqual(1, queryResult.fields.count)
+
+                    numberOfKingArthurs = Int(queryResult.responseItemDicts.first?["count"] as! UInt64)
+                    XCTAssertGreaterThanOrEqual(0, numberOfKingArthurs)
+
                 }
 
 
@@ -355,22 +368,52 @@ class Theo_001_BoltClientTests: XCTestCase {
             let result = client.executeCypherSync("CREATE (a:Person {name: {name}, title: {title}})",
                                                    params: ["name": "Arthur", "title": "King"])
             XCTAssertTrue(result.isSuccess)
+            let queryResult = result.value!
+            XCTAssertEqual(2, queryResult.stats.propertiesSetCount)
+            XCTAssertEqual(1, queryResult.stats.labelsAddedCount)
+            XCTAssertEqual(1, queryResult.stats.nodesCreatedCount)
+            XCTAssertEqual("w", queryResult.stats.type)
+            XCTAssertEqual(0, queryResult.fields.count)
+            XCTAssertEqual(0, queryResult.nodes.count)
+            XCTAssertEqual(0, queryResult.relationships.count)
+            XCTAssertEqual(0, queryResult.paths.count)
+            XCTAssertEqual(0, queryResult.responseItemDicts.count)
 
 
             client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
             "RETURN a.name AS name, a.title AS title", params: ["name": "Arthur"])  { result in
 
                 XCTAssertTrue(result.isSuccess)
+                XCTAssertTrue(result.value!.0)
+                let queryResult = result.value!.1
 
-                client.pullAll() { result in
+                XCTAssertEqual(2, queryResult.fields.count)
+                XCTAssertEqual(0, queryResult.nodes.count)
+                XCTAssertEqual(0, queryResult.relationships.count)
+                XCTAssertEqual(0, queryResult.paths.count)
+                XCTAssertEqual(0, queryResult.responseItemDicts.count)
+
+                client.pullAll(partialQueryResult: queryResult) { result in
 
                     switch result {
                     case .failure(_):
                         XCTFail("Failed to pull response data")
-                    case let.success((success, response)):
+                    case let.success((success, queryResult)):
                         XCTAssertTrue(success)
-                        XCTAssertTrue(result.isSuccess)
-                        XCTAssertEqual(numberOfKingArthurs + 2, response.count)
+                        
+                        XCTAssertEqual("r", queryResult.stats.type)
+                        XCTAssertEqual(2, queryResult.fields.count)
+                        XCTAssertEqual(0, queryResult.nodes.count)
+                        XCTAssertEqual(0, queryResult.relationships.count)
+                        XCTAssertEqual(0, queryResult.paths.count)
+                        XCTAssertEqual(1, queryResult.responseItemDicts.count)
+                        let row = queryResult.responseItemDicts.first!
+                        XCTAssertEqual(2, row.count)
+                        XCTAssertEqual("King", row["title"] as! String)
+                        XCTAssertEqual("Arthur", row["name"] as! String)
+
+                        
+                        XCTAssertEqual(numberOfKingArthurs + 2, queryResult.responseItemDicts.first?.count ?? 0)
 
                         tx.markAsFailed() // This should undo the beginning CREATE even though we have pulled it here
                         exp.fulfill()

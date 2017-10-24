@@ -12,7 +12,7 @@ public class QueryStats {
     public var resultConsumedAfter: UInt64
     public var type: String
 
-    init(propertiesSetCount: UInt64 = 0,
+    public init(propertiesSetCount: UInt64 = 0,
          labelsAddedCount: UInt64 = 0,
          nodesCreatedCount: UInt64 = 0,
          resultAvailableAfter: UInt64 = 0,
