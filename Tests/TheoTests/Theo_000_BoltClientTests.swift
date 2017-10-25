@@ -434,29 +434,41 @@ class Theo_001_BoltClientTests: XCTestCase {
             "favouriteWhiskys": List(items: ["Ardbeg", "Caol Ila", "Laphroaig"])
             ])
         
-        let request = node.createRequest()
         let client = try makeClient()
-        let exp = self.expectation(description: "testCreateAndRunCypherFromNode")
-        client.execute(request: request) { response in
-            switch response {
-            case let .failure(error):
-                print("Handle error: \(error)")
-            case let .success((isSuccess, partialQueryResult)):
-                print("Query has been sent, now get records:")
-                client.pullAll(partialQueryResult: partialQueryResult) { response in
-                    let responseNode = response.value!.1.nodes.first!
-                    print(responseNode)
-                    exp.fulfill()
-                    
-                }
-                print(response)
-            }
+        let result = client.createAndReturnNodeSync(node: node)
+        switch result {
+        case let .failure(error):
+            print("Got error \(error)")
+            XCTFail()
+        case let .success(resultNode):
+            print(resultNode)
         }
+    }
 
-        self.waitForExpectations(timeout: 10, handler: { error in
-            XCTAssertNil(error)
-        })
-
+    func testCreateAndRunCypherFromNodes() throws {
+        
+        let node1 = Node(labels: ["Person","Husband","Father"], properties: [
+            "firstName": "Niklas",
+            "age": 38,
+            "weight": 80.2,
+            "favouriteWhiskys": List(items: ["Ardbeg", "Caol Ila", "Laphroaig"])
+            ])
+        
+        let node2 = Node(labels: ["Person","Wife","Mother"], properties: [
+            "firstName": "Christina",
+            "age": 37,
+            "favouriteAnimals": List(items: ["Silver", "Oscar", "Simba"])
+            ])
+        
+        let client = try makeClient()
+        let result = client.createAndReturnNodesSync(nodes: [node1, node2])
+        switch result {
+        case let .failure(error):
+            print("Got error \(error)")
+            XCTFail()
+        case let .success(resultNodes):
+            print(resultNodes)
+        }
     }
 
     static var allTests = [
@@ -469,6 +481,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testCancellingTransaction", testCancellingTransaction),
         ("testTransactionResultsInBookmark", testTransactionResultsInBookmark),
         ("testGettingStartedExample", testGettingStartedExample),
+        ("testCreateAndRunCypherFromNode", testCreateAndRunCypherFromNode),
     ]
 
 }

@@ -15,6 +15,11 @@ public class Node: ResponseItem {
 
     public var properties: [String: PackProtocol] = [:]
     public var labels: [String] = []
+    
+    private var updatedProperties: [String: PackProtocol] = [:]
+    private var deletedPropertyKeys = Set<String>()
+    private var updatedLabels: [String] = []
+
 
     public init(
         labels: [String],
@@ -51,13 +56,68 @@ public class Node: ResponseItem {
             return nil
         }
     }
-    
-    public func createRequest() -> Request {
-        let labels = self.labels.joined(separator: ":")
-        let params = properties.keys.map { "\($0): {\($0)}" }.joined(separator: ",")
-        
-        let query = "CREATE (node:\(labels) { \(params) }) RETURN node"
-        print(query)
+    public func createRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
+        let query = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: self.properties))
+    }
+    
+    public func createRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> String {
+        let labels = self.labels.joined(separator: ":")
+        let params = properties.keys.map { "\($0): {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        
+        let query: String
+        if withReturnStatement {
+            query = "\(withCreate ? "CREATE" : "") (\(nodeAlias):\(labels) { \(params) }) RETURN \(nodeAlias)"
+        } else {
+            query = "\(withCreate ? "CREATE" : "") (\(nodeAlias):\(labels) { \(params) })"
+        }
+        
+        return query
+    }
+    
+    public subscript(key: String) -> PackProtocol? {
+        get {
+            return self.updatedProperties[key]
+        }
+        
+        set (newValue) {
+            if let newValue = newValue {
+                self.properties[key] = newValue
+                self.updatedProperties[key] = newValue
+                self.deletedPropertyKeys.remove(key)
+            } else {
+                self.properties.removeValue(forKey: key)
+                self.deletedPropertyKeys.insert(key)
+            }
+            self.modified = true
+        }
+    }
+}
+
+extension Array where Element: Node {
+    
+    public func createRequest(withReturnStatement: Bool = true) -> Request {
+        
+        var aliases = [String]()
+        var queries = [String]()
+        var properties = [String: PackProtocol]()
+        for i in 0..<self.count {
+            let node = self[i]
+            let nodeAlias = "node\(i)"
+            queries.append(node.createRequestQuery(withReturnStatement: false, nodeAlias: nodeAlias, paramSuffix: "\(i)", withCreate: i == 0))
+            aliases.append(nodeAlias)
+            for (key, value) in node.properties {
+                properties["\(key)\(i)"] = value
+            }
+        }
+        
+        let query: String
+        if withReturnStatement {
+            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
+        } else {
+            query = queries.joined(separator: ", ")
+        }
+        
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 }

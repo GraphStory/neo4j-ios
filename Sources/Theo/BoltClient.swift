@@ -40,6 +40,13 @@ open class BoltClient {
     private let connection: Connection
 
     private var currentTransaction: Transaction?
+    
+    public enum BoltClientError: Error {
+        case missingNodeResponse
+        case queryUnsuccessful
+        case fetchingRecordsUnsuccessful
+        case unknownError
+    }
 
     required public init(hostname: String = "localhost", port: Int = 7687, username: String = "neo4j", password: String = "neo4j", encrypted: Bool = true) throws {
 
@@ -381,5 +388,198 @@ open class BoltClient {
     public func getBookmark() -> String? {
         return connection.currentTransactionBookmark
     }
+
+}
+
+extension BoltClient { // Node functions
+    
+    //MARK: Create
+    
+    public func createAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+        let request = node.createRequest()
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                if let (_, node) = queryResult.nodes.first {
+                                    completionBlock?(.success(node))
+                                } else {
+                                    let error = AnyError(BoltClientError.missingNodeResponse)
+                                    completionBlock?(.failure(error))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public func createAndReturnNodeSync(node: Node) -> (Result<Node, AnyError>) {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Node, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        createAndReturnNode(node: node) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    public func createNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        let request = node.createRequest(withReturnStatement: false)
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                completionBlock?(.success(isSuccess))
+            }
+        }
+    }
+
+    public func createNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        createNode(node: node) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    public func createAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+        let request = nodes.createRequest()
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                let nodes: [Node] = queryResult.nodes.map { $0.value }
+                                completionBlock?(.success(nodes))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public func createAndReturnNodesSync(nodes: [Node]) -> (Result<[Node], AnyError>) {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<[Node], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        createAndReturnNodes(nodes: nodes) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    public func createNodes(nodes: [Node], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
+        
+    }
+    
+    public func createNodesSync(nodes: [Node]) -> (Result<[Bool], AnyError>) {
+        
+        return .success([true])
+    }
+    
+    //MARK: Update
+    public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+        
+    }
+    
+    public func updateAndReturnNodeSync(node: Node) -> (Result<Node, AnyError>) {
+        
+        return .success(node)
+    }
+    
+    public func updateNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        
+    }
+    
+    public func updateNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+        
+        return .success(true)
+    }
+    
+    public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+        
+    }
+    
+    public func updateAndReturnNodesSync(nodes: [Node]) -> (Result<[Node], AnyError>) {
+        
+        return .success(nodes)
+    }
+    
+    public func updateNodes(nodes: [Node], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
+        
+    }
+    
+    public func updateNodesSync(nodes: [Node]) -> (Result<[Bool], AnyError>) {
+        
+        return .success([true])
+    }
+    
+    //MARK: Delete
+    public func deleteNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        
+    }
+    
+    public func deleteNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+        
+        return .success(true)
+    }
+    
+    public func deleteNodes(nodes: [Node], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
+        
+    }
+    
+    public func deleteNodesSync(nodes: [Node]) -> (Result<[Bool], AnyError>) {
+        
+        return .success([true])
+    }
+    
 
 }
