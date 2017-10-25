@@ -424,6 +424,40 @@ class Theo_001_BoltClientTests: XCTestCase {
             XCTAssertNil(error)
         })
     }
+    
+    func testCreateAndRunCypherFromNode() throws {
+        
+        let node = Node(labels: ["Person","Husband","Father"], properties: [
+            "firstName": "Niklas",
+            "age": 38,
+            "weight": 80.2,
+            "favouriteWhiskys": List(items: ["Ardbeg", "Caol Ila", "Laphroaig"])
+            ])
+        
+        let request = node.createRequest()
+        let client = try makeClient()
+        let exp = self.expectation(description: "testCreateAndRunCypherFromNode")
+        client.execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                print("Handle error: \(error)")
+            case let .success((isSuccess, partialQueryResult)):
+                print("Query has been sent, now get records:")
+                client.pullAll(partialQueryResult: partialQueryResult) { response in
+                    let responseNode = response.value!.1.nodes.first!
+                    print(responseNode)
+                    exp.fulfill()
+                    
+                }
+                print(response)
+            }
+        }
+
+        self.waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error)
+        })
+
+    }
 
     static var allTests = [
         ("testNodeResult", testNodeResult),

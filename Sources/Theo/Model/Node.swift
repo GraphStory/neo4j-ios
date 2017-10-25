@@ -16,6 +16,19 @@ public class Node: ResponseItem {
     public var properties: [String: PackProtocol] = [:]
     public var labels: [String] = []
 
+    public init(
+        labels: [String],
+        properties: [String: PackProtocol]) {
+        
+        self.labels = labels
+        self.properties = properties
+        
+        self.modified = false
+        self.internalAlias = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        self.createdTime = Date()
+        self.updatedTime = Date()
+    }
+    
     init?(data: PackProtocol) {
         if let s = data as? Structure,
             s.signature == 78,
@@ -37,7 +50,14 @@ public class Node: ResponseItem {
         } else {
             return nil
         }
-
-
+    }
+    
+    public func createRequest() -> Request {
+        let labels = self.labels.joined(separator: ":")
+        let params = properties.keys.map { "\($0): {\($0)}" }.joined(separator: ",")
+        
+        let query = "CREATE (node:\(labels) { \(params) }) RETURN node"
+        print(query)
+        return Request.run(statement: query, parameters: Map(dictionary: self.properties))
     }
 }

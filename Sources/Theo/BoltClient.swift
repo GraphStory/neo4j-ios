@@ -91,16 +91,13 @@ open class BoltClient {
         return theResult
     }
 
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
-
-        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
-
+    public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         do {
-            try connection.request(cypherRequest) { (successResponse, response) in
+            try connection.request(request) { (successResponse, response) in
                 let queryResponse = parseResponses(responses: response)
                 completionBlock?(.success((successResponse, queryResponse)))
             }
-
+            
         } catch let error as Socket.Error {
             completionBlock?(.failure(AnyError(error)))
         } catch let error as Response.ResponseError {
@@ -108,6 +105,14 @@ open class BoltClient {
         } catch let error {
             print("Unhandled error while executing cypher: \(error.localizedDescription)")
         }
+    }
+    
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+
+        let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
+
+        execute(request: cypherRequest, completionBlock: completionBlock)
+
     }
 
     public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, AnyError>) {
