@@ -547,7 +547,7 @@ extension BoltClient { // Node functions
     public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
 
         let request = node.updateRequest()
-        
+
         execute(request: request) { response in
             switch response {
             case let .failure(error):
@@ -584,13 +584,13 @@ extension BoltClient { // Node functions
 
         let group = DispatchGroup()
         group.enter()
-        
+
         var theResult: Result<Node, AnyError> = .failure(AnyError(BoltClientError.unknownError))
         updateAndReturnNode(node: node) { result in
             theResult = result
             group.leave()
         }
-        
+
         group.wait()
         return theResult
     }
