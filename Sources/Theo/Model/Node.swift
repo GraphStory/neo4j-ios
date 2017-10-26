@@ -14,11 +14,12 @@ public class Node: ResponseItem {
     public var createdTime: Date? = nil
 
     public var properties: [String: PackProtocol] = [:]
-    public var labels: [String] = []
+    public private(set) var labels: [String] = []
 
     private var updatedProperties: [String: PackProtocol] = [:]
-    private var deletedPropertyKeys = Set<String>()
-    private var updatedLabels: [String] = []
+    private var removedPropertyKeys = Set<String>()
+    private var addedLabels: [String] = []
+    private var removedLabels: [String] = []
 
 
     public init(
@@ -56,6 +57,19 @@ public class Node: ResponseItem {
             return nil
         }
     }
+    
+    func add(label: String) {
+        self.labels.append(label)
+        self.addedLabels.append(label)
+        self.removedLabels = self.removedLabels.filter { $0 != label }
+    }
+    
+    func remove(label: String) {
+        self.labels = self.labels.filter { $0 != label }
+        self.removedLabels.append(label)
+        self.addedLabels = self.addedLabels.filter { $0 != label }
+    }
+    
     public func createRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
         let query = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: self.properties))
@@ -74,6 +88,55 @@ public class Node: ResponseItem {
 
         return query
     }
+    
+    public func updateRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
+        let (query, properties) = updateRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
+    }
+    
+    public func updateRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> (String, [String:PackProtocol]) {
+        
+        guard let id = self.id else {
+            print("Error: Cannot create update request for node without id. Did you mean to create it?")
+            return ("", [:])
+        }
+        
+        var properties = [String:PackProtocol]()
+        
+
+        let addedLabels = self.addedLabels.count == 0 ? "" : "\(nodeAlias):" + self.addedLabels.joined(separator: ":")
+
+        let updatedProperties = self.updatedProperties.keys.map { "\(nodeAlias).\($0): {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        properties.merge( self.updatedProperties.map { key, value in
+            return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
+        
+        var update = [addedLabels, updatedProperties].joined(separator: ", ")
+        if update == ", " {
+            update = ""
+        } else {
+            update = "SET \(update)\n"
+        }
+        
+        let removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(nodeAlias).\($0)" }.joined(separator: ", ")
+        
+        let removedLabels = self.removedLabels.count == 0 ? "" : self.removedLabels.map { "\(nodeAlias):\($0)" }.joined(separator: ", ")
+        
+        var remove = [ removedLabels, removedProperties ].joined(separator: ", ")
+        if remove == ", " {
+            remove = ""
+        } else {
+            remove = "REMOVE \(remove)\n"
+        }
+        
+        var query: String = "MATCH (\(nodeAlias))\nWHERE id(\(nodeAlias)) = \(id)\n\(update)\(remove)"
+        if withReturnStatement {
+            query = "\(query) RETURN \(nodeAlias)"
+        }
+        
+        print(query)
+
+        return (query, properties)
+    }
 
     public subscript(key: String) -> PackProtocol? {
         get {
@@ -84,10 +147,10 @@ public class Node: ResponseItem {
             if let newValue = newValue {
                 self.properties[key] = newValue
                 self.updatedProperties[key] = newValue
-                self.deletedPropertyKeys.remove(key)
+                self.removedPropertyKeys.remove(key)
             } else {
                 self.properties.removeValue(forKey: key)
-                self.deletedPropertyKeys.insert(key)
+                self.removedPropertyKeys.insert(key)
             }
             self.modified = true
         }

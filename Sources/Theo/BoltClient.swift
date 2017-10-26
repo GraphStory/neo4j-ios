@@ -546,11 +546,53 @@ extension BoltClient { // Node functions
     //MARK: Update
     public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
 
+        let request = node.updateRequest()
+        
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                if let (_, node) = queryResult.nodes.first {
+                                    completionBlock?(.success(node))
+                                } else {
+                                    let error = AnyError(BoltClientError.missingNodeResponse)
+                                    completionBlock?(.failure(error))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public func updateAndReturnNodeSync(node: Node) -> (Result<Node, AnyError>) {
 
-        return .success(node)
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Node, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateAndReturnNode(node: node) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
     }
 
     public func updateNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {

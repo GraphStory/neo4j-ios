@@ -504,6 +504,25 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
 
     }
+    
+    func testUpdateNodesWithResult() throws {
+        
+        let node = makeSomeNodes().first!
+        let client = try makeClient()
+        var result = client.createAndReturnNodeSync(node: node)
+        let createdNode = result.value!
+        
+        createdNode["favouriteColor"] = "Blue"
+        createdNode["luckyNumber"] = 24
+        createdNode.add(label: "RecorderPlayer")
+
+        result = client.updateAndReturnNodeSync(node: createdNode)
+        let updatedNode = result.value!
+        
+        XCTAssertEqual(4, updatedNode.labels.count)
+        XCTAssertEqual(4 as Int64, updatedNode["luckyNumber"] as! Int64)
+
+    }
 
     static var allTests = [
         ("testNodeResult", testNodeResult),
