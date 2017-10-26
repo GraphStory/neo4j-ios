@@ -522,6 +522,23 @@ class Theo_001_BoltClientTests: XCTestCase {
         XCTAssertEqual(4, updatedNode.labels.count)
         XCTAssertEqual(Int64(24), updatedNode["luckyNumber"]!.intValue()!)
     }
+    
+    func testUpdateNodesWithNoResult() throws {
+        
+        let node = makeSomeNodes().first!
+        let client = try makeClient()
+        let result = client.createAndReturnNodeSync(node: node)
+        let createdNode = result.value!
+        
+        createdNode["favouriteColor"] = "Blue"
+        createdNode["luckyNumber"] = 24
+        createdNode.add(label: "RecorderPlayer")
+        
+        let emptyResult = client.updateNodeSync(node: createdNode)
+        let isSuccess = emptyResult.value!
+        XCTAssertTrue(isSuccess)
+        
+    }
 
     static var allTests = [
         ("testNodeResult", testNodeResult),
@@ -535,6 +552,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testGettingStartedExample", testGettingStartedExample),
         ("testCreateAndRunCypherFromNode", testCreateAndRunCypherFromNode),
         ("testUpdateNodesWithResult", testUpdateNodesWithResult),
+        ("testUpdateNodesWithNoResult", testUpdateNodesWithNoResult),
     ]
 
 }
