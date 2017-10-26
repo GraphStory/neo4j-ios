@@ -31,11 +31,11 @@ public class Path: ResponseItem {
             assert(sequence.count % 2 == 0) // S must always consist of an even number of integers, or be empty
 
             generateSegments(fromNodeSequenceIndex: nil)
-            
+
             self.nodes = []
             self.unboundRelationships = []
             self.sequence = []
-            
+
         } else {
             return nil
         }

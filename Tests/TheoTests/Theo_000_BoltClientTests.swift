@@ -438,15 +438,16 @@ class Theo_001_BoltClientTests: XCTestCase {
         let result = client.createAndReturnNodeSync(node: node)
         switch result {
         case let .failure(error):
-            print("Got error \(error)")
-            XCTFail()
+            XCTFail(error.localizedDescription)
         case let .success(resultNode):
-            print(resultNode)
+            XCTAssertEqual(3, resultNode.labels.count)
+            XCTAssertEqual(4, resultNode.properties.count)
+            XCTAssertEqual("Niklas", resultNode.properties["firstName"] as! String)
+            XCTAssertEqual(38 as Int64, resultNode.properties["age"]?.intValue())
         }
     }
 
-    func testCreateAndRunCypherFromNodes() throws {
-        
+    func makeSomeNodes() -> [Node] {
         let node1 = Node(labels: ["Person","Husband","Father"], properties: [
             "firstName": "Niklas",
             "age": 38,
@@ -459,16 +460,49 @@ class Theo_001_BoltClientTests: XCTestCase {
             "age": 37,
             "favouriteAnimals": List(items: ["Silver", "Oscar", "Simba"])
             ])
+
+        return [node1, node2]
+    }
+    
+    func testCreateAndRunCypherFromNodesWithResult() throws {
+        
+        let nodes = makeSomeNodes()
         
         let client = try makeClient()
-        let result = client.createAndReturnNodesSync(nodes: [node1, node2])
+        let result = client.createAndReturnNodesSync(nodes: nodes)
         switch result {
         case let .failure(error):
-            print("Got error \(error)")
-            XCTFail()
+            XCTFail(error.localizedDescription)
         case let .success(resultNodes):
-            print(resultNodes)
+            var resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }.first!
+            XCTAssertEqual(3, resultNode.labels.count)
+            XCTAssertTrue(resultNode.labels.contains("Father"))
+            XCTAssertEqual(4, resultNode.properties.count)
+            XCTAssertEqual("Niklas", resultNode.properties["firstName"] as! String)
+            XCTAssertEqual(38 as Int64, resultNode.properties["age"]?.intValue())
+
+            resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
+            XCTAssertEqual(3, resultNode.labels.count)
+            XCTAssertTrue(resultNode.labels.contains("Mother"))
+            XCTAssertEqual(3, resultNode.properties.count)
+            XCTAssertEqual("Christina", resultNode.properties["firstName"] as! String)
+            XCTAssertEqual(37 as Int64, resultNode.properties["age"]?.intValue())
         }
+    }
+    
+    func testCreateAndRunCypherFromNodesNoResult() throws {
+
+        let nodes = makeSomeNodes()
+
+        let client = try makeClient()
+        let result = client.createNodesSync(nodes: nodes)
+        switch result {
+        case let .failure(error):
+            XCTFail(error.localizedDescription)
+        case let .success(isSuccess):
+            XCTAssertTrue(isSuccess)
+        }
+
     }
 
     static var allTests = [

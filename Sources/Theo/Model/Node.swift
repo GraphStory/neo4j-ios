@@ -15,7 +15,7 @@ public class Node: ResponseItem {
 
     public var properties: [String: PackProtocol] = [:]
     public var labels: [String] = []
-    
+
     private var updatedProperties: [String: PackProtocol] = [:]
     private var deletedPropertyKeys = Set<String>()
     private var updatedLabels: [String] = []
@@ -24,16 +24,16 @@ public class Node: ResponseItem {
     public init(
         labels: [String],
         properties: [String: PackProtocol]) {
-        
+
         self.labels = labels
         self.properties = properties
-        
+
         self.modified = false
         self.internalAlias = UUID().uuidString.replacingOccurrences(of: "-", with: "")
         self.createdTime = Date()
         self.updatedTime = Date()
     }
-    
+
     init?(data: PackProtocol) {
         if let s = data as? Structure,
             s.signature == 78,
@@ -60,26 +60,26 @@ public class Node: ResponseItem {
         let query = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: self.properties))
     }
-    
+
     public func createRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> String {
         let labels = self.labels.joined(separator: ":")
         let params = properties.keys.map { "\($0): {\($0)\(paramSuffix)}" }.joined(separator: ", ")
-        
+
         let query: String
         if withReturnStatement {
             query = "\(withCreate ? "CREATE" : "") (\(nodeAlias):\(labels) { \(params) }) RETURN \(nodeAlias)"
         } else {
             query = "\(withCreate ? "CREATE" : "") (\(nodeAlias):\(labels) { \(params) })"
         }
-        
+
         return query
     }
-    
+
     public subscript(key: String) -> PackProtocol? {
         get {
             return self.updatedProperties[key]
         }
-        
+
         set (newValue) {
             if let newValue = newValue {
                 self.properties[key] = newValue
@@ -95,9 +95,9 @@ public class Node: ResponseItem {
 }
 
 extension Array where Element: Node {
-    
+
     public func createRequest(withReturnStatement: Bool = true) -> Request {
-        
+
         var aliases = [String]()
         var queries = [String]()
         var properties = [String: PackProtocol]()
@@ -110,14 +110,14 @@ extension Array where Element: Node {
                 properties["\(key)\(i)"] = value
             }
         }
-        
+
         let query: String
         if withReturnStatement {
             query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
         } else {
             query = queries.joined(separator: ", ")
         }
-        
+
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 }
