@@ -106,7 +106,7 @@ public class Node: ResponseItem {
 
         let addedLabels = self.addedLabels.count == 0 ? "" : "\(nodeAlias):" + self.addedLabels.joined(separator: ":")
 
-        let updatedProperties = self.updatedProperties.keys.map { "\(nodeAlias).\($0): {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        let updatedProperties = self.updatedProperties.keys.map { "\(nodeAlias).\($0) = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
         properties.merge( self.updatedProperties.map { key, value in
             return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
         
@@ -130,7 +130,7 @@ public class Node: ResponseItem {
         
         var query: String = "MATCH (\(nodeAlias))\nWHERE id(\(nodeAlias)) = \(id)\n\(update)\(remove)"
         if withReturnStatement {
-            query = "\(query) RETURN \(nodeAlias)"
+            query = "\(query)RETURN \(nodeAlias)"
         }
         
         print(query)
@@ -140,7 +140,7 @@ public class Node: ResponseItem {
 
     public subscript(key: String) -> PackProtocol? {
         get {
-            return self.updatedProperties[key]
+            return self.properties[key] ?? self.updatedProperties[key]
         }
 
         set (newValue) {

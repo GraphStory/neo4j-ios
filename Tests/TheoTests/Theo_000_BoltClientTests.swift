@@ -520,8 +520,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         let updatedNode = result.value!
         
         XCTAssertEqual(4, updatedNode.labels.count)
-        XCTAssertEqual(4 as Int64, updatedNode["luckyNumber"] as! Int64)
-
+        XCTAssertEqual(Int64(24), updatedNode["luckyNumber"]!.intValue()!)
     }
 
     static var allTests = [
@@ -535,6 +534,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testTransactionResultsInBookmark", testTransactionResultsInBookmark),
         ("testGettingStartedExample", testGettingStartedExample),
         ("testCreateAndRunCypherFromNode", testCreateAndRunCypherFromNode),
+        ("testUpdateNodesWithResult", testUpdateNodesWithResult),
     ]
 
 }
