@@ -555,31 +555,42 @@ class Theo_001_BoltClientTests: XCTestCase {
     
     func testUpdateRelationship() throws {
         
+        let exp = expectation(description: "Finish transaction with updates to relationship")
         let client = try makeClient()
-        let nodes = makeSomeNodes()
-        let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
-        let (from, to) = (createdNodes[0], createdNodes[1])
-        var result = client.relateSync(node: from, to: to, name: "Married", properties: [ "happily": true ])
-        let createdRelationship: Relationship = result.value!
+        try client.executeAsTransaction() { tx in
         
-        XCTAssertTrue(createdRelationship["happily"] as! Bool)
-        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
-        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+            let nodes = self.makeSomeNodes()
+            let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+            let (from, to) = (createdNodes[0], createdNodes[1])
+            var result = client.relateSync(node: from, to: to, name: "Married", properties: [ "happily": true ])
+            let createdRelationship: Relationship = result.value!
+            
+            XCTAssertTrue(createdRelationship["happily"] as! Bool)
+            XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+            XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+            
+            createdRelationship["location"] = "church"
+            createdRelationship["someProp"] = 42
+            result = client.updateAndReturnRelationshipSync(relationship: createdRelationship)
+            let updatedRelationship: Relationship = result.value!
+            
+            updatedRelationship["someProp"] = nil
+            result = client.updateAndReturnRelationshipSync(relationship: updatedRelationship)
+            let finalRelationship: Relationship = result.value!
+            
+            XCTAssertTrue(finalRelationship["happily"] as! Bool)
+            XCTAssertEqual("church", finalRelationship["location"] as! String)
+            XCTAssertNil(finalRelationship["someProp"])
+            XCTAssertEqual(from.id!, finalRelationship.fromNodeId)
+            XCTAssertEqual(to.id!, finalRelationship.toNodeId)
+            
+            tx.markAsFailed()
+            exp.fulfill()
+        }
         
-        createdRelationship["location"] = "church"
-        createdRelationship["someProp"] = 42
-        result = client.updateAndReturnRelationshipSync(relationship: createdRelationship)
-        let updatedRelationship: Relationship = result.value!
-        
-        updatedRelationship["someProp"] = nil
-        result = client.updateAndReturnRelationshipSync(relationship: updatedRelationship)
-        let finalRelationship: Relationship = result.value!
-
-        XCTAssertTrue(finalRelationship["happily"] as! Bool)
-        XCTAssertEqual("church", finalRelationship["location"] as! String)
-        XCTAssertNil(finalRelationship["someProp"])
-        XCTAssertEqual(from.id!, finalRelationship.fromNodeId)
-        XCTAssertEqual(to.id!, finalRelationship.toNodeId)
+        waitForExpectations(timeout: 10.0) { error in
+            XCTAssertNil(error)
+        }
     }
 
     static var allTests = [
