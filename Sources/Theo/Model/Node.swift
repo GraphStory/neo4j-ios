@@ -91,7 +91,7 @@ public class Node: ResponseItem {
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 
-    public func updateRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> (String, [String:PackProtocol]) {
+    public func updateRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "") -> (String, [String:PackProtocol]) {
 
         guard let id = self.id else {
             print("Error: Cannot create update request for node without id. Did you mean to create it?")
@@ -149,12 +149,33 @@ public class Node: ResponseItem {
 
     public subscript(key: String) -> PackProtocol? {
         get {
-            return self.properties[key] ?? self.updatedProperties[key]
+            return self.updatedProperties[key] ?? self.properties[key]
         }
 
         set (newValue) {
             setProperty(key: key, value: newValue)
         }
+    }
+    
+    public func deleteRequest(nodeAlias: String = "node") -> Request {
+        let query = deleteRequestQuery(nodeAlias: nodeAlias)
+        return Request.run(statement: query, parameters: Map(dictionary: [:]))
+    }
+
+    public func deleteRequestQuery(nodeAlias: String = "node") -> String {
+        
+        guard let id = self.id else {
+            print("Error: Cannot create update request for node without id. Did you mean to create it?")
+            return ""
+        }
+
+        let query = """
+                    MATCH (\(nodeAlias)
+                    WHERE id(\(nodeAlias) = \(id)
+                    DETACH DELETE \(nodeAlias)
+                    """
+
+        return query
     }
 }
 
@@ -184,4 +205,48 @@ extension Array where Element: Node {
 
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
+    
+    public func updateRequest(withReturnStatement: Bool = true) -> Request {
+        
+        var aliases = [String]()
+        var queries = [String]()
+        var properties = [String: PackProtocol]()
+        for i in 0..<self.count {
+            let node = self[i]
+            let nodeAlias = "node\(i)"
+            let (query, queryProperties) = node.updateRequestQuery(
+                withReturnStatement: false,
+                nodeAlias: nodeAlias, paramSuffix: "\(i)")
+            queries.append(query)
+            aliases.append(nodeAlias)
+            for (key, value) in queryProperties {
+                properties[key] = value
+            }
+        }
+        
+        let query: String
+        if withReturnStatement {
+            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
+        } else {
+            query = queries.joined(separator: ", ")
+        }
+        
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
+        
+    }
+    
+    public func deleteRequest(withReturnStatement: Bool = true) -> Request {
+        
+        let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
+        let nodeAlias = "node"
+        
+        let query = """
+                    MATCH (\(nodeAlias)
+                    WHERE id(\(nodeAlias) IN [\(ids)]
+                    DETACH DELETE \(nodeAlias)
+                    """
+        
+        return Request.run(statement: query, parameters: Map(dictionary: [:]))
+    }
+
 }

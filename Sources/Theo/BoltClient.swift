@@ -43,6 +43,7 @@ open class BoltClient {
 
     public enum BoltClientError: Error {
         case missingNodeResponse
+        case missingRelationshipResponse
         case queryUnsuccessful
         case fetchingRecordsUnsuccessful
         case unknownError
@@ -400,7 +401,7 @@ extension BoltClient { // Node functions
         performRequestWithReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func createAndReturnNodeSync(node: Node) -> (Result<Node, AnyError>) {
+    public func createAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -420,7 +421,7 @@ extension BoltClient { // Node functions
         performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func createNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+    public func createNodeSync(node: Node) -> Result<Bool, AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -465,7 +466,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func createAndReturnNodesSync(nodes: [Node]) -> (Result<[Node], AnyError>) {
+    public func createAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -492,7 +493,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func createNodesSync(nodes: [Node]) -> (Result<Bool, AnyError>) {
+    public func createNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -547,7 +548,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateAndReturnNodeSync(node: Node) -> (Result<Node, AnyError>) {
+    public func updateAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -580,7 +581,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+    public func updateNodeSync(node: Node) -> Result<Bool, AnyError> {
 
         let group = DispatchGroup()
         group.enter()
@@ -596,41 +597,349 @@ extension BoltClient { // Node functions
     }
 
     public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
-
+        let request = nodes.updateRequest()
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                let nodes: [Node] = queryResult.nodes.map { $0.value }
+                                completionBlock?(.success(nodes))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public func updateAndReturnNodesSync(nodes: [Node]) -> (Result<[Node], AnyError>) {
+    public func updateAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
 
-        return .success(nodes)
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<[Node], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateAndReturnNodes(nodes: nodes) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
     }
 
-    public func updateNodes(nodes: [Node], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
-
+    public func updateNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        let request = nodes.updateRequest(withReturnStatement: false)
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, _)):
+                completionBlock?(.success(isSuccess))
+            }
+        }
     }
 
-    public func updateNodesSync(nodes: [Node]) -> (Result<[Bool], AnyError>) {
+    public func updateNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
 
-        return .success([true])
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateNodes(nodes: nodes) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
     }
 
     //MARK: Delete
     public func deleteNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
-
+        let request = node.deleteRequest()
+        performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteNodeSync(node: Node) -> (Result<Bool, AnyError>) {
+    public func deleteNodeSync(node: Node) -> Result<Bool, AnyError> {
 
-        return .success(true)
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        deleteNode(node: node) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+        
     }
 
-    public func deleteNodes(nodes: [Node], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
-
+    public func deleteNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        let request = nodes.deleteRequest()
+        performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteNodesSync(nodes: [Node]) -> (Result<[Bool], AnyError>) {
+    public func deleteNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
 
-        return .success([true])
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        deleteNodes(nodes: nodes) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
     }
 
+}
 
+extension BoltClient { // Relationship functinos
+    
+    // Create
+    
+    public func relate(node: Node, to: Node, name: String, properties: [String:PackProtocol], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        if let relationship = Relationship(fromNode: node, toNode: to, name: name, type: .from, properties: properties) {
+            let request = relationship.createRequest()
+            performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
+        } else {
+            print("Could not create relationship")
+        }
+    }
+
+    public func relateSync(node: Node, to: Node, name: String, properties: [String:PackProtocol]) -> Result<Relationship, AnyError> {
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        relate(node: node, to: to, name: name, properties: properties) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+
+    //MARK: Update
+    public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        
+        let request = relationship.updateRequest()
+        performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
+    }
+    
+    private func performRequestWithReturnRelationship(request: Request, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                if let (_, relationship) = queryResult.relationships.first {
+                                    completionBlock?(.success(relationship))
+                                } else {
+                                    let error = AnyError(BoltClientError.missingRelationshipResponse)
+                                    completionBlock?(.failure(error))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public func updateAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateAndReturnRelationship(relationship: relationship) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    public func updateRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        
+        let request = relationship.updateRequest()
+        performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
+    }
+    
+    public func performRequestWithNoReturnRelationship(request: Request, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, _)):
+                completionBlock?(.success(isSuccess))
+            }
+        }
+    }
+    
+    public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateRelationship(relationship: relationship) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    /*
+    public func updateAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+        let request = relationships.updateRequest()
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, partialQueryResult)):
+                if !isSuccess {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+                    self.pullAll(partialQueryResult: partialQueryResult) { response in
+                        switch response {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success((isSuccess, queryResult)):
+                            if !isSuccess {
+                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                let relationships: [Relationship] = queryResult.relationships.map { $0.value }
+                                completionBlock?(.success(relationships))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public func updateAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<[Relationship], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateAndReturnRelationships(relationships: relationships) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }
+    
+    public func updateRelationships(relationships: [Relationship], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        let request = relationships.updateRequest(withReturnStatement: false)
+        execute(request: request) { response in
+            switch response {
+            case let .failure(error):
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, _)):
+                completionBlock?(.success(isSuccess))
+            }
+        }
+    }
+    
+    public func updateRelationshipsSync(relationships: [Relationship]) -> Result<Bool, AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        updateRelationships(relationships: relationships) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }*/
+    
+    //MARK: Delete
+    public func deleteRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+        let request = relationship.deleteRequest()
+        performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
+    }
+    
+    public func deleteRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        deleteRelationship(relationship: relationship) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+        
+    }
+    
+    /*
+    public func deleteRelationships(relationships: [Relationship], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
+        let request = relationships.deleteRequest()
+        performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
+    }
+    
+    public func deleteRelationshipsSync(relationships: [Relationship]) -> Result<[Bool], AnyError> {
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        deleteRelationships(relationships: relationships) { result in
+            theResult = result
+            group.leave()
+        }
+        
+        group.wait()
+        return theResult
+    }*/
 }
