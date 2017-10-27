@@ -15,10 +15,10 @@ public class Node: ResponseItem {
     public private(set) var properties: [String: PackProtocol] = [:]
     public private(set) var labels: [String] = []
 
-    private var updatedProperties: [String: PackProtocol] = [:]
-    private var removedPropertyKeys = Set<String>()
-    private var addedLabels: [String] = []
-    private var removedLabels: [String] = []
+    internal private(set) var updatedProperties: [String: PackProtocol] = [:]
+    internal private(set) var removedPropertyKeys = Set<String>()
+    internal private(set) var addedLabels: [String] = []
+    internal private(set) var removedLabels: [String] = []
 
 
     public init(
@@ -118,13 +118,17 @@ public class Node: ResponseItem {
 
         let removedLabels = self.removedLabels.count == 0 ? "" : self.removedLabels.map { "\(nodeAlias):\($0)" }.joined(separator: ", ")
 
-        var remove = [ removedLabels, removedProperties ].joined(separator: ", ")
-        if remove == ", " {
-            remove = ""
+        let remove: String
+        if removedLabels.count > 0 && removedProperties.count > 0 {
+            remove = "REMOVE " + [ removedLabels, removedProperties ].joined(separator: ", ")
+        } else if removedLabels.count > 0 {
+            remove = "REMOVE \(removedLabels)"
+        } else if removedProperties.count > 0 {
+            remove = "REMOVE \(removedProperties)"
         } else {
-            remove = "REMOVE \(remove)\n"
+            remove = ""
         }
-
+        
         var query: String = "MATCH (\(nodeAlias))\nWHERE id(\(nodeAlias)) = \(id)\n\(update)\(remove)"
         if withReturnStatement {
             query = "\(query)RETURN \(nodeAlias)"
@@ -209,28 +213,60 @@ extension Array where Element: Node {
     public func updateRequest(withReturnStatement: Bool = true) -> Request {
         
         var aliases = [String]()
-        var queries = [String]()
+        var idMaps = [String]()
+        
+        var addedLabels = [String]()
+        var updatedProperties = [String]()
         var properties = [String: PackProtocol]()
+        var removedProperties = [String]()
+        var removedLabels = [String]()
+        
         for i in 0..<self.count {
             let node = self[i]
             let nodeAlias = "node\(i)"
-            let (query, queryProperties) = node.updateRequestQuery(
-                withReturnStatement: false,
-                nodeAlias: nodeAlias, paramSuffix: "\(i)")
-            queries.append(query)
             aliases.append(nodeAlias)
-            for (key, value) in queryProperties {
-                properties[key] = value
+            
+            guard let nodeId = node.id else {
+                print("All nodes must have been created before being updated, but found node with no id, so aborting update")
+                return Request.run(statement: "", parameters: Map(dictionary: [:]))
+            }
+            
+            idMaps.append("id(\(nodeAlias)) = \(nodeId)")
+            
+            for (key, value) in node.updatedProperties {
+                updatedProperties.append("\(nodeAlias).\(key) = { \(key)\(i) }")
+                properties["\(key)\(i)"] = value
+            }
+
+            if node.addedLabels.count > 0 {
+                addedLabels.append(nodeAlias + ":" + node.addedLabels.joined(separator: ":"))
+            }
+            
+            if node.removedPropertyKeys.count > 0 {
+                for prop in node.removedPropertyKeys {
+                    removedProperties.append("\(nodeAlias).\(prop)")
+                }
+            }
+            
+            if node.removedLabels.count > 0 {
+                for label in node.removedLabels {
+                    removedLabels.append("\(nodeAlias):\(label)")
+                }
             }
         }
         
-        let query: String
-        if withReturnStatement {
-            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
-        } else {
-            query = queries.joined(separator: ", ")
-        }
+        let updates = addedLabels + updatedProperties
+        let remove = removedLabels + removedProperties
         
+        var query = "MATCH " + aliases.map { "(\($0))" }.joined(separator: ", ")
+        query = query + "\nWHERE " + idMaps.joined(separator: "\nAND ")
+        query = query + "\nSET " + updates.joined(separator: ", ")
+        query = query + "\nREMOVE " + remove.joined(separator: ", ")
+        
+        if withReturnStatement {
+            query = query + "\nRETURN " + aliases.joined(separator: ", ")
+        }
+
         return Request.run(statement: query, parameters: Map(dictionary: properties))
         
     }
