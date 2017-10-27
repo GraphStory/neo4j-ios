@@ -145,7 +145,7 @@ public class Relationship: ResponseItem {
         var removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(relationshipAlias).\($0)" }.joined(separator: ", ")
         
         if removedProperties != "" {
-            removedProperties = "REMOVE \(remove)\n"
+            removedProperties = "REMOVE \(removedProperties)\n"
         }
         
         var query = """
