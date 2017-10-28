@@ -175,7 +175,7 @@ public class Node: ResponseItem {
 
         let query = """
                     MATCH (\(nodeAlias))
-                    WHERE id(\(nodeAlias) = \(id)
+                    WHERE id(\(nodeAlias)) = \(id)
                     DETACH DELETE \(nodeAlias)
                     """
 

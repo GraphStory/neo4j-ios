@@ -678,6 +678,26 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
     }
     
+    func testCreateAndDeleteNode() throws {
+        
+        let node = makeSomeNodes().first!
+        
+        let client = try makeClient()
+        let result = client.createAndReturnNodeSync(node: node)
+        switch result {
+        case let .failure(error):
+            XCTFail(error.localizedDescription)
+        case let .success(resultNode):
+            let result = client.deleteNodeSync(node: resultNode)
+            switch result{
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            case let .success(isSuccess):
+                XCTAssertTrue(isSuccess)
+            }
+        }
+    }
+    
     func testCreateAndDeleteNodes() throws {
         
         let nodes = makeSomeNodes()
@@ -698,7 +718,6 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
     }
     
-
     static var allTests = [
         ("testNodeResult", testNodeResult),
         ("testRelationshipResult", testRelationshipResult),
@@ -716,6 +735,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testUpdateRelationship", testUpdateRelationship),
         ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
         ("testUpdateAndRunCypherFromNodesWithoutResult", testUpdateAndRunCypherFromNodesWithoutResult),
+        ("testCreateAndDeleteNode", testCreateAndDeleteNode),
     ]
 
 }
