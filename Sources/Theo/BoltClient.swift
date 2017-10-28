@@ -204,12 +204,12 @@ open class BoltClient {
         var relationships = [UInt64:Relationship]()
         var paths = [Path]()
         var rows = [[String:ResponseItem]]()
-        var responseItemDict = [String:ResponseItem]()
+        var row = [String:ResponseItem]()
 
         for i in 0..<candidateList.count {
             if i > 0 && i % result.fields.count == 0 {
-                rows.append(responseItemDict)
-                responseItemDict = [String:ResponseItem]()
+                rows.append(row)
+                row = [String:ResponseItem]()
             }
 
             let field = result.fields.count > 0 ? result.fields[i % result.fields.count] : nil
@@ -221,7 +221,7 @@ open class BoltClient {
                 }
 
                 if let field = field {
-                    responseItemDict[field] = node
+                    row[field] = node
                 }
             }
 
@@ -231,7 +231,7 @@ open class BoltClient {
                 }
 
                 if let field = field {
-                    responseItemDict[field] = relationship
+                    row[field] = relationship
                 }
             }
 
@@ -239,38 +239,38 @@ open class BoltClient {
                 paths.append(path)
 
                 if let field = field {
-                    responseItemDict[field] = path
+                    row[field] = path
                 }
             }
 
             else if let record = candidate.uintValue() {
                 if let field = field {
-                    responseItemDict[field] = record
+                    row[field] = record
                 }
             }
 
             else if let record = candidate.intValue() {
                 if let field = field {
-                    responseItemDict[field] = record
+                    row[field] = record
                 }
             }
 
             else if let record = candidate as? ResponseItem {
                 if let field = field {
-                    responseItemDict[field] = record
+                    row[field] = record
                 }
             }
 
             else {
                 let record = Record(entry: candidate)
                 if let field = field {
-                    responseItemDict[field] = record
+                    row[field] = record
                 }
             }
         }
 
-        if responseItemDict.count > 0 {
-            rows.append(responseItemDict)
+        if row.count > 0 {
+            rows.append(row)
         }
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
