@@ -113,7 +113,7 @@ public class Relationship: ResponseItem {
         }
         
         if withReturnStatement {
-            query = "\(query)\nRETURN \(relatinoshipAlias)"
+            query = "\(query)\nRETURN \(relatinoshipAlias),fromNode,toNode"
         }
         
         return query

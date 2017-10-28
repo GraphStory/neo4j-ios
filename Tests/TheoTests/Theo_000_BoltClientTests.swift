@@ -515,8 +515,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         case let .failure(error):
             XCTFail(error.localizedDescription)
         case var .success(resultNodes):
-            var resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }.first!
-            var resultNode2 = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
+            let resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }.first!
+            let resultNode2 = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
             
             resultNode["instrument"] = "Recorder"
             resultNode["favouriteComposer"] = "CPE Bach"
@@ -644,11 +644,16 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
-        let (from, to) = (createdNodes[0], createdNodes[1])
+        var (from, to) = (createdNodes[0], createdNodes[1])
         let result = client.relateSync(node: from, to: to, name: "Married", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
-        
+
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+        
+        from = createdRelationship.fromNode!
+        to = createdRelationship.toNode!
         XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
     }
