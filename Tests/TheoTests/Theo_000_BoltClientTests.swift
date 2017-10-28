@@ -534,6 +534,32 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
     }
     
+    func testUpdateAndRunCypherFromNodesWithoutResult() throws {
+        
+        let nodes = makeSomeNodes()
+        
+        let client = try makeClient()
+        let result = client.createAndReturnNodesSync(nodes: nodes)
+        switch result {
+        case let .failure(error):
+            XCTFail(error.localizedDescription)
+        case let .success(resultNodes):
+            let resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }.first!
+            let resultNode2 = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
+            
+            resultNode["instrument"] = "Recorder"
+            resultNode["favouriteComposer"] = "CPE Bach"
+            resultNode["weight"] = nil
+            resultNode.add(label: "LabelledOne")
+            
+            resultNode2["instrument"] = "Piano"
+            resultNode2.add(label: "LabelledOne")
+            let result = client.updateNodesSync(nodes: [resultNode, resultNode2])
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!)
+        }
+    }
+    
     func testCreateAndRunCypherFromNodesNoResult() throws {
 
         let nodes = makeSomeNodes()
@@ -651,6 +677,27 @@ class Theo_001_BoltClientTests: XCTestCase {
             XCTAssertNil(error)
         }
     }
+    
+    func testCreateAndDeleteNodes() throws {
+        
+        let nodes = makeSomeNodes()
+        
+        let client = try makeClient()
+        let result = client.createAndReturnNodesSync(nodes: nodes)
+        switch result {
+        case let .failure(error):
+            XCTFail(error.localizedDescription)
+        case let .success(resultNodes):
+            let result = client.deleteNodesSync(nodes: resultNodes)
+            switch result{
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            case let .success(isSuccess):
+                XCTAssertTrue(isSuccess)
+            }
+        }
+    }
+    
 
     static var allTests = [
         ("testNodeResult", testNodeResult),
@@ -668,6 +715,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testCreateRelationship", testCreateRelationship),
         ("testUpdateRelationship", testUpdateRelationship),
         ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
+        ("testUpdateAndRunCypherFromNodesWithoutResult", testUpdateAndRunCypherFromNodesWithoutResult),
     ]
 
 }

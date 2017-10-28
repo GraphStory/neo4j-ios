@@ -174,7 +174,7 @@ public class Node: ResponseItem {
         }
 
         let query = """
-                    MATCH (\(nodeAlias)
+                    MATCH (\(nodeAlias))
                     WHERE id(\(nodeAlias) = \(id)
                     DETACH DELETE \(nodeAlias)
                     """
@@ -277,8 +277,8 @@ extension Array where Element: Node {
         let nodeAlias = "node"
         
         let query = """
-                    MATCH (\(nodeAlias)
-                    WHERE id(\(nodeAlias) IN [\(ids)]
+                    MATCH (\(nodeAlias))
+                    WHERE id(\(nodeAlias)) IN [\(ids)]
                     DETACH DELETE \(nodeAlias)
                     """
         
