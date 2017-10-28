@@ -785,6 +785,19 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertTrue(rmResult.isSuccess)
 
     }
+    
+    func testReturnPath() throws {
+        
+        try testIntroToCypher() // First make sure we have a result path
+        
+        let client = try makeClient()
+        let query = "MATCH p = (a)-[*3..5]->(b)\nRETURN p"
+        let result = client.executeCypherSync(query)
+        XCTAssertNotNil(result.value)
+        XCTAssertEqual(1, result.value!.paths.count)
+        let path = result.value!.paths.first!
+        XCTAssertLessThan(0, path.segments.count)
+    }
 
     
     static var allTests = [
@@ -807,6 +820,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         ("testCreateAndDeleteNode", testCreateAndDeleteNode),
         ("testUpdateRelationshipNoReturn", testUpdateRelationshipNoReturn),
         ("testDeleteRelationship", testDeleteRelationship),
+        ("testReturnPath", testReturnPath),
     ]
 
 }
