@@ -285,7 +285,7 @@ class Theo_001_BoltClientTests: XCTestCase {
                                 XCTAssertEqual(0, queryResult.nodes.count)
                                 XCTAssertEqual(0, queryResult.relationships.count)
                                 XCTAssertEqual(0, queryResult.paths.count)
-                                XCTAssertEqual(0, queryResult.responseItemDicts.count)
+                                XCTAssertEqual(0, queryResult.rows.count)
                             }
                         }
                     } else {
@@ -341,14 +341,14 @@ class Theo_001_BoltClientTests: XCTestCase {
                     XCTFail("Failed to pull response data")
                 case let .success((success, queryResult)):
                     XCTAssertTrue(success)
-                    XCTAssertEqual(1, queryResult.responseItemDicts.count)
-                    XCTAssertEqual(1, queryResult.responseItemDicts.first!.count)
+                    XCTAssertEqual(1, queryResult.rows.count)
+                    XCTAssertEqual(1, queryResult.rows.first!.count)
                     XCTAssertEqual(0, queryResult.nodes.count)
                     XCTAssertEqual(0, queryResult.relationships.count)
                     XCTAssertEqual(0, queryResult.paths.count)
                     XCTAssertEqual(1, queryResult.fields.count)
 
-                    numberOfKingArthurs = Int(queryResult.responseItemDicts.first?["count"] as! UInt64)
+                    numberOfKingArthurs = Int(queryResult.rows.first?["count"] as! UInt64)
                     XCTAssertGreaterThanOrEqual(0, numberOfKingArthurs)
 
                 }
@@ -375,7 +375,7 @@ class Theo_001_BoltClientTests: XCTestCase {
             XCTAssertEqual(0, queryResult.nodes.count)
             XCTAssertEqual(0, queryResult.relationships.count)
             XCTAssertEqual(0, queryResult.paths.count)
-            XCTAssertEqual(0, queryResult.responseItemDicts.count)
+            XCTAssertEqual(0, queryResult.rows.count)
 
 
             client.executeCypher("MATCH (a:Person) WHERE a.name = {name} " +
@@ -389,7 +389,7 @@ class Theo_001_BoltClientTests: XCTestCase {
                 XCTAssertEqual(0, queryResult.nodes.count)
                 XCTAssertEqual(0, queryResult.relationships.count)
                 XCTAssertEqual(0, queryResult.paths.count)
-                XCTAssertEqual(0, queryResult.responseItemDicts.count)
+                XCTAssertEqual(0, queryResult.rows.count)
 
                 client.pullAll(partialQueryResult: queryResult) { result in
 
@@ -404,14 +404,14 @@ class Theo_001_BoltClientTests: XCTestCase {
                         XCTAssertEqual(0, queryResult.nodes.count)
                         XCTAssertEqual(0, queryResult.relationships.count)
                         XCTAssertEqual(0, queryResult.paths.count)
-                        XCTAssertEqual(1, queryResult.responseItemDicts.count)
-                        let row = queryResult.responseItemDicts.first!
+                        XCTAssertEqual(1, queryResult.rows.count)
+                        let row = queryResult.rows.first!
                         XCTAssertEqual(2, row.count)
                         XCTAssertEqual("King", row["title"] as! String)
                         XCTAssertEqual("Arthur", row["name"] as! String)
 
                         
-                        XCTAssertEqual(numberOfKingArthurs + 2, queryResult.responseItemDicts.first?.count ?? 0)
+                        XCTAssertEqual(numberOfKingArthurs + 2, queryResult.rows.first?.count ?? 0)
 
                         tx.markAsFailed() // This should undo the beginning CREATE even though we have pulled it here
                         exp.fulfill()

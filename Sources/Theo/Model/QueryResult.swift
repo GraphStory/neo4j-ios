@@ -7,7 +7,7 @@ public class QueryResult {
     public var nodes: [UInt64:Node]
     public var relationships: [UInt64:Relationship]
     public var paths: [Path]
-    public var responseItemDicts: [[String:ResponseItem]]
+    public var rows: [[String:ResponseItem]]
 
     public init(fields: [String] = [],
          stats: QueryStats = QueryStats(),
@@ -20,7 +20,7 @@ public class QueryResult {
         self.nodes = nodes
         self.relationships = relationships
         self.paths = paths
-        self.responseItemDicts = [[String:ResponseItem]]()
+        self.rows = [[String:ResponseItem]]()
     }
 
 }

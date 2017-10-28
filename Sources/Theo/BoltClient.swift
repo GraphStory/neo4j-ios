@@ -203,12 +203,12 @@ open class BoltClient {
         var nodes = [UInt64:Node]()
         var relationships = [UInt64:Relationship]()
         var paths = [Path]()
-        var responseItemDicts = [[String:ResponseItem]]()
+        var rows = [[String:ResponseItem]]()
         var responseItemDict = [String:ResponseItem]()
 
         for i in 0..<candidateList.count {
             if i > 0 && i % result.fields.count == 0 {
-                responseItemDicts.append(responseItemDict)
+                rows.append(responseItemDict)
                 responseItemDict = [String:ResponseItem]()
             }
 
@@ -270,7 +270,7 @@ open class BoltClient {
         }
 
         if responseItemDict.count > 0 {
-            responseItemDicts.append(responseItemDict)
+            rows.append(responseItemDict)
         }
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
@@ -285,7 +285,7 @@ open class BoltClient {
         result.relationships.merge(updatedRelationships) { (r, _) -> Relationship in return r }
 
         result.paths += paths
-        result.responseItemDicts += responseItemDicts
+        result.rows += rows
 
         return result
 
