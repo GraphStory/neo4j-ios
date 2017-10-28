@@ -645,7 +645,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
         var (from, to) = (createdNodes[0], createdNodes[1])
-        let result = client.relateSync(node: from, to: to, name: "Married", properties: [ "happily": true ])
+        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
 
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
