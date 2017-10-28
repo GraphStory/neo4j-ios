@@ -718,6 +718,30 @@ class Theo_001_BoltClientTests: XCTestCase {
         }
     }
     
+    func testDeleteRelationship() throws {
+        
+        var from = Node(labels: ["Candidate"], properties: ["name": "Bala"])
+        var to = Node(labels: ["Employer"], properties: ["name": "Yahoo"])
+        
+        let client = try makeClient()
+        let result = client.createAndReturnNodesSync(nodes: [from, to])
+        XCTAssertTrue(result.isSuccess)
+        XCTAssertNotNil(result.value)
+        let resultNodes = result.value!
+        from = resultNodes[0]
+        to = resultNodes[1]
+        
+        let relResult = client.relateSync(node: from, to: to, name: "WORKED_IN", properties: [ "from": 2015, "to": 2017])
+        XCTAssertTrue(relResult.isSuccess)
+        XCTAssertNotNil(relResult.value)
+        let relationship = relResult.value!
+        
+        let rmResult = client.deleteRelationshipSync(relationship: relationship)
+        XCTAssertTrue(rmResult.isSuccess)
+
+    }
+
+    
     static var allTests = [
         ("testNodeResult", testNodeResult),
         ("testRelationshipResult", testRelationshipResult),
@@ -736,6 +760,7 @@ class Theo_001_BoltClientTests: XCTestCase {
         ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
         ("testUpdateAndRunCypherFromNodesWithoutResult", testUpdateAndRunCypherFromNodesWithoutResult),
         ("testCreateAndDeleteNode", testCreateAndDeleteNode),
+        ("testDeleteRelationship", testDeleteRelationship),
     ]
 
 }
