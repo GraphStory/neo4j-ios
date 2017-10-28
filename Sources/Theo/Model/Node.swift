@@ -134,8 +134,6 @@ public class Node: ResponseItem {
             query = "\(query)RETURN \(nodeAlias)"
         }
 
-        print(query)
-
         return (query, properties)
     }
 

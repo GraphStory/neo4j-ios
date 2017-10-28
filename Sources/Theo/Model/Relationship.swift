@@ -159,8 +159,6 @@ public class Relationship: ResponseItem {
             query = "\(query)\nRETURN \(relationshipAlias)"
         }
         
-        print(query)
-        
         return (query, properties)
     }
     

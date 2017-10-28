@@ -26,42 +26,49 @@ class ConfigLoader: NSObject {
 
 }
 
-class Theo_001_BoltClientTests: XCTestCase {
+class Theo_000_BoltClientTests: XCTestCase {
 
     let configuration: BoltConfig = ConfigLoader.loadBoltConfig()
-
+    static var runCount: Int = 0
 
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
+        Theo_000_BoltClientTests.runCount = Theo_000_BoltClientTests.runCount + 1
     }
 
-    private func performConnect(client: BoltClient, completionBlock: (() -> ())? = nil) {
-//        let connectGroup = DispatchGroup()
-//        connectGroup.enter()
+    private func performConnectSync(client: BoltClient, completionBlock: (() -> ())? = nil) {
+        
+        let result = client.connectSync()
+        switch result {
+        case let .failure(error):
+            XCTFail("Failed connecting with error: \(error)")
+        case let .success(isSuccess):
+            XCTAssertTrue(isSuccess)
+        }
+        completionBlock?()
+    }
+    
+        
+    private func performConnect(client: BoltClient, completionBlock: ((Bool) -> ())? = nil) {
         client.connect() { connectionResult in
             switch connectionResult {
             case let .failure(error):
-                print("Oh no! \(error)")
-//                print("Error connecting: \(error)")
-//                if error.errorCode == -9806 {
-//                    self.performConnect(client: client) {
-//                        connectGroup.leave()
-//                    }
-//                } else {
-//                    XCTFail()
-//                    connectGroup.leave()
-//                }
+                if error.errorCode == -9806 {
+                    self.performConnect(client: client) { result in
+                        completionBlock?(result)
+                    }
+                } else {
+                    XCTFail()
+                    completionBlock?(false)
+                }
             case let .success(isConnected):
                 if !isConnected {
                     print("Error, could not connect!")
                 }
+                completionBlock?(isConnected)
             }
-//            connectGroup.leave()
         }
-//        print("Waiting")
-//        connectGroup.wait()
-//        print("Done waiting")
     }
 
     private func makeClient() throws -> BoltClient {
@@ -71,7 +78,17 @@ class Theo_001_BoltClientTests: XCTestCase {
                                     password: configuration.password,
                                     encrypted: configuration.encrypted)
 
-        performConnect(client: client)
+        if Theo_000_BoltClientTests.runCount % 2 == 0 {
+            let group = DispatchGroup()
+            group.enter()
+            performConnect(client: client) { result in
+                XCTAssertTrue(result)
+                group.leave()
+            }
+            group.wait()
+        } else {
+            performConnectSync(client: client)
+        }
 
         print(" --- done connecting ---")
         return client
@@ -162,7 +179,6 @@ class Theo_001_BoltClientTests: XCTestCase {
                    """)
 
         for query in queries {
-            print(query)
             XCTAssertTrue(client.executeCypherSync(query).isSuccess)
 
         }
@@ -193,7 +209,6 @@ class Theo_001_BoltClientTests: XCTestCase {
 
 
         for query in queries {
-            print(query)
             XCTAssertTrue(client.executeCypherSync(query).isSuccess)
 
         }
