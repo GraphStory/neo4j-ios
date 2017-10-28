@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Theo"
-  s.version      = "4.0.0"
+  s.version      = "4.0.0.b1"
   s.summary      = "Open Source Neo4j library for iOS"
 
   s.description  = <<-DESC
@@ -16,10 +16,10 @@ DESC
   s.license      = { :type => "MIT", :file => "LICENSE" }
 
 
-  s.authors             = { "Cory Wiles" => "corywiles@icloud.com",
-                            "Niklas Saers" => "niklas@saers.com" }
+  s.authors             = { "Niklas Saers" => "niklas@saers.com",
+                            "Cory Wiles" => "corywiles@icloud.com" }
 
-  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/niklassaers/neo4j-ios.git", :tag => "v#{s.version}" }
 
   s.source_files  = "Classes", "Sources/**/*.swift"
   
@@ -27,6 +27,7 @@ DESC
   s.osx.deployment_target = "10.12"
   s.tvos.deployment_target = "10.0"
   
-  s.dependency 'BoltProtocol', '~> 4.0.0'
+  s.dependency 'BoltProtocol', '~> 0.9.3'
+  s.dependency 'Result', '~> 3.2.4'
   
 end

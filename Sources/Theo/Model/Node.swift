@@ -73,8 +73,9 @@ public class Node: ResponseItem {
     }
 
     public func createRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> String {
-        let labels = self.labels.joined(separator: ":")
-        let params = properties.keys.map { "\($0): {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
+        let labels = self.labels.map { "`\($0)`" }.joined(separator: ":")
+        let params = properties.keys.map { "`\($0)`: {\($0)\(paramSuffix)}" }.joined(separator: ", ")
 
         let query: String
         if withReturnStatement {
@@ -98,12 +99,14 @@ public class Node: ResponseItem {
             return ("", [:])
         }
 
+        let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
+
         var properties = [String:PackProtocol]()
 
 
-        let addedLabels = self.addedLabels.count == 0 ? "" : "\(nodeAlias):" + self.addedLabels.joined(separator: ":")
+        let addedLabels = self.addedLabels.count == 0 ? "" : "\(nodeAlias):" + self.addedLabels.map { "`\($0)`" }.joined(separator: ":")
 
-        let updatedProperties = self.updatedProperties.keys.map { "\(nodeAlias).\($0) = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        let updatedProperties = self.updatedProperties.keys.map { "\(nodeAlias).`\($0)` = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
         properties.merge( self.updatedProperties.map { key, value in
             return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
 
@@ -114,9 +117,9 @@ public class Node: ResponseItem {
             update = "SET \(update)\n"
         }
 
-        let removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(nodeAlias).\($0)" }.joined(separator: ", ")
+        let removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(nodeAlias).`\($0)`" }.joined(separator: ", ")
 
-        let removedLabels = self.removedLabels.count == 0 ? "" : self.removedLabels.map { "\(nodeAlias):\($0)" }.joined(separator: ", ")
+        let removedLabels = self.removedLabels.count == 0 ? "" : self.removedLabels.map { "\(nodeAlias):`\($0)`" }.joined(separator: ", ")
 
         let remove: String
         if removedLabels.count > 0 && removedProperties.count > 0 {
@@ -171,6 +174,7 @@ public class Node: ResponseItem {
             return ""
         }
 
+        let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
         let query = """
                     MATCH (\(nodeAlias))
                     WHERE id(\(nodeAlias)) = \(id)
@@ -200,7 +204,7 @@ extension Array where Element: Node {
 
         let query: String
         if withReturnStatement {
-            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
+            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.map { "`\($0)`" }.joined(separator: ","))"
         } else {
             query = queries.joined(separator: ", ")
         }
@@ -221,7 +225,7 @@ extension Array where Element: Node {
         
         for i in 0..<self.count {
             let node = self[i]
-            let nodeAlias = "node\(i)"
+            let nodeAlias = "`node\(i)`"
             aliases.append(nodeAlias)
             
             guard let nodeId = node.id else {
@@ -232,23 +236,23 @@ extension Array where Element: Node {
             idMaps.append("id(\(nodeAlias)) = \(nodeId)")
             
             for (key, value) in node.updatedProperties {
-                updatedProperties.append("\(nodeAlias).\(key) = { \(key)\(i) }")
+                updatedProperties.append("\(nodeAlias).`\(key)` = { \(key)\(i) }")
                 properties["\(key)\(i)"] = value
             }
 
             if node.addedLabels.count > 0 {
-                addedLabels.append(nodeAlias + ":" + node.addedLabels.joined(separator: ":"))
+                addedLabels.append(nodeAlias + ":" + node.addedLabels.map { "`\($0)`" }.joined(separator: ":"))
             }
             
             if node.removedPropertyKeys.count > 0 {
                 for prop in node.removedPropertyKeys {
-                    removedProperties.append("\(nodeAlias).\(prop)")
+                    removedProperties.append("\(nodeAlias).`\(prop)`")
                 }
             }
             
             if node.removedLabels.count > 0 {
                 for label in node.removedLabels {
-                    removedLabels.append("\(nodeAlias):\(label)")
+                    removedLabels.append("\(nodeAlias):`\(label)`")
                 }
             }
         }
@@ -272,7 +276,7 @@ extension Array where Element: Node {
     public func deleteRequest(withReturnStatement: Bool = true) -> Request {
         
         let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
-        let nodeAlias = "node"
+        let nodeAlias = "`node`"
         
         let query = """
                     MATCH (\(nodeAlias))

@@ -82,19 +82,19 @@ public class Relationship: ResponseItem {
     }
     
     public func createRequest(withReturnStatement: Bool = true, relatinoshipAlias: String = "rel") -> Request {
-        let query = createRequestQuery(withReturnStatement: withReturnStatement, relatinoshipAlias: relatinoshipAlias)
+        let query = createRequestQuery(withReturnStatement: withReturnStatement, relationshipAlias: relatinoshipAlias)
         return Request.run(statement: query, parameters: Map(dictionary: self.properties))
     }
     
     public func createRequestQuery(
         withReturnStatement: Bool = true,
-        relatinoshipAlias: String = "rel") -> String {
-        
-        var params = properties.keys.map { "\($0): {\($0)}" }.joined(separator: ", ")
+        relationshipAlias: String = "rel") -> String {
+        let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
+
+        var params = properties.keys.map { "`\($0)`: {\($0)}" }.joined(separator: ", ")
         if params != "" {
             params = " { \(params) }"
         }
-        
         
         var query: String
         switch type {
@@ -102,18 +102,18 @@ public class Relationship: ResponseItem {
             query = """
                     MATCH (fromNode) WHERE id(fromNode) = \(self.fromNodeId)
                     MATCH (toNode) WHERE id(toNode) = \(self.toNodeId)
-                    CREATE (fromNode)-[\(relatinoshipAlias):\(name)\(params)]->(toNode)
+                    CREATE (fromNode)-[\(relationshipAlias):`\(name)`\(params)]->(toNode)
                     """
         case .to:
             query = """
                     MATCH (fromNode) WHERE id(fromNode) = \(self.fromNodeId)
                     MATCH (toNode) WHERE id(toNode) = \(self.toNodeId)
-                    CREATE (fromNode)<-[\(relatinoshipAlias):\(name)\(params)]-(toNode)
+                    CREATE (fromNode)<-[\(relationshipAlias):`\(name)`\(params)]-(toNode)
                     """
         }
         
         if withReturnStatement {
-            query = "\(query)\nRETURN \(relatinoshipAlias),fromNode,toNode"
+            query = "\(query)\nRETURN \(relationshipAlias),fromNode,toNode"
         }
         
         return query
@@ -132,9 +132,9 @@ public class Relationship: ResponseItem {
         }
         
         var properties = [String:PackProtocol]()
-        
-        
-        var updatedProperties = self.updatedProperties.keys.map { "\(relationshipAlias).\($0) = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
+
+        var updatedProperties = self.updatedProperties.keys.map { "\(relationshipAlias).`\($0)` = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
         properties.merge( self.updatedProperties.map { key, value in
             return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
         
@@ -142,7 +142,7 @@ public class Relationship: ResponseItem {
             updatedProperties = "SET \(updatedProperties)\n"
         }
         
-        var removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(relationshipAlias).\($0)" }.joined(separator: ", ")
+        var removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(relationshipAlias).`\($0)`" }.joined(separator: ", ")
         
         if removedProperties != "" {
             removedProperties = "REMOVE \(removedProperties)\n"
@@ -196,6 +196,7 @@ public class Relationship: ResponseItem {
             return ""
         }
         
+        let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
         let query = """
                     MATCH ()-[\(relationshipAlias)]->()
                     WHERE id(\(relationshipAlias)) = \(id)
