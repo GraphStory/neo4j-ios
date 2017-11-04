@@ -90,7 +90,6 @@ class Theo_000_BoltClientTests: XCTestCase {
             performConnectSync(client: client)
         }
 
-        print(" --- done connecting ---")
         return client
     }
 

@@ -192,7 +192,7 @@ public class Relationship: ResponseItem {
     public func deleteRequestQuery(relationshipAlias: String = "rel") -> String {
         
         guard let id = self.id else {
-            print("Error: Cannot create update request for relationship without id. Did you mean to create it?")
+            print("Error: Cannot create delete request for relationship without id. Did you mean to create it?")
             return ""
         }
         

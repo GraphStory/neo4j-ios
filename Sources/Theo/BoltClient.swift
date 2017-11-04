@@ -114,6 +114,36 @@ open class BoltClient {
             print("Unhandled error while executing cypher: \(error.localizedDescription)")
         }
     }
+    
+    public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+        do {
+            try connection.request(request) { (successResponse, response) in
+                if successResponse == false {
+                    completionBlock?(.failure(AnyError(BoltClientError.queryUnsuccessful)))
+                } else {
+                    let queryResponse = parseResponses(responses: response)
+                    self.pullAll(partialQueryResult: queryResponse) { result in
+                        switch result {
+                        case let .failure(error):
+                            completionBlock?(.failure(AnyError(error)))
+                        case let .success((successResponse, queryResponse)):
+                            if successResponse == false {
+                                completionBlock?(.failure(AnyError(BoltClientError.queryUnsuccessful)))
+                            } else {
+                                completionBlock?(.success((successResponse, queryResponse)))
+                            }
+                        }
+                    }
+                }
+            }
+        } catch let error as Socket.Error {
+            completionBlock?(.failure(AnyError(error)))
+        } catch let error as Response.ResponseError {
+            completionBlock?(.failure(AnyError(error)))
+        } catch let error {
+            print("Unhandled error while executing cypher: \(error.localizedDescription)")
+        }
+    }
 
     public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
 
@@ -349,7 +379,7 @@ open class BoltClient {
         transactionGroup.wait()
     }
 
-    private func pullSynchronouslyAndIgnore() {
+    internal func pullSynchronouslyAndIgnore() {
         let dispatchGroup = DispatchGroup()
         let pullRequest = BoltRequest.pullAll()
         dispatchGroup.enter()
@@ -429,6 +459,7 @@ extension BoltClient { // Node functions
         var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
         createNode(node: node) { result in
             theResult = result
+            self.pullSynchronouslyAndIgnore()
             group.leave()
         }
 

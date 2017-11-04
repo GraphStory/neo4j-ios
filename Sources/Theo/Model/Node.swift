@@ -170,7 +170,7 @@ public class Node: ResponseItem {
     public func deleteRequestQuery(nodeAlias: String = "node") -> String {
         
         guard let id = self.id else {
-            print("Error: Cannot create update request for node without id. Did you mean to create it?")
+            print("Error: Cannot create delete request for node without id. Did you mean to create it?")
             return ""
         }
 
