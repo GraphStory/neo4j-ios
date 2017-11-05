@@ -53,6 +53,22 @@ public class Relationship: ResponseItem {
         self.updatedTime = Date()
     }
 
+    public init?(fromNodeId: UInt64, toNodeId:UInt64, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
+
+        self.fromNode = nil
+        self.fromNodeId = fromNodeId
+        self.toNode = nil
+        self.toNodeId = toNodeId
+        self.name = name
+        self.type = type
+        self.properties = properties
+
+        self.isModified = false
+
+        self.createdTime = Date()
+        self.updatedTime = Date()
+    }
+
     init?(data: PackProtocol) {
         if let s = data as? Structure,
             s.signature == 82,
@@ -80,12 +96,12 @@ public class Relationship: ResponseItem {
         }
 
     }
-    
+
     public func createRequest(withReturnStatement: Bool = true, relatinoshipAlias: String = "rel") -> Request {
         let query = createRequestQuery(withReturnStatement: withReturnStatement, relationshipAlias: relatinoshipAlias)
         return Request.run(statement: query, parameters: Map(dictionary: self.properties))
     }
-    
+
     public func createRequestQuery(
         withReturnStatement: Bool = true,
         relationshipAlias: String = "rel") -> String {
@@ -95,7 +111,7 @@ public class Relationship: ResponseItem {
         if params != "" {
             params = " { \(params) }"
         }
-        
+
         var query: String
         switch type {
         case .from:
@@ -111,57 +127,57 @@ public class Relationship: ResponseItem {
                     CREATE (fromNode)<-[\(relationshipAlias):`\(name)`\(params)]-(toNode)
                     """
         }
-        
+
         if withReturnStatement {
             query = "\(query)\nRETURN \(relationshipAlias),fromNode,toNode"
         }
-        
+
         return query
     }
-    
+
     public func updateRequest(withReturnStatement: Bool = true, relationshipAlias: String = "rel") -> Request {
         let (query, properties) = updateRequestQuery(withReturnStatement: withReturnStatement, relationshipAlias: relationshipAlias)
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
-    
+
     public func updateRequestQuery(withReturnStatement: Bool = true, relationshipAlias: String = "rel", paramSuffix: String = "") -> (String, [String:PackProtocol]) {
-        
+
         guard let id = self.id else {
             print("Error: Cannot create update request for relationship without id. Did you mean to create it?")
             return ("", [:])
         }
-        
+
         var properties = [String:PackProtocol]()
         let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
 
         var updatedProperties = self.updatedProperties.keys.map { "\(relationshipAlias).`\($0)` = {\($0)\(paramSuffix)}" }.joined(separator: ", ")
         properties.merge( self.updatedProperties.map { key, value in
             return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
-        
+
         if updatedProperties != "" {
             updatedProperties = "SET \(updatedProperties)\n"
         }
-        
+
         var removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(relationshipAlias).`\($0)`" }.joined(separator: ", ")
-        
+
         if removedProperties != "" {
             removedProperties = "REMOVE \(removedProperties)\n"
         }
-        
+
         var query = """
                     MATCH ()-[\(relationshipAlias)]->()
                     WHERE id(\(relationshipAlias)) = \(id)
                     \(updatedProperties)
                     \(removedProperties)
                     """
-        
+
         if withReturnStatement {
             query = "\(query)\nRETURN \(relationshipAlias)"
         }
-        
+
         return (query, properties)
     }
-    
+
     public func setProperty(key: String, value: PackProtocol?) {
         if let value = value {
             self.properties[key] = value
@@ -173,69 +189,85 @@ public class Relationship: ResponseItem {
         }
         self.isModified = true
     }
-    
+
     public subscript(key: String) -> PackProtocol? {
         get {
             return self.updatedProperties[key] ?? self.properties[key]
         }
-        
+
         set (newValue) {
             setProperty(key: key, value: newValue)
         }
     }
-    
+
     public func deleteRequest(relationshipAlias: String = "rel") -> Request {
         let query = deleteRequestQuery(relationshipAlias: relationshipAlias)
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
-    
+
     public func deleteRequestQuery(relationshipAlias: String = "rel") -> String {
-        
+
         guard let id = self.id else {
             print("Error: Cannot create delete request for relationship without id. Did you mean to create it?")
             return ""
         }
-        
+
         let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
         let query = """
                     MATCH ()-[\(relationshipAlias)]->()
                     WHERE id(\(relationshipAlias)) = \(id)
                     DELETE \(relationshipAlias)
                     """
-        
+
         return query
     }
 }
-/*
+
 extension Array where Element: Relationship {
-    
+
     public func createRequest(withReturnStatement: Bool = true) -> Request {
-        
-        var aliases = [String]()
-        var queries = [String]()
-        var properties = [String: PackProtocol]()
-        for i in 0..<self.count {
-            let node = self[i]
-            let relationshipAlias = "node\(i)"
-            queries.append(node.createRequestQuery(withReturnStatement: false, relationshipAlias: relationshipAlias, paramSuffix: "\(i)", withCreate: i == 0))
-            aliases.append(relationshipAlias)
-            for (key, value) in node.properties {
-                properties["\(key)\(i)"] = value
+
+        var returnItems = [String]()
+        var matchQueries = [String]()
+        var createQueries = [String]()
+        var parameters = [String:PackProtocol]()
+        var i = 0
+        while i < self.count {
+            let relationship = self[i]
+            i = i + 1
+            let relationshipAlias = "rel\(i)"
+
+            var params = relationship.properties.keys.map {
+                parameters["\($0)\(i)"] = relationship.properties[$0]
+                return "`\($0)`: {\($0)\(i)}"
+            }.joined(separator: ", ")
+            if params != "" {
+                params = " { \(params) }"
             }
+
+            matchQueries.append("MATCH (fromNode\(i)) WHERE id(fromNode\(i)) = \(relationship.fromNodeId)")
+            matchQueries.append("MATCH (toNode\(i)) WHERE id(toNode\(i)) = \(relationship.toNodeId)")
+            if relationship.type == .to {
+                createQueries.append("(fromNode\(i))-[\(relationshipAlias):`\(relationship.name)`\(params)]->(toNode\(i))")
+            } else {
+                createQueries.append("(fromNode\(i))<-[\(relationshipAlias):`\(relationship.name)`\(params)]-(toNode\(i))")
+            }
+            returnItems.append(relationshipAlias)
+            returnItems.append("fromNode\(i)")
+            returnItems.append("toNode\(i)")
         }
-        
-        let query: String
+
+        var query: String = matchQueries.joined(separator: "\n") + "\nCREATE " + createQueries.joined(separator: ",\n  ")
         if withReturnStatement {
-            query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
-        } else {
-            query = queries.joined(separator: ", ")
+            query += "\nRETURN \(returnItems.joined(separator: ","))"
         }
-        
-        return Request.run(statement: query, parameters: Map(dictionary: properties))
+
+        return Request.run(statement: query, parameters: Map(dictionary: parameters))
     }
-    
+
+    /*
     public func updateRequest(withReturnStatement: Bool = true) -> Request {
-        
+
         var aliases = [String]()
         var queries = [String]()
         var properties = [String: PackProtocol]()
@@ -251,32 +283,32 @@ extension Array where Element: Relationship {
                 properties[key] = value
             }
         }
-        
+
         let query: String
         if withReturnStatement {
             query = "\(queries.joined(separator: ", ")) RETURN \(aliases.joined(separator: ","))"
         } else {
             query = queries.joined(separator: ", ")
         }
-        
+
         return Request.run(statement: query, parameters: Map(dictionary: properties))
-        
+
     }
-    
+
     public func deleteRequest(withReturnStatement: Bool = true) -> Request {
-        
+
         let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
         let relationshipAlias = "rel"
-        
+
         let query = """
         MATCH (\(relationshipAlias)
         WHERE id(\(relationshipAlias) IN [\(ids)]
         DETACH DELETE \(relationshipAlias)
         """
-        
+
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
-    
+     */
+
 }
 
-*/

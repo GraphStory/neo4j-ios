@@ -131,7 +131,7 @@ public class Node: ResponseItem {
         } else {
             remove = ""
         }
-        
+
         var query: String = "MATCH (\(nodeAlias))\nWHERE id(\(nodeAlias)) = \(id)\n\(update)\(remove)"
         if withReturnStatement {
             query = "\(query)RETURN \(nodeAlias)"
@@ -161,14 +161,14 @@ public class Node: ResponseItem {
             setProperty(key: key, value: newValue)
         }
     }
-    
+
     public func deleteRequest(nodeAlias: String = "node") -> Request {
         let query = deleteRequestQuery(nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
 
     public func deleteRequestQuery(nodeAlias: String = "node") -> String {
-        
+
         guard let id = self.id else {
             print("Error: Cannot create delete request for node without id. Did you mean to create it?")
             return ""
@@ -211,30 +211,30 @@ extension Array where Element: Node {
 
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
-    
+
     public func updateRequest(withReturnStatement: Bool = true) -> Request {
-        
+
         var aliases = [String]()
         var idMaps = [String]()
-        
+
         var addedLabels = [String]()
         var updatedProperties = [String]()
         var properties = [String: PackProtocol]()
         var removedProperties = [String]()
         var removedLabels = [String]()
-        
+
         for i in 0..<self.count {
             let node = self[i]
             let nodeAlias = "`node\(i)`"
             aliases.append(nodeAlias)
-            
+
             guard let nodeId = node.id else {
                 print("All nodes must have been created before being updated, but found node with no id, so aborting update")
                 return Request.run(statement: "", parameters: Map(dictionary: [:]))
             }
-            
+
             idMaps.append("id(\(nodeAlias)) = \(nodeId)")
-            
+
             for (key, value) in node.updatedProperties {
                 updatedProperties.append("\(nodeAlias).`\(key)` = { \(key)\(i) }")
                 properties["\(key)\(i)"] = value
@@ -243,47 +243,47 @@ extension Array where Element: Node {
             if node.addedLabels.count > 0 {
                 addedLabels.append(nodeAlias + ":" + node.addedLabels.map { "`\($0)`" }.joined(separator: ":"))
             }
-            
+
             if node.removedPropertyKeys.count > 0 {
                 for prop in node.removedPropertyKeys {
                     removedProperties.append("\(nodeAlias).`\(prop)`")
                 }
             }
-            
+
             if node.removedLabels.count > 0 {
                 for label in node.removedLabels {
                     removedLabels.append("\(nodeAlias):`\(label)`")
                 }
             }
         }
-        
+
         let updates = addedLabels + updatedProperties
         let remove = removedLabels + removedProperties
-        
+
         var query = "MATCH " + aliases.map { "(\($0))" }.joined(separator: ", ")
         query = query + "\nWHERE " + idMaps.joined(separator: "\nAND ")
         query = query + "\nSET " + updates.joined(separator: ", ")
         query = query + "\nREMOVE " + remove.joined(separator: ", ")
-        
+
         if withReturnStatement {
             query = query + "\nRETURN " + aliases.joined(separator: ", ")
         }
 
         return Request.run(statement: query, parameters: Map(dictionary: properties))
-        
+
     }
-    
+
     public func deleteRequest(withReturnStatement: Bool = true) -> Request {
-        
+
         let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
         let nodeAlias = "`node`"
-        
+
         let query = """
                     MATCH (\(nodeAlias))
                     WHERE id(\(nodeAlias)) IN [\(ids)]
                     DETACH DELETE \(nodeAlias)
                     """
-        
+
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
 

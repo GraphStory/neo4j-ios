@@ -657,6 +657,55 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
     }
     
+    func testCreateRelationships() throws {
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+        var (from, to) = (createdNodes[0], createdNodes[1])
+        
+        guard let fromId = from.id,
+              let toId = to.id
+        else {
+            XCTFail()
+            return
+        }
+        
+        let rel1 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .to, properties: [ "happily": true ])!
+        let rel2 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .from, properties: [ "happily": true ])!
+        
+        let rels: [Relationship] = [rel1, rel2]
+        let request = [rel1, rel2].createRequest(withReturnStatement: true)
+        var queryResult: QueryResult! = nil
+        let group = DispatchGroup()
+        group.enter()
+        client.executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                return
+            case let .success((isSuccess, theQueryResult)):
+                XCTAssertTrue(isSuccess)
+                queryResult = theQueryResult
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        print(String(describing: queryResult))
+
+        /*
+        XCTAssertTrue(createdRelationship["happily"] as! Bool)
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+        
+        from = createdRelationship.fromNode!
+        to = createdRelationship.toNode!
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+ */
+    }
+    
     func testUpdateRelationship() throws {
         
         let exp = expectation(description: "Finish transaction with updates to relationship")
@@ -813,6 +862,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         ("testUpdateNodesWithResult", testUpdateNodesWithResult),
         ("testUpdateNodesWithNoResult", testUpdateNodesWithNoResult),
         ("testCreateRelationship", testCreateRelationship),
+        ("testCreateRelationships", testCreateRelationships),
         ("testUpdateRelationship", testUpdateRelationship),
         ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
         ("testUpdateAndRunCypherFromNodesWithoutResult", testUpdateAndRunCypherFromNodesWithoutResult),
