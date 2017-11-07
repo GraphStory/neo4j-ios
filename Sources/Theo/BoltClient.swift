@@ -49,6 +49,30 @@ open class BoltClient {
         case unknownError
     }
 
+    required public init(_ configuration: ClientConfigurationProtocol) throws {
+        
+        self.hostname = configuration.hostname
+        self.port = configuration.port
+        self.username = configuration.username
+        self.password = configuration.password
+        self.encrypted = configuration.encrypted
+        
+        let settings = ConnectionSettings(username: self.username, password: self.password, userAgent: "Theo 4.0.0")
+        
+        let noConfig = SSLConfiguration(json: [:])
+        let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
+                                                                 allowHostToBeSelfSigned: true)
+        
+        let socket = try EncryptedSocket(
+            hostname: hostname,
+            port: port,
+            configuration: configuration)
+        
+        self.connection = Connection(
+            socket: socket,
+            settings: settings)
+    }
+    
     required public init(hostname: String = "localhost", port: Int = 7687, username: String = "neo4j", password: String = "neo4j", encrypted: Bool = true) throws {
 
         self.hostname = hostname
@@ -57,7 +81,7 @@ open class BoltClient {
         self.password = password
         self.encrypted = encrypted
 
-        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 3.1.2")
+        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 4.0.0")
 
         let noConfig = SSLConfiguration(json: [:])
         let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,

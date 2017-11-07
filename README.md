@@ -9,13 +9,13 @@
 
 * CRUD operations for Nodes and Relationships
 * Transaction statement execution
-* Supports iOS, macOS and Linux
+* Supports iOS, tvOS, macOS and Linux
 
 ## Requirements
 
 * iOS 10.0 or higher / macOS 10.12 or higher / Ubuntu Linux 14.04 or higher 
-* Xcode 8.3.2 or newer for iOS or macOS
-* Swift 3.1.1
+* Xcode 9.0 or newer for iOS or macOS
+* Swift 4.0
 
 ## Feedback
 
@@ -29,7 +29,7 @@ You can install Theo in a number of ways
 Add the following line to your Package dependencies array:
 
 ```swift
-.Package(url: "https://github.com/GraphStory/neo4j-ios.git”, majorVersion: 3, minor: 0)
+.Package(url: "https://github.com/GraphStory/neo4j-ios.git”, majorVersion: 4, minor: 0)
 ```
 Run `swift build` to build your project, now with Theo included and ready to be used from your source
 
@@ -51,7 +51,7 @@ Run `pod install` to configure your updated workspace. Open the .xcworkspace gen
 Add the following to your Cartfile:
 
 ```ogdl
-github "GraphStory/neo4j-ios" ~> 3.1
+github "GraphStory/neo4j-ios" ~> 4.0
 ```
 Run `carthage update --platform iOS` to build the framework and drag the built `Theo.framework` into your Xcode project.
 
