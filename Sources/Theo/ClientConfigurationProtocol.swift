@@ -7,28 +7,28 @@ public protocol ClientConfigurationProtocol {
     var port: Int { get }
     var username: String { get }
     var password: String { get }
-    var encrypted: String { get }
+    var encrypted: Bool { get }
 }
 
 extension ClientConfigurationProtocol {
     
-    var hostname: String {
+    public var hostname: String {
         return "localhost"
     }
     
-    var port: UInt {
+    public var port: Int {
         return 7687
     }
     
-    var username: String {
+    public var username: String {
         return "neo4j"
     }
     
-    var password: String {
+    public var password: String {
         return "neo4j"
     }
     
-    var encrypted: Bool {
+    public var encrypted: Bool {
         return true
     }
 }
