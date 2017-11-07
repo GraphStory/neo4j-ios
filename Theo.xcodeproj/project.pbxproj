@@ -44,7 +44,7 @@
 		OBJ_135 /* Socket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Socket::Socket::Product" /* Socket.framework */; };
 		OBJ_136 /* PackStream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PackStream::PackStream::Product" /* PackStream.framework */; };
 		OBJ_153 /* BoltClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* BoltClient.swift */; };
-		OBJ_155 /* ClientProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* ClientProtocol.swift */; };
+		OBJ_155 /* ClientConfigurationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* ClientConfigurationProtocol.swift */; };
 		OBJ_166 /* DecodableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_25 /* DecodableType.swift */; };
 		OBJ_167 /* Dictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_26 /* Dictionary+Extensions.swift */; };
 		OBJ_168 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_27 /* Errors.swift */; };
@@ -215,7 +215,7 @@
 		85FADDC91F924E0500A3B834 /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		"Bolt::Bolt::Product" /* Bolt.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Bolt.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_10 /* BoltClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoltClient.swift; sourceTree = "<group>"; };
-		OBJ_12 /* ClientProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientProtocol.swift; sourceTree = "<group>"; };
+		OBJ_12 /* ClientConfigurationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientConfigurationProtocol.swift; sourceTree = "<group>"; };
 		OBJ_25 /* DecodableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodableType.swift; sourceTree = "<group>"; };
 		OBJ_26 /* Dictionary+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extensions.swift"; sourceTree = "<group>"; };
 		OBJ_27 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
@@ -331,6 +331,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		850CAC5A1FB20BD80087CC3E /* Playground */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Playground;
+			sourceTree = "<group>";
+		};
 		85FADDBD1F8EAE4300A3B834 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -431,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
+				850CAC5A1FB20BD80087CC3E /* Playground */,
 				OBJ_7 /* Sources */,
 				OBJ_30 /* Tests */,
 				OBJ_37 /* Dependencies */,
@@ -521,7 +529,7 @@
 			isa = PBXGroup;
 			children = (
 				85FADDBD1F8EAE4300A3B834 /* Model */,
-				OBJ_12 /* ClientProtocol.swift */,
+				OBJ_12 /* ClientConfigurationProtocol.swift */,
 				OBJ_10 /* BoltClient.swift */,
 				OBJ_24 /* Support */,
 			);
@@ -880,7 +888,7 @@
 				85FADDC81F924B7D00A3B834 /* Path.swift in Sources */,
 				85FADDCA1F924E0500A3B834 /* Record.swift in Sources */,
 				85FADDC01F8EB10200A3B834 /* QueryStats.swift in Sources */,
-				OBJ_155 /* ClientProtocol.swift in Sources */,
+				OBJ_155 /* ClientConfigurationProtocol.swift in Sources */,
 				85FADDC41F924A9600A3B834 /* Node.swift in Sources */,
 				OBJ_166 /* DecodableType.swift in Sources */,
 				85FADDC61F924AEB00A3B834 /* Relationship.swift in Sources */,
