@@ -37,16 +37,23 @@ class Theo_000_BoltClientTests: XCTestCase {
         Theo_000_BoltClientTests.runCount = Theo_000_BoltClientTests.runCount + 1
     }
 
-    private func performConnectSync(client: BoltClient, completionBlock: (() -> ())? = nil) {
+    private func performConnectSync(client: BoltClient, completionBlock: ((Bool) -> ())? = nil) {
 
         let result = client.connectSync()
         switch result {
         case let .failure(error):
-            XCTFail("Failed connecting with error: \(error)")
+            if let theError = error.error as? Socket.Error,
+                theError.errorCode == -9806 { // retry aborted connection
+                client.disconnect()
+                performConnectSync(client: client, completionBlock: completionBlock)
+            } else {
+                XCTFail("Failed connecting with error: \(error)")
+                completionBlock?(false)
+            }
         case let .success(isSuccess):
             XCTAssertTrue(isSuccess)
+            completionBlock?(true)
         }
-        completionBlock?()
     }
 
 
@@ -82,13 +89,15 @@ class Theo_000_BoltClientTests: XCTestCase {
         if Theo_000_BoltClientTests.runCount % 2 == 0 {
             let group = DispatchGroup()
             group.enter()
-            performConnect(client: client) { result in
-                XCTAssertTrue(result)
+            performConnect(client: client) { connectionSuccessful in
+                XCTAssertTrue(connectionSuccessful)
                 group.leave()
             }
             group.wait()
         } else {
-            performConnectSync(client: client)
+            performConnectSync(client: client) { connectionSuccessful in
+                XCTAssertTrue(connectionSuccessful)
+            }
         }
 
         return client
@@ -261,18 +270,21 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     func testCancellingTransaction() throws {
-        let client = try makeClient()
-        let exp = self.expectation(description: "testCancellingTransaction")
-
-        try client.executeAsTransaction() { (tx) in
-            tx.markAsFailed()
-            exp.fulfill()
+        measure {
+            do {
+                let client = try self.makeClient()
+                let exp = self.expectation(description: "testCancellingTransaction")
+                
+                try client.executeAsTransaction() { (tx) in
+                    tx.markAsFailed()
+                    exp.fulfill()
+                }
+                
+                self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
+                    XCTAssertNil(error)
+                })
+            } catch { XCTFail() }
         }
-
-        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-            XCTAssertNil(error)
-        })
-
     }
 
     func testTransactionResultsInBookmark() throws {
