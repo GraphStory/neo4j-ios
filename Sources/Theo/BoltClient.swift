@@ -125,6 +125,10 @@ open class BoltClient {
         dispatchGroup.wait()
         return theResult
     }
+    
+    public func disconnect() {
+        connection.disconnect()
+    }
 
     public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         do {
