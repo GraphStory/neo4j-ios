@@ -50,29 +50,29 @@ open class BoltClient {
     }
 
     required public init(_ configuration: ClientConfigurationProtocol) throws {
-        
+
         self.hostname = configuration.hostname
         self.port = configuration.port
         self.username = configuration.username
         self.password = configuration.password
         self.encrypted = configuration.encrypted
-        
+
         let settings = ConnectionSettings(username: self.username, password: self.password, userAgent: "Theo 4.0.0")
-        
+
         let noConfig = SSLConfiguration(json: [:])
         let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
                                                                  allowHostToBeSelfSigned: true)
-        
+
         let socket = try EncryptedSocket(
             hostname: hostname,
             port: port,
             configuration: configuration)
-        
+
         self.connection = Connection(
             socket: socket,
             settings: settings)
     }
-    
+
     required public init(hostname: String = "localhost", port: Int = 7687, username: String = "neo4j", password: String = "neo4j", encrypted: Bool = true) throws {
 
         self.hostname = hostname
@@ -97,22 +97,25 @@ open class BoltClient {
             settings: settings)
     }
 
-    public func connect(completionBlock: ((Result<Bool, Socket.Error>) -> ())? = nil) {
+    public func connect(completionBlock: ((Result<Bool, AnyError>) -> ())? = nil) {
 
         do {
             try self.connection.connect { (connected) in
                 completionBlock?(.success(connected))
             }
         } catch let error as Socket.Error {
-            completionBlock?(.failure(error))
+            completionBlock?(.failure(AnyError(error)))
+        } catch let error as Connection.ConnectionError {
+            completionBlock?(.failure(AnyError(error)))
         } catch let error {
-            print("Unhandled error while connecting: \(error.localizedDescription)")
+            print("Unknown error while connecting: \(error.localizedDescription)")
+            completionBlock?(.failure(AnyError(error)))
         }
     }
 
-    public func connectSync() -> Result<Bool, Socket.Error> {
+    public func connectSync() -> Result<Bool, AnyError> {
 
-        var theResult: Result<Bool, Socket.Error>! = nil
+        var theResult: Result<Bool, AnyError>! = nil
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
         connect() { result in

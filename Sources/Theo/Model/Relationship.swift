@@ -3,7 +3,7 @@ import Bolt
 import PackStream
 
 public enum RelationshipType {
-    case from //TODO: Are these the names we want?
+    case from
     case to
 }
 
@@ -311,4 +311,3 @@ extension Array where Element: Relationship {
      */
 
 }
-
