@@ -88,3 +88,55 @@ try client.executeAsTransaction { tx in
 
     tx.markAsFailed()
 }
+
+/*:
+ So now that we know transactions, nodes and relationships, lets have a deeper look at nodes.
+ */
+
+var apple = Node(labels: ["Fruit"], properties: [:])
+apple["pits"] = 4
+apple["color"] = "green"
+apple["variety"] = "McIntosh"
+let createResult = client.createAndReturnNodeSync(node: apple)
+
+/*:
+ Sweet, we have a nice API for setting our properties and creating the apple. Notice how we get the created node back from Neo4j as part of the successful createResult. Let's continue with that node, by first updating it.
+ */
+
+apple = createResult.value!
+apple["juicy"] = true
+let updateResult = client.updateNodeSync(node: apple)
+
+/*:
+ While the update was a success, by now we're not that interested in apples anymore, so let's get rid of it
+ */
+let deleteResult = client.deleteNodeSync(node: apple)
+
+/*:
+ Until now we have called many functions with sync. All functions can be called both synchronously and asynchronously. We choose the synchronous version here simply because it reads better. In practice, you probably often want to go for the async one.
+ 
+ Also, notice that most methods have both a version that will return the node or relationship in question or not.
+ 
+ Finally, most methods have an option to take multiple of the same kind.
+ 
+ For Create Node, this means that you have the following options:
+  - createNode
+  - createNodes
+  - createNodeSync
+  - createNodesSync
+  - createAndReturnNode
+  - createAndReturnNodes
+  - createAndReturnNodeSync
+  - createAndReturnNodesSync
+ 
+ In other words, there should be plenty of opportunity for you to express your code in an easy-to-read yet consise way
+ */
+
+let cypher =
+ """
+  MATCH (n)-->(m)
+  RETURN n, count(1)
+ """
+let cypherResult = client.executeCypherSync(cypher)
+let resultNodes = cypherResult.value!.nodes
+let resultStats = cypherResult.value!.stats

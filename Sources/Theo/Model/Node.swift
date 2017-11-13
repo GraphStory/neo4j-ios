@@ -110,11 +110,15 @@ public class Node: ResponseItem {
         properties.merge( self.updatedProperties.map { key, value in
             return ("\(key)\(paramSuffix)", value)}, uniquingKeysWith: { _, new in return new } )
 
-        var update = [addedLabels, updatedProperties].joined(separator: ", ")
-        if update == ", " {
-            update = ""
+        let update: String
+        if addedLabels != "" && updatedProperties != "" {
+           update = "SET \([addedLabels, updatedProperties].joined(separator: ", "))\n"
+        } else if addedLabels != "" {
+            update = "SET \(addedLabels)\n"
+        } else if updatedProperties != "" {
+            update = "SET \(updatedProperties)\n"
         } else {
-            update = "SET \(update)\n"
+            update = ""
         }
 
         let removedProperties = self.removedPropertyKeys.count == 0 ? "" : self.removedPropertyKeys.map { "\(nodeAlias).`\($0)`" }.joined(separator: ", ")

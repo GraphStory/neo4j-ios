@@ -586,6 +586,22 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTAssertTrue(result.value!)
         }
     }
+    
+    func testUpdateNode() throws {
+        let client = try makeClient()
+
+        var apple = Node(labels: ["Fruit"], properties: [:])
+        apple["pits"] = 4
+        apple["color"] = "green"
+        apple["variety"] = "McIntosh"
+        let createResult = client.createAndReturnNodeSync(node: apple)
+        XCTAssertTrue(createResult.isSuccess)
+
+        apple = createResult.value!
+        apple["juicy"] = true
+        let updateResult = client.updateNodeSync(node: apple)
+        XCTAssertTrue(updateResult.isSuccess)
+    }
 
     func testCreateAndRunCypherFromNodesNoResult() throws {
 

@@ -2,5 +2,10 @@
 <Timeline
    version = "3.0">
    <TimelineItems>
+      <LoggerValueHistoryTimelineItem
+         documentLocation = "file:///Users/niklas/Swift4/neo4j-ios/Tutorial.playground#CharacterRangeLen=11&amp;CharacterRangeLoc=4497&amp;EndingColumnNumber=16&amp;EndingLineNumber=141&amp;StartingColumnNumber=5&amp;StartingLineNumber=141&amp;Timestamp=532285855.307731"
+         selectedRepresentationIndex = "0"
+         shouldTrackSuperviewWidth = "NO">
+      </LoggerValueHistoryTimelineItem>
    </TimelineItems>
 </Timeline>
