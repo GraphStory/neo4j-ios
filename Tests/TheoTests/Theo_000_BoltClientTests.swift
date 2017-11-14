@@ -80,11 +80,42 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     private func makeClient() throws -> BoltClient {
-        let client = try BoltClient(hostname: configuration.hostname,
+        let client: BoltClient
+        
+        if Theo_000_BoltClientTests.runCount % 3 == 0 {
+            client = try BoltClient(hostname: configuration.hostname,
                                     port: configuration.port,
                                     username: configuration.username,
                                     password: configuration.password,
                                     encrypted: configuration.encrypted)
+        } else if Theo_000_BoltClientTests.runCount % 3 == 1 {
+            class CustomConfig: ClientConfigurationProtocol {
+                let hostname: String
+                let username: String
+                let password: String
+                let port: Int
+                let encrypted: Bool
+                
+                init(configuration: BoltConfig) {
+                    hostname = configuration.hostname
+                    password = configuration.password
+                    username = configuration.username
+                    port = configuration.port
+                    encrypted = configuration.encrypted
+                }
+            }
+            client = try BoltClient(CustomConfig(configuration: configuration))
+        } else {
+            let testPath = URL(fileURLWithPath: #file)
+                .deletingLastPathComponent().path
+            let filePath = "\(testPath)/TheoBoltConfig.json"
+            let data = try Data(contentsOf: URL.init(fileURLWithPath: filePath))
+
+            let json = try JSONSerialization.jsonObject(with: data) as! [String:Any]
+            let jsonConfig = JSONClientConfiguration(json: json)
+            client = try BoltClient(jsonConfig)
+        }
+
 
         if Theo_000_BoltClientTests.runCount % 2 == 0 {
             let group = DispatchGroup()
@@ -1068,7 +1099,24 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
             tx.markAsFailed()
         }
     }
+    
+    func testDisconnect() throws {
+        let client = try makeClient()
+        client.disconnect()
+        let result = client.executeCypherSync("RETURN 1")
+        XCTAssertFalse(result.isSuccess)
+    }
 
+    func testRecord() throws {
+        let client = try makeClient()
+        let result = client.executeCypherSync("RETURN 1,2,3")
+        XCTAssertTrue(result.isSuccess)
+        let row = result.value!.rows[0]
+        XCTAssertEqual(1 as UInt64, row["1"]! as! UInt64)
+        XCTAssertEqual(2 as UInt64, row["2"]! as! UInt64)
+        XCTAssertEqual(3 as UInt64, row["3"]! as! UInt64)
+    }
+    
     static var allTests = [
         ("testBreweryDataset", testBreweryDataset),
         ("testCancellingTransaction", testCancellingTransaction),
@@ -1104,6 +1152,8 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testUpdateNodesWithResult", testUpdateNodesWithResult),
         ("testUpdateRelationship", testUpdateRelationship),
         ("testUpdateRelationshipNoReturn", testUpdateRelationshipNoReturn),
+        ("testDisconnect", testDisconnect),
+        ("testRecord", testRecord),
     ]
 
 }

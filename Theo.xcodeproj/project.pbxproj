@@ -45,10 +45,7 @@
 		OBJ_158 /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* Record.swift */; };
 		OBJ_159 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_20 /* Relationship.swift */; };
 		OBJ_160 /* UnboundRelationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* UnboundRelationship.swift */; };
-		OBJ_161 /* DecodableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* DecodableType.swift */; };
-		OBJ_162 /* Dictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_24 /* Dictionary+Extensions.swift */; };
 		OBJ_163 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_25 /* Errors.swift */; };
-		OBJ_164 /* NSDictionary+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_26 /* NSDictionary+Extensions.swift */; };
 		OBJ_165 /* StringProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_27 /* StringProtocol.swift */; };
 		OBJ_167 /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Result::Result::Product" /* Result.framework */; };
 		OBJ_168 /* Bolt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "Bolt::Bolt::Product" /* Bolt.framework */; };
@@ -217,10 +214,7 @@
 		OBJ_19 /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		OBJ_20 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		OBJ_21 /* UnboundRelationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnboundRelationship.swift; sourceTree = "<group>"; };
-		OBJ_23 /* DecodableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodableType.swift; sourceTree = "<group>"; };
-		OBJ_24 /* Dictionary+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extensions.swift"; sourceTree = "<group>"; };
 		OBJ_25 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
-		OBJ_26 /* NSDictionary+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSDictionary+Extensions.swift"; sourceTree = "<group>"; };
 		OBJ_27 /* StringProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringProtocol.swift; sourceTree = "<group>"; };
 		OBJ_30 /* BoltConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoltConfig.swift; sourceTree = "<group>"; };
 		OBJ_31 /* Theo_000_BoltClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theo_000_BoltClientTests.swift; sourceTree = "<group>"; };
@@ -354,10 +348,7 @@
 		OBJ_22 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_23 /* DecodableType.swift */,
-				OBJ_24 /* Dictionary+Extensions.swift */,
 				OBJ_25 /* Errors.swift */,
-				OBJ_26 /* NSDictionary+Extensions.swift */,
 				OBJ_27 /* StringProtocol.swift */,
 			);
 			path = Support;
@@ -431,7 +422,7 @@
 			path = ".build/checkouts/bolt-swift.git--5715968192649433534/Sources";
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -442,7 +433,6 @@
 				OBJ_35 /* Dependencies */,
 				OBJ_74 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_52 /* SSLService 0.12.64 */ = {
@@ -766,7 +756,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_74 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -840,10 +830,7 @@
 				OBJ_158 /* Record.swift in Sources */,
 				OBJ_159 /* Relationship.swift in Sources */,
 				OBJ_160 /* UnboundRelationship.swift in Sources */,
-				OBJ_161 /* DecodableType.swift in Sources */,
-				OBJ_162 /* Dictionary+Extensions.swift in Sources */,
 				OBJ_163 /* Errors.swift in Sources */,
-				OBJ_164 /* NSDictionary+Extensions.swift in Sources */,
 				OBJ_165 /* StringProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
