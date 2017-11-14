@@ -68,14 +68,14 @@ public class Node: ResponseItem {
     }
 
     public func createRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
-        let query = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
-        return Request.run(statement: query, parameters: Map(dictionary: self.properties))
+        let (query, properties) = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 
-    public func createRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> String {
+    public func createRequestQuery(withReturnStatement: Bool = true, nodeAlias: String = "node", paramSuffix: String = "", withCreate: Bool = true) -> (String, [String: PackProtocol]) {
         let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
         let labels = self.labels.map { "`\($0)`" }.joined(separator: ":")
-        let params = properties.keys.map { "`\($0)`: {\($0)\(paramSuffix)}" }.joined(separator: ", ")
+        let params = self.properties.keys.map { "`\($0)`: {\($0)\(paramSuffix)}" }.joined(separator: ", ")
 
         let query: String
         if withReturnStatement {
@@ -84,7 +84,11 @@ public class Node: ResponseItem {
             query = "\(withCreate ? "CREATE" : "") (\(nodeAlias):\(labels) { \(params) })"
         }
 
-        return query
+        let properties = Dictionary(uniqueKeysWithValues: self.properties.map { (key, value) in
+            return ("\(key)\(paramSuffix)", value)
+        })
+        
+        return (query, properties)
     }
 
     public func updateRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
@@ -199,10 +203,11 @@ extension Array where Element: Node {
         for i in 0..<self.count {
             let node = self[i]
             let nodeAlias = "node\(i)"
-            queries.append(node.createRequestQuery(withReturnStatement: false, nodeAlias: nodeAlias, paramSuffix: "\(i)", withCreate: i == 0))
+            let (query, props) = node.createRequestQuery(withReturnStatement: false, nodeAlias: nodeAlias, paramSuffix: "\(i)", withCreate: i == 0)
+            queries.append(query)
             aliases.append(nodeAlias)
-            for (key, value) in node.properties {
-                properties["\(key)\(i)"] = value
+            for (key, value) in props {
+                properties[key] = value
             }
         }
 

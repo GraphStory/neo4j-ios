@@ -602,6 +602,18 @@ class Theo_000_BoltClientTests: XCTestCase {
         let updateResult = client.updateNodeSync(node: apple)
         XCTAssertTrue(updateResult.isSuccess)
     }
+    
+    func testCypherMatching() throws {
+        let client = try makeClient()
+        let cypher =
+          """
+          MATCH (n)-->(m)
+          RETURN n, count(1)
+          """
+        let cypherResult = client.executeCypherSync(cypher)
+        XCTAssertTrue(cypherResult.isSuccess)
+
+    }
 
     func testCreateAndRunCypherFromNodesNoResult() throws {
 
@@ -667,43 +679,127 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertTrue(isSuccess)
     }
 
-    func testCreateRelationship() throws {
-
+    func testCreateRelationshipWithoutCreateNodes() throws {
+        
         let client = try makeClient()
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
         var (from, to) = (createdNodes[0], createdNodes[1])
         let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
-
+        
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
         XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
-
+        
         from = createdRelationship.fromNode!
         to = createdRelationship.toNode!
         XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
     }
+    
+    func testCreateRelationshipWithCreateNodes() throws {
+        
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        var (from, to) = (madeNodes[0], madeNodes[1])
+        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let createdRelationship: Relationship = result.value!
+        
+        XCTAssertTrue(createdRelationship["happily"] as! Bool)
+        
+        from = createdRelationship.fromNode!
+        to = createdRelationship.toNode!
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+    }
+    
+    func testCreateRelationshipWithCreateFromNode() throws {
+        
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        var (from_, to) = (madeNodes[0], madeNodes[1])
+        let createdNode = client.createAndReturnNodeSync(node: from_).value!
+        var from = createdNode
+        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let createdRelationship: Relationship = result.value!
+        
+        XCTAssertTrue(createdRelationship["happily"] as! Bool)
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        
+        from = createdRelationship.fromNode!
+        to = createdRelationship.toNode!
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+    }
+    
+    func testCreateRelationshipWithCreateToNode() throws {
+        
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        var (from, to_) = (madeNodes[0], madeNodes[1])
+        let createdNode = client.createAndReturnNodeSync(node: to_).value!
+        var to = createdNode
+        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let createdRelationship: Relationship = result.value!
 
-    func testCreateRelationships() throws {
+        XCTAssertTrue(createdRelationship["happily"] as! Bool)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+        
+        from = createdRelationship.fromNode!
+        to = createdRelationship.toNode!
+        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
+        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
+    }
+    
+
+    func testCreateRelationshipsWithExistingNodesUsingId() throws {
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+        let (from, to) = (createdNodes[0], createdNodes[1])
+        
+        guard let fromId = from.id,
+            let toId = to.id
+            else {
+                XCTFail()
+                return
+        }
+        
+        let rel1 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .to, properties: [ "happily": true ])!
+        let rel2 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .from, properties: [ "happily": true ])!
+        
+        let request = [rel1, rel2].createRequest(withReturnStatement: true)
+        var queryResult: QueryResult! = nil
+        let group = DispatchGroup()
+        group.enter()
+        client.executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                return
+            case let .success((isSuccess, theQueryResult)):
+                XCTAssertTrue(isSuccess)
+                queryResult = theQueryResult
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        print(String(describing: queryResult))
+    }
+
+    func testCreateRelationshipsWithExistingNodesUsingNode() throws {
 
         let client = try makeClient()
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
-        var (from, to) = (createdNodes[0], createdNodes[1])
+        let (from, to) = (createdNodes[0], createdNodes[1])
 
-        guard let fromId = from.id,
-              let toId = to.id
-        else {
-            XCTFail()
-            return
-        }
+        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])!
+        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])!
 
-        let rel1 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .to, properties: [ "happily": true ])!
-        let rel2 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .from, properties: [ "happily": true ])!
-
-        let rels: [Relationship] = [rel1, rel2]
         let request = [rel1, rel2].createRequest(withReturnStatement: true)
         var queryResult: QueryResult! = nil
         let group = DispatchGroup()
@@ -722,17 +818,67 @@ class Theo_000_BoltClientTests: XCTestCase {
         group.wait()
 
         print(String(describing: queryResult))
+    }
+    
+    func testCreateRelationshipsWithoutExistingNodes() throws {
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        let (from, to) = (nodes[0], nodes[1])
+        
+        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])!
+        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])!
+        
+        let request = [rel1, rel2].createRequest(withReturnStatement: true)
+        var queryResult: QueryResult! = nil
+        let group = DispatchGroup()
+        group.enter()
+        client.executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                return
+            case let .success((isSuccess, theQueryResult)):
+                XCTAssertTrue(isSuccess)
+                queryResult = theQueryResult
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        print(String(describing: queryResult))
+        
+    }
+    
+    func testCreateRelationshipsWithMixedNodes() throws {
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        let (from_, to) = (nodes[0], nodes[1])
+        let from = client.createAndReturnNodeSync(node: from_).value!
+        
+        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])!
+        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])!
 
-        /*
-        XCTAssertTrue(createdRelationship["happily"] as! Bool)
-        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
-        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
-
-        from = createdRelationship.fromNode!
-        to = createdRelationship.toNode!
-        XCTAssertEqual(from.id!, createdRelationship.fromNodeId)
-        XCTAssertEqual(to.id!, createdRelationship.toNodeId)
- */
+        let request = [rel1, rel2].createRequest(withReturnStatement: true)
+        var queryResult: QueryResult! = nil
+        let group = DispatchGroup()
+        group.enter()
+        client.executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                return
+            case let .success((isSuccess, theQueryResult)):
+                XCTAssertTrue(isSuccess)
+                queryResult = theQueryResult
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        print(String(describing: queryResult))
+        
     }
 
     func testUpdateRelationship() throws {
@@ -876,29 +1022,88 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertLessThan(0, path.segments.count)
     }
 
+    func testBreweryDataset() throws {
+        
+        let indexQueries =
+"""
+CREATE INDEX ON :BeerBrand(name);
+CREATE INDEX ON :Brewery(name);
+CREATE INDEX ON :BeerType(name);
+CREATE INDEX ON :AlcoholPercentage(value);
+"""
+        
+        let queries =
+"""
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/1FwWxlgnOhOtrUELIzLupDFW7euqXfeh8x3BeiEY_sbI/export?format=csv&id=1FwWxlgnOhOtrUELIzLupDFW7euqXfeh8x3BeiEY_sbI&gid=0" AS CSV
+WITH CSV AS beercsv
+WHERE beercsv.BeerType IS not NULL
+MERGE (b:BeerType {name: beercsv.BeerType})
+WITH beercsv
+WHERE beercsv.BeerBrand IS not NULL
+MERGE (b:BeerBrand {name: beercsv.BeerBrand})
+WITH beercsv
+WHERE beercsv.Brewery IS not NULL
+MERGE (b:Brewery {name: beercsv.Brewery})
+WITH beercsv
+WHERE beercsv.AlcoholPercentage IS not NULL
+MERGE (b:AlcoholPercentage {value:
+tofloat(replace(replace(beercsv.AlcoholPercentage,'%',''),',','.'))})
+WITH beercsv
+MATCH (ap:AlcoholPercentage {value:
+tofloat(replace(replace(beercsv.AlcoholPercentage,'%',''),',','.'))}),
+(br:Brewery {name: beercsv.Brewery}),
+(bb:BeerBrand {name: beercsv.BeerBrand}),
+(bt:BeerType {name: beercsv.BeerType})
+CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
+(bb)-[:IS_A]->(bt),
+(bb)<-[:BREWS]-(br);
+"""
+        let client = try makeClient()
+        try client.executeAsTransaction() { tx in
+            for query in queries.split(separator: ";") {
+                let result = client.executeCypherSync(String(query))
+                XCTAssertTrue(result.isSuccess)
+            }
+            
+            tx.markAsFailed()
+        }
+    }
 
     static var allTests = [
+        ("testBreweryDataset", testBreweryDataset),
+        ("testCancellingTransaction", testCancellingTransaction),
+        ("testCreateAndDeleteNode", testCreateAndDeleteNode),
+        ("testCreateAndDeleteNodes", testCreateAndDeleteNodes),
+        ("testCreateAndRunCypherFromNode", testCreateAndRunCypherFromNode),
+        ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
+        ("testCreateAndRunCypherFromNodesNoResult", testCreateAndRunCypherFromNodesNoResult),
+        ("testCreateAndRunCypherFromNodesWithResult", testCreateAndRunCypherFromNodesWithResult),
+        ("testCreateRelationshipWithCreateFromNode", testCreateRelationshipWithCreateFromNode),
+        ("testCreateRelationshipWithCreateNodes", testCreateRelationshipWithCreateNodes),
+        ("testCreateRelationshipWithCreateToNode", testCreateRelationshipWithCreateToNode),
+        ("testCreateRelationshipWithoutCreateNodes", testCreateRelationshipWithoutCreateNodes),
+        ("testCreateRelationshipsWithExistingNodesUsingId", testCreateRelationshipsWithExistingNodesUsingId),
+        ("testCreateRelationshipsWithExistingNodesUsingNode", testCreateRelationshipsWithExistingNodesUsingNode),
+        ("testCreateRelationshipsWithMixedNodes", testCreateRelationshipsWithMixedNodes),
+        ("testCreateRelationshipsWithoutExistingNodes", testCreateRelationshipsWithoutExistingNodes),
+        ("testCypherMatching", testCypherMatching),
+        ("testDeleteRelationship", testDeleteRelationship),
+        ("testFailingTransactionSync", testFailingTransactionSync),
+        ("testGettingStartedExample", testGettingStartedExample),
+        ("testIntroToCypher", testIntroToCypher),
         ("testNodeResult", testNodeResult),
         ("testRelationshipResult", testRelationshipResult),
-        ("testIntroToCypher", testIntroToCypher),
+        ("testReturnPath", testReturnPath),
         ("testSetOfQueries", testSetOfQueries),
         ("testSucceedingTransactionSync", testSucceedingTransactionSync),
-        ("testFailingTransactionSync", testFailingTransactionSync),
-        ("testCancellingTransaction", testCancellingTransaction),
         ("testTransactionResultsInBookmark", testTransactionResultsInBookmark),
-        ("testGettingStartedExample", testGettingStartedExample),
-        ("testCreateAndRunCypherFromNode", testCreateAndRunCypherFromNode),
-        ("testUpdateNodesWithResult", testUpdateNodesWithResult),
-        ("testUpdateNodesWithNoResult", testUpdateNodesWithNoResult),
-        ("testCreateRelationship", testCreateRelationship),
-        ("testCreateRelationships", testCreateRelationships),
-        ("testUpdateRelationship", testUpdateRelationship),
-        ("testCreateAndRunCypherFromNodeNoResult", testCreateAndRunCypherFromNodeNoResult),
+        ("testUpdateAndRunCypherFromNodesWithResult", testUpdateAndRunCypherFromNodesWithResult),
         ("testUpdateAndRunCypherFromNodesWithoutResult", testUpdateAndRunCypherFromNodesWithoutResult),
-        ("testCreateAndDeleteNode", testCreateAndDeleteNode),
+        ("testUpdateNode", testUpdateNode),
+        ("testUpdateNodesWithNoResult", testUpdateNodesWithNoResult),
+        ("testUpdateNodesWithResult", testUpdateNodesWithResult),
+        ("testUpdateRelationship", testUpdateRelationship),
         ("testUpdateRelationshipNoReturn", testUpdateRelationshipNoReturn),
-        ("testDeleteRelationship", testDeleteRelationship),
-        ("testReturnPath", testReturnPath),
     ]
 
 }

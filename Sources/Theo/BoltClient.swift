@@ -336,13 +336,17 @@ open class BoltClient {
 
         result.nodes.merge(nodes) { (n, _) -> Node in return n }
 
-        let mapper: (UInt64, Relationship) -> (UInt64, Relationship) = { (key: UInt64, rel: Relationship) in
-            rel.fromNode = nodes[rel.fromNodeId]
-            rel.toNode = nodes[rel.toNodeId]
+        let mapper: (UInt64, Relationship) -> (UInt64, Relationship)? = { (key: UInt64, rel: Relationship) in
+            guard let fromNodeId = rel.fromNodeId, let toNodeId = rel.toNodeId else {
+                print("Relationship was missing id in response. This is most unusual! Please report a bug!")
+                return nil
+            }
+            rel.fromNode = nodes[fromNodeId]
+            rel.toNode = nodes[toNodeId]
             return (key, rel)
         }
 
-        let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.map(mapper))
+        let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.flatMap(mapper))
         result.relationships.merge(updatedRelationships) { (r, _) -> Relationship in return r }
 
         result.paths += paths

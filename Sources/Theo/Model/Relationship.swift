@@ -25,24 +25,18 @@ public class Relationship: ResponseItem {
     private var removedPropertyKeys = Set<String>()
     private var nameIsModified = false
 
-    public var fromNodeId: UInt64
+    public var fromNodeId: UInt64?
     public var fromNode: Node?
-    public var toNodeId: UInt64
+    public var toNodeId: UInt64?
     public var toNode: Node?
     public var type: RelationshipType
 
     public init?(fromNode: Node, toNode: Node, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
-        guard let fromNodeId = fromNode.id,
-              let toNodeId = toNode.id
-            else {
-                print("Nodes must have id")
-                return nil
-        }
 
         self.fromNode = fromNode
-        self.fromNodeId = fromNodeId
+        self.fromNodeId = fromNode.id
         self.toNode = toNode
-        self.toNodeId = toNodeId
+        self.toNodeId = toNode.id
         self.name = name
         self.type = type
         self.properties = properties
@@ -98,41 +92,68 @@ public class Relationship: ResponseItem {
     }
 
     public func createRequest(withReturnStatement: Bool = true, relatinoshipAlias: String = "rel") -> Request {
-        let query = createRequestQuery(withReturnStatement: withReturnStatement, relationshipAlias: relatinoshipAlias)
-        return Request.run(statement: query, parameters: Map(dictionary: self.properties))
+        let (query, properties) = createRequestQuery(withReturnStatement: withReturnStatement, relationshipAlias: relatinoshipAlias)
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 
     public func createRequestQuery(
         withReturnStatement: Bool = true,
-        relationshipAlias: String = "rel") -> String {
+        relationshipAlias: String = "rel") -> (String, [String: PackProtocol]) {
         let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
 
+        var properties = self.properties
+        
         var params = properties.keys.map { "`\($0)`: {\($0)}" }.joined(separator: ", ")
         if params != "" {
             params = " { \(params) }"
         }
 
-        var query: String
+        let uniquingKeysWith: (PackProtocol, PackProtocol) -> PackProtocol = { (_, new) in
+            return new
+        }
+        
+        let fromNodeQuery: String
+        if let fromNode = self.fromNode, fromNode.id == nil {
+            let (q, fromProps) = fromNode.createRequestQuery(withReturnStatement: false, nodeAlias: "fromNode", paramSuffix: "1", withCreate: true)
+            fromNodeQuery = q
+            properties.merge(fromProps, uniquingKeysWith: uniquingKeysWith)
+        } else {
+            guard let fromNodeId = self.fromNodeId else {
+                print("fromNodeId was missing in createRequestQuery. Please file a bug")
+                return ("", [:])
+            }
+            fromNodeQuery = "MATCH (fromNode) WHERE id(fromNode) = \(fromNodeId)"
+        }
+        
+        let toNodeQuery: String
+        if let toNode = self.toNode, toNode.id == nil {
+            let (q, toProps) = toNode.createRequestQuery(withReturnStatement: false, nodeAlias: "toNode", paramSuffix: "2", withCreate: true)
+            toNodeQuery = q
+            properties.merge(toProps, uniquingKeysWith: uniquingKeysWith)
+        } else {
+            guard let toNodeId = self.toNodeId else {
+                print("toNodeId was missing in createRequestQuery. Please file a bug")
+                return ("", [:])
+            }
+            toNodeQuery = "MATCH (toNode) WHERE id(toNode) = \(toNodeId)"
+        }
+        
+        let relQuery: String
         switch type {
         case .from:
-            query = """
-                    MATCH (fromNode) WHERE id(fromNode) = \(self.fromNodeId)
-                    MATCH (toNode) WHERE id(toNode) = \(self.toNodeId)
-                    CREATE (fromNode)-[\(relationshipAlias):`\(name)`\(params)]->(toNode)
-                    """
+            relQuery = "CREATE (fromNode)-[\(relationshipAlias):`\(name)`\(params)]->(toNode)"
         case .to:
-            query = """
-                    MATCH (fromNode) WHERE id(fromNode) = \(self.fromNodeId)
-                    MATCH (toNode) WHERE id(toNode) = \(self.toNodeId)
-                    CREATE (fromNode)<-[\(relationshipAlias):`\(name)`\(params)]-(toNode)
-                    """
+            relQuery = "CREATE (fromNode)<-[\(relationshipAlias):`\(name)`\(params)]-(toNode)"
         }
-
+        
+        let query: String
         if withReturnStatement {
-            query = "\(query)\nRETURN \(relationshipAlias),fromNode,toNode"
+             query = [fromNodeQuery, toNodeQuery, relQuery, "RETURN \(relationshipAlias),`fromNode`,`toNode`"].cypherSorted().joined(separator: "\n")
+        } else {
+            query = [fromNodeQuery, toNodeQuery, relQuery].cypherSorted().joined(separator: "\n")
         }
-
-        return query
+        
+        return (query, properties)
     }
 
     public func updateRequest(withReturnStatement: Bool = true, relationshipAlias: String = "rel") -> Request {
@@ -223,6 +244,45 @@ public class Relationship: ResponseItem {
     }
 }
 
+extension String {
+    func beginsWith(_ match: String) -> Bool {
+        if self.count < match.count {
+            return false
+        }
+
+        let begin = self.startIndex
+        let end = index(begin, offsetBy: match.count)
+        let sut = self[begin..<end].uppercased()
+        if sut == match.uppercased() {
+            return true
+        }
+        return false
+    }
+}
+
+private extension Array {
+    func cypherSorted() -> [String] {
+        var matches = [String]()
+        var creates = [String]()
+        var others = [String]()
+        var returns = [String]()
+        
+        for string in self as? [String] ?? [] {
+            if string.beginsWith("MATCH") {
+                matches.append(string)
+            } else if string.beginsWith("CREATE") {
+                creates.append(string)
+            } else if string.beginsWith("RETURN") {
+                returns.append(string)
+            } else {
+                others.append(string)
+            }
+        }
+        
+        return matches + creates + others + returns
+    }
+}
+
 extension Array where Element: Relationship {
 
     public func createRequest(withReturnStatement: Bool = true) -> Request {
@@ -245,12 +305,38 @@ extension Array where Element: Relationship {
                 params = " { \(params) }"
             }
 
-            matchQueries.append("MATCH (fromNode\(i)) WHERE id(fromNode\(i)) = \(relationship.fromNodeId)")
-            matchQueries.append("MATCH (toNode\(i)) WHERE id(toNode\(i)) = \(relationship.toNodeId)")
-            if relationship.type == .to {
-                createQueries.append("(fromNode\(i))-[\(relationshipAlias):`\(relationship.name)`\(params)]->(toNode\(i))")
+            if let fromNodeId = relationship.fromNodeId ?? relationship.fromNode?.id {
+                matchQueries.append("MATCH (`fromNode\(i)`) WHERE id(`fromNode\(i)`) = \(fromNodeId)")
+            } else if let fromNode = relationship.fromNode {
+                let (query,properties) = fromNode.createRequestQuery(
+                    withReturnStatement: false,
+                    nodeAlias: "fromNode\(i)",
+                    paramSuffix: "\(i)",
+                    withCreate: false)
+                createQueries.append(query)
+                parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
             } else {
-                createQueries.append("(fromNode\(i))<-[\(relationshipAlias):`\(relationship.name)`\(params)]-(toNode\(i))")
+                print("Could neither find nodeId or node for fromNode - please report this bug")
+            }
+            
+            if let toNodeId = relationship.toNodeId ?? relationship.toNode?.id {
+                matchQueries.append("MATCH (`toNode\(i)`) WHERE id(`toNode\(i)`) = \(toNodeId)")
+            } else if let toNode = relationship.toNode {
+                let (query,properties) = toNode.createRequestQuery(
+                    withReturnStatement: false,
+                    nodeAlias: "toNode\(i)",
+                    paramSuffix: "\(i)",
+                    withCreate: false)
+                createQueries.append(query)
+                parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
+            } else {
+                print("Could neither find nodeId or node for toNode - please report this bug")
+            }
+
+            if relationship.type == .to {
+                createQueries.append("(`fromNode\(i)`)-[\(`relationshipAlias`):`\(relationship.name)`\(params)]->(`toNode\(i)`)")
+            } else {
+                createQueries.append("(`fromNode\(i)`)<-[\(`relationshipAlias`):`\(relationship.name)`\(params)]-(`toNode\(i)`)")
             }
             returnItems.append(relationshipAlias)
             returnItems.append("fromNode\(i)")
@@ -262,6 +348,7 @@ extension Array where Element: Relationship {
             query += "\nRETURN \(returnItems.joined(separator: ","))"
         }
 
+        print(query)
         return Request.run(statement: query, parameters: Map(dictionary: parameters))
     }
 

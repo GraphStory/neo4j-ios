@@ -132,11 +132,41 @@ let deleteResult = client.deleteNodeSync(node: apple)
  In other words, there should be plenty of opportunity for you to express your code in an easy-to-read yet consise way
  */
 
-let cypher =
- """
-  MATCH (n)-->(m)
-  RETURN n, count(1)
- """
-let cypherResult = client.executeCypherSync(cypher)
-let resultNodes = cypherResult.value!.nodes
-let resultStats = cypherResult.value!.stats
+ /*:
+ Now, moving on, let's load a dataset of Belgian beers. Thanks to Rik Van Bruggen for making that example available
+ */
+
+let query =
+"""
+CREATE INDEX ON :BeerBrand(name);
+CREATE INDEX ON :Brewery(name);
+CREATE INDEX ON :BeerType(name);
+CREATE INDEX ON :AlcoholPercentage(value);
+
+LOAD CSV WITH HEADERS FROM "https://docs.google.com/spreadsheets/d/1FwWxlgnOhOtrUELIzLupDFW7euqXfeh8x3BeiEY_sbI/export?format=csv&id=1FwWxlgnOhOtrUELIzLupDFW7euqXfeh8x3BeiEY_sbI&gid=0" AS CSV
+WITH CSV AS beercsv
+WHERE beercsv.BeerType IS not NULL
+MERGE (b:BeerType {name: beercsv.BeerType})
+WITH beercsv
+WHERE beercsv.BeerBrand IS not NULL
+MERGE (b:BeerBrand {name: beercsv.BeerBrand})
+WITH beercsv
+WHERE beercsv.Brewery IS not NULL
+MERGE (b:Brewery {name: beercsv.Brewery})
+WITH beercsv
+WHERE beercsv.AlcoholPercentage IS not NULL
+MERGE (b:AlcoholPercentage {value:
+tofloat(replace(replace(beercsv.AlcoholPercentage,'%',''),',','.'))})
+WITH beercsv
+MATCH (ap:AlcoholPercentage {value:
+tofloat(replace(replace(beercsv.AlcoholPercentage,'%',''),',','.'))}),
+(br:Brewery {name: beercsv.Brewery}),
+(bb:BeerBrand {name: beercsv.BeerBrand}),
+(bt:BeerType {name: beercsv.BeerType})
+CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
+(bb)-[:IS_A]->(bt),
+(bb)<-[:BREWS]-(br);
+"""
+
+client.executeCypherSync(query)
+
