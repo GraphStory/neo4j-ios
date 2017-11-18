@@ -68,6 +68,24 @@ Run `carthage update --platform iOS` to build the framework and drag the built `
 
 ### Initalization
 
+To get started, you need to set up a BoltClient with the connection information to your Neo4j instance. You could for instance load a JSON into a dictionary, and then pass any values that should overrid the defualts, like this:
+
+```swift
+let config = ["password": "<passcode>"]
+let client = try BoltClient(JSONClientConfiguration(json: config))
+```
+
+Or you can provide your on ClientConfiguration-based class, or even set them all manually:
+
+```swift
+client = try BoltClient(hostname: "localhost",
+port: 6787,
+username: "neo4j",
+password: "<passcode>",
+encrypted: true)
+
+```
+
 **PLEASE NOTE - DO NOT INCLUDE A TRAILING SLASH IN YOUR HOSTNAME**
 
 Example: `http://www.hostname.com` **not** `http://www.hostname.com/`
@@ -186,7 +204,7 @@ theo.fetchRelationshipsForNode("nodeIDWithRelationships", direction: Relationshi
     if let foundRelationship: Relationship = relationships[0] as Relationship! {
         
         if let relMeta: RelationshipMeta = foundRelationship.relationshipMeta {
-            relationshipIDToDelete = relMeta.relationshipID()
+relationshipIDToDelete = relMeta.relationshipID()
         }
         
         theo.deleteRelationship(relationshipIDToDelete!, completionBlock: {error in
@@ -228,7 +246,7 @@ theo.executeTransaction(statements, completionBlock: {(response, error) in
         let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
 
         theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
-            println("response from cyper \(cypher)")
+println("response from cyper \(cypher)")
         })
 ```
 ## Integration Tests
