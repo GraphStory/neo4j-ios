@@ -673,9 +673,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         case let .success(isSuccess):
             XCTAssertTrue(isSuccess)
         }
-
     }
-
+    
     func testUpdateNodesWithResult() throws {
 
         let node = makeSomeNodes().first!
@@ -1117,6 +1116,26 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertEqual(3 as UInt64, row["3"]! as! UInt64)
     }
     
+    func testFindNodeById() throws {
+        
+        let nodes = makeSomeNodes()
+        
+        let client = try makeClient()
+        let createResult = client.createAndReturnNodeSync(node: nodes.first!)
+        XCTAssertTrue(createResult.isSuccess)
+        let createdNode = createResult.value!
+        let createdNodeId = createdNode.id!
+
+        client.nodeBy(id: createdNodeId) { foundNodeResult in
+            let foundNode = foundNodeResult.value as? Node
+            XCTAssertNotNil(foundNode)
+            XCTAssertEqual(createdNode, foundNode!)
+        }
+        
+    }
+    
+
+    
     static var allTests = [
         ("testBreweryDataset", testBreweryDataset),
         ("testCancellingTransaction", testCancellingTransaction),
@@ -1154,6 +1173,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testUpdateRelationshipNoReturn", testUpdateRelationshipNoReturn),
         ("testDisconnect", testDisconnect),
         ("testRecord", testRecord),
+        ("testFindNodeById", testFindNodeById),
     ]
 
 }

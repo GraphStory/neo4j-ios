@@ -20,6 +20,12 @@ public class Node: ResponseItem {
     internal private(set) var addedLabels: [String] = []
     internal private(set) var removedLabels: [String] = []
 
+    public convenience init(
+        label: String,
+        properties: [String: PackProtocol]) {
+        
+        self.init(labels: [label], properties: properties)
+    }
 
     public init(
         labels: [String],
@@ -296,4 +302,63 @@ extension Array where Element: Node {
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
 
+}
+
+extension Node: Equatable {
+}
+public func == (lhs: Node, rhs: Node) -> Bool {
+    
+    if lhs.id != rhs.id { return false }
+    if lhs.labels != rhs.labels { return false }
+    
+    
+    let lKeys = lhs.properties.keys.sorted()
+    let rKeys = lhs.properties.keys.sorted()
+    if lKeys  != rKeys { return false }
+    
+    for key in lKeys {
+        let lVal = lhs.properties[key]
+        let rVal = rhs.properties[key]
+        let lType = type(of: lVal)
+        let rType = type(of: rVal)
+        if lType != rType {
+            return false
+        }
+        
+        if let l = lVal as? Bool, let r = rVal as? Bool {
+            if l != r { return false }
+        } else if let l = lVal as? Double, let r = rVal as? Double {
+            if l != r { return false }
+        } else if let l = lVal as? UInt8, let r = rVal as? UInt8 {
+            if l != r { return false }
+        } else if let l = lVal as? UInt16, let r = rVal as? UInt16 {
+            if l != r { return false }
+        } else if let l = lVal as? UInt32, let r = rVal as? UInt32 {
+            if l != r { return false }
+        } else if let l = lVal as? Int8, let r = rVal as? Int8 {
+            if l != r { return false }
+        } else if let l = lVal as? Int16, let r = rVal as? Int16 {
+            if l != r { return false }
+        } else if let l = lVal as? Int32, let r = rVal as? Int32 {
+            if l != r { return false }
+        } else if let l = lVal as? Int64, let r = rVal as? Int64 {
+            if l != r { return false }
+        } else if let l = lVal as? UInt, let r = rVal as? UInt {
+            if l != r { return false }
+        } else if let l = lVal as? Int, let r = rVal as? Int {
+            if l != r { return false }
+        } else if let l = lVal as? List, let r = rVal as? List {
+            if l != r { return false }
+        } else if let l = lVal as? Map, let r = rVal as? Map {
+            if l != r { return false }
+        } else if let _ = lVal as? Null, let _ = rVal as? Null {
+            continue
+        } else if let l = lVal as? String, let r = rVal as? String {
+            if l != r { return false }
+        } else if let l = lVal as? Structure, let r = rVal as? Structure {
+            if l != r { return false }
+        }
+    }
+    
+    return true
 }

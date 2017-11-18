@@ -45,7 +45,9 @@ open class BoltClient {
         case missingNodeResponse
         case missingRelationshipResponse
         case queryUnsuccessful
+        case unexpectedNumberOfResponses
         case fetchingRecordsUnsuccessful
+        case couldNotCreateRelationship
         case unknownError
     }
 
@@ -199,7 +201,8 @@ open class BoltClient {
                 theResult = .failure(error)
             case let .success((isSuccess, _partialResult)):
                 if isSuccess == false {
-                    print("Query not successful")
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    theResult = .failure(error)
                 } else {
                     partialResult = _partialResult
                 }
@@ -220,7 +223,8 @@ open class BoltClient {
                 theResult = .failure(error)
             case let .success(isSuccess, parsedResponses):
                 if isSuccess == false {
-                    print("Query not successful")
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    theResult = .failure(error)
                 } else {
                     theResult = .success(parsedResponses)
                 }
@@ -368,7 +372,8 @@ open class BoltClient {
                 try self.connection.request(commitRequest) { (success, response) in
                     self.pullSynchronouslyAndIgnore()
                     if !success {
-                        print("Error committing transaction: \(response)")
+                        let error = BoltClientError.queryUnsuccessful
+                        throw error
                     }
                     self.currentTransaction = nil
                     transactionGroup.leave()
@@ -380,6 +385,8 @@ open class BoltClient {
                     self.pullSynchronouslyAndIgnore()
                     if !success {
                         print("Error rolling back transaction: \(response)")
+                        let error = BoltClientError.queryUnsuccessful
+                        throw error
                     }
                     self.currentTransaction = nil
                     transactionGroup.leave()
@@ -406,8 +413,9 @@ open class BoltClient {
 
             } else {
                 print("Error beginning transaction: \(response)")
+                let error = BoltClientError.queryUnsuccessful
                 transaction.commitBlock = { _ in }
-                transactionGroup.leave()
+                throw error
             }
         }
 
@@ -776,9 +784,48 @@ extension BoltClient { // Node functions
         return theResult
     }
 
+    public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, AnyError>) -> ())?) {
+        let query = "MATCH (n) WHERE id(n) = {id} RETURN n"
+        let params = ["id": Int64(id)]
+        
+        // Perform query
+        executeCypher(query, params: params) { result in
+            switch result {
+            case let .failure(error):
+                print("Error: \(error)")
+                completionBlock?(.failure(error))
+            case let .success((isSuccess, _partialResult)):
+                if isSuccess == false {
+                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    completionBlock?(.failure(error))
+                } else {
+
+                    self.pullAll(partialQueryResult: _partialResult) { result in
+                        switch result {
+                        case let .failure(error):
+                            completionBlock?(.failure(error))
+                        case let .success(isSuccess, parsedResponses):
+                            if isSuccess == false {
+                                let error = AnyError(BoltClientError.queryUnsuccessful)
+                                completionBlock?(.failure(error))
+                            } else {
+                                let nodes = parsedResponses.nodes.values
+                                if nodes.count > 1 {
+                                    let error = AnyError(BoltClientError.unexpectedNumberOfResponses)
+                                    completionBlock?(.failure(error))
+                                } else {
+                                    completionBlock?(.success(nodes.first))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-extension BoltClient { // Relationship functinos
+extension BoltClient { // Relationship functions
 
     // Create
 
@@ -787,7 +834,9 @@ extension BoltClient { // Relationship functinos
             let request = relationship.createRequest()
             performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
         } else {
-            print("Could not create relationship")
+            
+            let error = AnyError(BoltClientError.couldNotCreateRelationship)
+            completionBlock?(.failure(error))
         }
     }
 
