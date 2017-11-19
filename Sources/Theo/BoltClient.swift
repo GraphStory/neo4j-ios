@@ -824,19 +824,46 @@ extension BoltClient { // Node functions
         }
     }
     
-    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    private func queryResultToNodesResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Node], AnyError>) {
+        if let error = result.error {
+            return .failure(error)
+        }
+        if let (isSuccess, queryResult) = result.value {
+            if isSuccess == false {
+                let error = AnyError(BoltClientError.queryUnsuccessful)
+                return .failure(error)
+            } else {
+                let nodes: [Node] = Array<Node>(queryResult.nodes.values)
+                return .success(nodes)
+            }
+        } else {
+            let error = AnyError(BoltClientError.queryUnsuccessful)
+            return .failure(error)
+        }
+    }
+    
+    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
         let request = Node.queryFor(labels: labels, andProperties: properties)
-        executeWithResult(request: request, completionBlock: completionBlock)
+        executeWithResult(request: request) { result in
+            let transformedResult = self.queryResultToNodesResult(result: result)
+            completionBlock?(transformedResult)
+        }
     }
     
-    public func nodesWith(properties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func nodesWith(properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
         let request = Node.queryFor(labels: [], andProperties: properties)
-        executeWithResult(request: request, completionBlock: completionBlock)
+        executeWithResult(request: request) { result in
+            let transformedResult = self.queryResultToNodesResult(result: result)
+            completionBlock?(transformedResult)
+        }
     }
     
-    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
         let request = Node.queryFor(labels: [label], andProperties: properties)
-        executeWithResult(request: request, completionBlock: completionBlock)
+        executeWithResult(request: request) { result in
+            let transformedResult = self.queryResultToNodesResult(result: result)
+            completionBlock?(transformedResult)
+        }
     }
     
 }

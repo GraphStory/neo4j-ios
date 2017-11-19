@@ -1148,9 +1148,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1163,9 +1161,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1188,9 +1184,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(properties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1203,9 +1197,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(properties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1229,9 +1221,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels, andProperties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1244,9 +1234,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels, andProperties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1270,9 +1258,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(label: label, andProperties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1285,9 +1271,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(label: label, andProperties: properties) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1310,9 +1294,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels, andProperties: property) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1325,9 +1307,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(labels: labels, andProperties: property) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1350,9 +1330,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(label: label, andProperties: property) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            nodeCount = result.value!.1.nodes.count
+            nodeCount = result.value!.count
             group.leave()
         }
         group.wait()
@@ -1365,9 +1343,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         client.nodesWith(label: label, andProperties: property) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
-            XCTAssertTrue(result.value!.0)
-            
-            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            XCTAssertEqual(nodeCount + 1, result.value!.count)
             exp.fulfill()
         }
         
@@ -1375,9 +1351,6 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
             XCTAssertNil(error)
         }
     }
-    
-
-    
 
     
     static var allTests = [
