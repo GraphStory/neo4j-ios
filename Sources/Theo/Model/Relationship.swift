@@ -31,7 +31,7 @@ public class Relationship: ResponseItem {
     public var toNode: Node?
     public var type: RelationshipType
 
-    public init?(fromNode: Node, toNode: Node, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
+    public init(fromNode: Node, toNode: Node, name: String, type: RelationshipType = .from, properties: [String: PackProtocol] = [:]) {
 
         self.fromNode = fromNode
         self.fromNodeId = fromNode.id
@@ -47,7 +47,7 @@ public class Relationship: ResponseItem {
         self.updatedTime = Date()
     }
 
-    public init?(fromNodeId: UInt64, toNodeId:UInt64, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
+    public init(fromNodeId: UInt64, toNodeId:UInt64, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
 
         self.fromNode = nil
         self.fromNodeId = fromNodeId

@@ -872,18 +872,13 @@ extension BoltClient { // Relationship functions
 
     // Create
 
-    public func relate(node: Node, to: Node, name: String, properties: [String:PackProtocol], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
-        if let relationship = Relationship(fromNode: node, toNode: to, name: name, type: .from, properties: properties) {
-            let request = relationship.createRequest()
-            performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
-        } else {
-            
-            let error = AnyError(BoltClientError.couldNotCreateRelationship)
-            completionBlock?(.failure(error))
-        }
+    public func relate(node: Node, to: Node, name: String, properties: [String:PackProtocol] = [:], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        let relationship = Relationship(fromNode: node, toNode: to, name: name, type: .from, properties: properties)
+        let request = relationship.createRequest()
+        performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func relateSync(node: Node, to: Node, name: String, properties: [String:PackProtocol]) -> Result<Relationship, AnyError> {
+    public func relateSync(node: Node, to: Node, name: String, properties: [String:PackProtocol] = [:]) -> Result<Relationship, AnyError> {
         let group = DispatchGroup()
         group.enter()
 
@@ -896,6 +891,111 @@ extension BoltClient { // Relationship functions
         group.wait()
         return theResult
     }
+    
+    public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
+        let request = relationships.createRequest(withReturnStatement: true)
+        let group = DispatchGroup()
+        group.enter()
+        var theResult: Result<[Relationship], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                theResult = .failure(AnyError(error))
+            case let .success((isSuccess, queryResult)):
+                if isSuccess == false {
+                    let error = BoltClientError.queryUnsuccessful
+                    theResult = .failure(AnyError(error))
+                } else {
+                    let relationships: [Relationship] = Array<Relationship>(queryResult.relationships.values)
+                    theResult = .success(relationships)
+                }
+            }
+            group.leave()
+        }
+        group.wait()
+
+        return theResult
+    }
+    
+    public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+        let request = relationships.createRequest(withReturnStatement: true)
+        executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                completionBlock?(.failure(AnyError(error)))
+            case let .success((isSuccess, queryResult)):
+                if isSuccess == false {
+                    let error = BoltClientError.queryUnsuccessful
+                    completionBlock?(.failure(AnyError(error)))
+                } else {
+                    let relationships: [Relationship] = Array<Relationship>(queryResult.relationships.values)
+                    completionBlock?(.success(relationships))
+                }
+            }
+        }
+    }
+    
+    public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+        let request = relationship.createRequest(withReturnStatement: true)
+        let group = DispatchGroup()
+        group.enter()
+        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                theResult = .failure(AnyError(error))
+            case let .success((isSuccess, queryResult)):
+                if isSuccess == false {
+                    let error = BoltClientError.queryUnsuccessful
+                    theResult = .failure(AnyError(error))
+                } else {
+                    if queryResult.relationships.count == 0 {
+                        let error = BoltClientError.unknownError
+                        theResult = .failure(AnyError(error))
+                    } else if queryResult.relationships.count > 1 {
+                        print("createAndReturnRelationshipSync() unexpectantly returned more than one relationship, returning first")
+                        let relationship = queryResult.relationships.values.first!
+                        theResult = .success(relationship)
+                    } else {
+                        let relationship = queryResult.relationships.values.first!
+                        theResult = .success(relationship)
+                    }
+                }
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        return theResult
+    }
+    
+    public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        let request = relationship.createRequest(withReturnStatement: true)
+        executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                completionBlock?(.failure(AnyError(error)))
+            case let .success((isSuccess, queryResult)):
+                if isSuccess == false {
+                    let error = BoltClientError.queryUnsuccessful
+                    completionBlock?(.failure(AnyError(error)))
+                } else {
+                    if queryResult.relationships.count == 0 {
+                        let error = BoltClientError.unknownError
+                        completionBlock?(.failure(AnyError(error)))
+                    } else if queryResult.relationships.count > 1 {
+                        print("createAndReturnRelationshipSync() unexpectantly returned more than one relationship, returning first")
+                        let relationship = queryResult.relationships.values.first!
+                        completionBlock?(.success(relationship))
+                    } else {
+                        let relationship = queryResult.relationships.values.first!
+                        completionBlock?(.success(relationship))
+                    }
+                }
+            }
+        }
+    }
+
 
     //MARK: Update
     public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
