@@ -73,6 +73,8 @@ public class Node: ResponseItem {
         self.addedLabels = self.addedLabels.filter { $0 != label }
     }
 
+    //MARK: Create
+
     public func createRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
         let (query, properties) = createRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: properties))
@@ -97,6 +99,7 @@ public class Node: ResponseItem {
         return (query, properties)
     }
 
+    //MARK: Update
     public func updateRequest(withReturnStatement: Bool = true, nodeAlias: String = "node") -> Request {
         let (query, properties) = updateRequestQuery(withReturnStatement: withReturnStatement, nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: properties))
@@ -176,6 +179,7 @@ public class Node: ResponseItem {
         }
     }
 
+    //MARK: Delete
     public func deleteRequest(nodeAlias: String = "node") -> Request {
         let query = deleteRequestQuery(nodeAlias: nodeAlias)
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
@@ -197,10 +201,35 @@ public class Node: ResponseItem {
 
         return query
     }
+    
+    //MARK: Query
+    public static func queryFor(labels: [String], andProperties properties: [String:PackProtocol], nodeAlias: String = "node") -> Request {
+        let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
+        
+        var labelQuery = labels.joined(separator: ":")
+        if labelQuery != "" {
+            labelQuery = ":" + labelQuery
+        }
+        
+        var propertiesQuery = properties.keys.map { "\(nodeAlias).`\($0)`= {\($0)}" }.joined(separator: "\nAND ")
+        if propertiesQuery != "" {
+            propertiesQuery = "WHERE " + propertiesQuery
+        }
+        
+        
+        let query = """
+                    MATCH (\(nodeAlias)\(labelQuery))
+                    \(propertiesQuery)
+                    RETURN \(nodeAlias)
+                    """
+
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
+    }
 }
 
 extension Array where Element: Node {
 
+    //MARK: Create
     public func createRequest(withReturnStatement: Bool = true) -> Request {
 
         var aliases = [String]()
@@ -227,6 +256,7 @@ extension Array where Element: Node {
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
 
+    //MARK: Update
     public func updateRequest(withReturnStatement: Bool = true) -> Request {
 
         var aliases = [String]()
@@ -288,6 +318,7 @@ extension Array where Element: Node {
 
     }
 
+    //MARK: Delete
     public func deleteRequest(withReturnStatement: Bool = true) -> Request {
 
         let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
@@ -301,7 +332,6 @@ extension Array where Element: Node {
 
         return Request.run(statement: query, parameters: Map(dictionary: [:]))
     }
-
 }
 
 extension Node: Equatable {

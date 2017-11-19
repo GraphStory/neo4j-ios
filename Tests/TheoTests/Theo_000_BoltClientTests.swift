@@ -1127,12 +1127,256 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let createdNodeId = createdNode.id!
 
         client.nodeBy(id: createdNodeId) { foundNodeResult in
-            let foundNode = foundNodeResult.value as? Node
-            XCTAssertNotNil(foundNode)
-            XCTAssertEqual(createdNode, foundNode!)
+            switch foundNodeResult {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            case let .success(foundNode):
+                XCTAssertNotNil(foundNode)
+                XCTAssertEqual(createdNode, foundNode!)
+            }
+        }
+    }
+    
+    func testFindNodeByLabels() throws {
+        let client = try makeClient()
+        let labels = ["Father", "Husband"]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(labels: labels) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(labels: labels) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
         }
         
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
     }
+
+    func testFindNodeByProperties() throws {
+        let client = try makeClient()
+        let properties: [String:PackProtocol] = [
+            "firstName": "Niklas",
+            "age": 38
+        ]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(properties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(properties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testFindNodeByLabelsAndProperties() throws {
+        let client = try makeClient()
+        let labels = ["Father", "Husband"]
+        let properties: [String:PackProtocol] = [
+            "firstName": "Niklas",
+            "age": 38
+        ]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(labels: labels, andProperties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(labels: labels, andProperties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testFindNodeByLabelAndProperties() throws {
+        let client = try makeClient()
+        let label = "Father"
+        let properties: [String:PackProtocol] = [
+            "firstName": "Niklas",
+            "age": 38
+        ]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(label: label, andProperties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(label: label, andProperties: properties) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testFindNodeByLabelsAndProperty() throws {
+        let client = try makeClient()
+        let labels = ["Father", "Husband"]
+        let property: [String:PackProtocol] = [
+            "firstName": "Niklas"
+        ]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(labels: labels, andProperties: property) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(labels: labels, andProperties: property) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testFindNodeByLabelAndProperty() throws {
+        let client = try makeClient()
+        let label = "Father"
+        let property: [String:PackProtocol] = [
+            "firstName": "Niklas"
+        ]
+        
+        let group = DispatchGroup()
+        group.enter()
+        
+        var nodeCount: Int = -1
+        client.nodesWith(label: label, andProperties: property) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            nodeCount = result.value!.1.nodes.count
+            group.leave()
+        }
+        group.wait()
+        
+        let nodes = makeSomeNodes()
+        let createResult = client.createNodeSync(node: nodes[0])
+        XCTAssertTrue(createResult.isSuccess)
+        
+        let exp = expectation(description: "Node should be one more than on previous count")
+        client.nodesWith(label: label, andProperties: property) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            XCTAssertTrue(result.value!.0)
+            
+            XCTAssertEqual(nodeCount + 1, result.value!.1.nodes.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+
     
 
     
@@ -1174,6 +1418,11 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testDisconnect", testDisconnect),
         ("testRecord", testRecord),
         ("testFindNodeById", testFindNodeById),
+        ("testFindNodeByLabels", testFindNodeByLabels),
+        ("testFindNodeByLabelsAndProperties", testFindNodeByLabelsAndProperties),
+        ("testFindNodeByLabelAndProperties", testFindNodeByLabelAndProperties),
+        ("testFindNodeByLabelsAndProperty", testFindNodeByLabelsAndProperty),
+        ("testFindNodeByLabelAndProperty", testFindNodeByLabelAndProperty),
     ]
 
 }

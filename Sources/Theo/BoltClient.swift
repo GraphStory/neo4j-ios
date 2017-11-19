@@ -823,6 +823,22 @@ extension BoltClient { // Node functions
             }
         }
     }
+    
+    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: labels, andProperties: properties)
+        executeWithResult(request: request, completionBlock: completionBlock)
+    }
+    
+    public func nodesWith(properties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: [], andProperties: properties)
+        executeWithResult(request: request, completionBlock: completionBlock)
+    }
+    
+    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: [label], andProperties: properties)
+        executeWithResult(request: request, completionBlock: completionBlock)
+    }
+    
 }
 
 extension BoltClient { // Relationship functions
