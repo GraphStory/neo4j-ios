@@ -78,51 +78,84 @@ let client = try BoltClient(JSONClientConfiguration(json: config))
 Or you can provide your on ClientConfiguration-based class, or even set them all manually:
 
 ```swift
-client = try BoltClient(hostname: "localhost",
-port: 6787,
-username: "neo4j",
-password: "<passcode>",
-encrypted: true)
-
+let client = try BoltClient(hostname: "localhost",
+                                port: 6787,
+                            username: "neo4j",
+                            password: "<passcode>",
+                           encrypted: true)
 ```
 
-**PLEASE NOTE - DO NOT INCLUDE A TRAILING SLASH IN YOUR HOSTNAME**
 
-Example: `http://www.hostname.com` **not** `http://www.hostname.com/`
+### Create and save a  node
 
-**Without authentication**
+```swift
+// Create the node
+let node = Node(label: "Character", properties: ["name": "Thomas Anderson", "alias": "Neo" ])
 
-```Swift
-let theo: Client = Client(baseURL: "hostname.com")
+// Save the node
+let result = client.createNodeSync(node: node)
+
+// Verify the result of the save
+switch result {
+case let .failure(error):
+  print(error.localizedDescription)
+case .success(_):
+  print("Node saved successfully")
+}
 ```
 
-**With authentication**
-
-```Swift
-let theo: Client = Client(baseURL: "hostname.com", user: "username", pass: "password")
-```
-
-### Fetch meta for a graph
-
-```Swift
-theo.metaDescription({(meta, error) in
-    print("meta in success \(meta) error \(error)")
-})
-```
+createNodeSync() above has an async sibling createNode(), and they in turn have siblings that return the created node: createAndReturnNode() and creaetAndReturnNodeSync(). Finally, multiple nodes can be created at the same time, giving you the functions createNodes(), createNodesSync(), createAndReturnNodes() and createAndReturnNodesSync() to choose between.
 
 ### Fetch a node via id
 
-```Swift
-theo.fetchNode("IDToFetch", completionBlock: {(node, error) in    
-    print("meta in success \(node!.meta) node \(node) error \(error)")
-})
+```swift
+client.nodeBy(id: 42) { result in
+  switch result {
+  case let .failure(error):
+    print(error.localizedDescription)
+  case let .success(foundNode):
+    if let foundNode = foundNode {
+	  print("Successfully found node \(foundNode)")
+    } else {
+	  print("There was no node with id 42")
+	}
+  }
+}
 ```
+
+So finding the node with id 42 is easy, but there is a little routine work in handling that there could be an error with connecting to the database, or there might not be a node with id 42.
+
+Living dangerously and ignoring both error scenarios would look like this:
+
+```swift
+client.nodeBy(id: 42) { result in
+  let foundNode = result.value!!
+  print("Successfully found node \(foundNode)")
+}
+```
+
+### Fetch nodes matching a labels and property values
+
+```swift
+let labels = ["Father", "Husband"]
+let properties: [String:PackProtocol] = [
+    "firstName": "Niklas",
+    "age": 38
+]
+
+client.nodesWith(labels: labels, andProperties: properties) { result in
+  print("Found \(result.value?.count ?? 0) nodes")
+}
+
+```
+
+### Create a relationship
 
 ### Create a node
 
 **Without Labels**
 
-```Swift
+```swift
 let node = Node()
 let randomString: String = NSUUID().UUIDString
 
@@ -136,7 +169,7 @@ theo.createNode(node, completionBlock: {(node, error) in
 
 **With Labels**
 
-```Swift
+```swift
 let node = Node()
 let randomString: String = NSUUID().UUIDString
 
@@ -150,7 +183,7 @@ theo.createNode(node, completionBlock: {(node, error) in
 ```
 *or*
 
-```Swift
+```swift
 let node = Node()
 let randomString: String = NSUUID().UUIDString        
 
@@ -165,7 +198,7 @@ theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
 ```
 ### Update properties for a node
 
-```Swift
+```swift
 let updatedPropertiesDictionary: [String:String] = ["test_update_property_label_1": "test_update_property_lable_2"]
 
 theo.updateNode(updateNode!, properties: updatedPropertiesDictionary,
@@ -175,7 +208,7 @@ theo.updateNode(updateNode!, properties: updatedPropertiesDictionary,
 
 ### Deleting a node
 
-```Swift
+```swift
 theo.deleteNode("IDForDeletion", completionBlock: {error in
     print("error \(error?.description)")
 })
@@ -183,7 +216,7 @@ theo.deleteNode("IDForDeletion", completionBlock: {error in
 
 ### Create a relationship
 
-```Swift
+```swift
 var relationship: Relationship = Relationship()
 
 relationship.relate(parentNodeInstance, toNode: relatedNodeInstance, type: RelationshipType.KNOWS)
@@ -198,7 +231,7 @@ theo.createRelationship(relationship, completionBlock: {(node, error) in
 
 ### Delete a relationship
 
-```Swift
+```swift
 theo.fetchRelationshipsForNode("nodeIDWithRelationships", direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
 
     if let foundRelationship: Relationship = relationships[0] as Relationship! {
@@ -216,7 +249,7 @@ relationshipIDToDelete = relMeta.relationshipID()
 
 ### Update a relationship
 
-```Swift
+```swift
 let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
 
 theo.updateRelationship(foundRelationshipInstance, properties: updatedProperties, completionBlock: {(_, error) in
@@ -227,7 +260,7 @@ theo.updateRelationship(foundRelationshipInstance, properties: updatedProperties
 
 ### Execute a transaction
 
-```Swift
+```swift
 let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
 let resultDataContents: Array<String> = ["row", "graph"]
 let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, "resultDataContents" : resultDataContents]
@@ -240,7 +273,7 @@ theo.executeTransaction(statements, completionBlock: {(response, error) in
 
 ### Execute a cypher query
 
-```Swift
+```swift
         let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
         let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
         let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
