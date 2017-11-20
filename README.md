@@ -134,6 +134,12 @@ client.nodeBy(id: 42) { result in
 }
 ```
 
+### Updating a node
+
+### Deleting a node
+
+
+
 ### Fetch nodes matching a labels and property values
 
 ```swift
@@ -177,142 +183,74 @@ client.createAndReturnRelationship(relationship: relationship) { result in
 
 Do note that if one or both of the nodes in a relationship have not been created in advance, they will be created together with the relationship
 
-### Create a node
+### Updating properties on a relationship
 
-**Without Labels**
+Having fetched a relationship as part of a query, you can now edit properties on that relationship:
 
 ```swift
-let node = Node()
-let randomString: String = NSUUID().UUIDString
-
-node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
-node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
-
-theo.createNode(node, completionBlock: {(node, error) in
-    print("new node \(node)")
-});
+relationship["someKey"] = "someValue"
+relationship["otherKey"] = 42
+let result = client.updateAndReturnRelationshipSync(relationship: relationship)
+switch result {
+case let .failure(error):
+  print(error.localizedDescription)
+case let .success(relationship):
+  print("Successfully updated relationship \(relationship)")
+}
 ```
 
-**With Labels**
+### Deleting a relationship
+
+And finally, you can remove the relationship alltogether:
 
 ```swift
-let node = Node()
-let randomString: String = NSUUID().UUIDString
-
-node.setProp("propertyKey_1", propertyValue: "propertyValue_1" + randomString)
-node.setProp("propertyKey_2", propertyValue: "propertyValue_2" + randomString)
-node.addLabel("customLabelForNode_" + randomString)
-
-theo.createNode(node, completionBlock: {(node, error) in
-    print("new node \(node)")
-});
-```
-*or*
-
-```swift
-let node = Node()
-let randomString: String = NSUUID().UUIDString        
-
-node.setProp("succesfullyAddNodeWithLabel_1", propertyValue: "succesfullyAddNodeWithLabel_1" + randomString)
-node.setProp("succesfullyAddNodeWithLabel_2", propertyValue: "succesfullyAddNodeWithLabel_2" + randomString)
-node.setProp("succesfullyAddNodeWithLabel_3", propertyValue: 123456)
-node.addLabel("test_008_succesfullyAddNodeWithLabel_" + randomString)
-
-theo.createNode(node, labels: node.labels, completionBlock: {(_, error) in
-  print("new node \(node)")
-})
-```
-### Update properties for a node
-
-```swift
-let updatedPropertiesDictionary: [String:String] = ["test_update_property_label_1": "test_update_property_lable_2"]
-
-theo.updateNode(updateNode!, properties: updatedPropertiesDictionary,
-    completionBlock: {(node, error) in
-})
-```
-
-### Deleting a node
-
-```swift
-theo.deleteNode("IDForDeletion", completionBlock: {error in
-    print("error \(error?.description)")
-})
-```
-
-### Create a relationship
-
-```swift
-var relationship: Relationship = Relationship()
-
-relationship.relate(parentNodeInstance, toNode: relatedNodeInstance, type: RelationshipType.KNOWS)
-
-// setting properties is optional
-relationship.setProp("my_relationship_property_name", propertyValue: "my_relationship_property_value")
-
-theo.createRelationship(relationship, completionBlock: {(node, error) in
-    print("meta in success \(node!.meta) node \(node) error \(error)")
-})
-```
-
-### Delete a relationship
-
-```swift
-theo.fetchRelationshipsForNode("nodeIDWithRelationships", direction: RelationshipDirection.ALL, types: nil, completionBlock: {(relationships, error) in
-
-    if let foundRelationship: Relationship = relationships[0] as Relationship! {
-        
-        if let relMeta: RelationshipMeta = foundRelationship.relationshipMeta {
-relationshipIDToDelete = relMeta.relationshipID()
-        }
-        
-        theo.deleteRelationship(relationshipIDToDelete!, completionBlock: {error in
-
-        })
-    }
-})
-```
-
-### Update a relationship
-
-```swift
-let updatedProperties: Dictionary<String, AnyObject> = ["updatedRelationshipProperty" : "updatedRelationshipPropertyValue"]
-
-theo.updateRelationship(foundRelationshipInstance, properties: updatedProperties, completionBlock: {(_, error) in
-
-})
-
+let result = client.deleteRelationshipSync(relationship: relationship)
+switch result {
+case let .failure(error):
+  print(error.localizedDescription)
+case .success(_):
+  print("Successfully deleted the relationship")
+}
 ```
 
 ### Execute a transaction
+It is easy to make a transaction, and to roll it back if you are not happy with its results. Simply call executeAsTransaction() and pass in a block. This block has a parameter, tx in the example below, where you can invalidate the transaction at any point. If it has not been invalidated, it is considered successful and committed at the end of the transaction block.
 
 ```swift
-let createStatement: String = "CREATE ( bike:Bike { weight: 10 } ) CREATE ( frontWheel:Wheel { spokes: 3 } ) CREATE ( backWheel:Wheel { spokes: 32 } ) CREATE p1 = bike -[:HAS { position: 1 } ]-> frontWheel CREATE p2 = bike -[:HAS { position: 2 } ]-> backWheel RETURN bike, p1, p2"        
-let resultDataContents: Array<String> = ["row", "graph"]
-let statement: Dictionary <String, AnyObject> = ["statement" : createStatement, "resultDataContents" : resultDataContents]
-let statements: Array<Dictionary <String, AnyObject>> = [statement]
-
-theo.executeTransaction(statements, completionBlock: {(response, error) in
-    print("response \(response) and error \(error?.description")
-})
+try client.executeAsTransaction() { tx in
+  _ = client.executeCypherSync("MATCH (n) SET n.abra = \"kadabra\"")
+  _ = client.executeCypherSync("MATCH (n:Person) WHERE n.name = 'Guy' SET n.likeable = true")
+  let finalResult = client.executeCypherSync("MATCH (n:Person) WHERE n.name = 'Guy' AND n.abra='kadabra' SET n.starRating = 5")
+  if (finalResult.value?.stats.propertiesSetCount ?? 0) == 0 {
+	tx.markAsFailed()
+  }
+}
 ```
 
 ### Execute a cypher query
+In the example above, we already executed a few cypher queries. In the following example, we execute a longer cypher example with named parameters, where we'll supply the parameters along side the query:
 
 ```swift
-        let theo: Client = Client(baseURL: configuration.host, user: configuration.username, pass: configuration.password)
-        let cyperQuery: String = "MATCH (u:User {username: {user} }) WITH u MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner"
-        let cyperParams: Dictionary<String, AnyObject> = ["user" : "ajordan"]
-
-        theo.executeCypher(cyperQuery, params: cyperParams, completionBlock: {(cypher, error) in
-println("response from cyper \(cypher)")
-        })
+let query = """
+			MATCH (u:User {username: {user} }) WITH u 
+			MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u 
+			MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) 
+			RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner
+			"""
+let params: [String:PackProtocol] = ["user": "ajordan"]
+let result = client.executeCypherSync(query, params: params)
+if result.isSuccess {
+  print("Successfully ran query")
+} else {
+  print("Got an error")
+}
 ```
+
 ## Integration Tests
 
 ### Setup
 
-There is a file called, `TheoConfig.json.example` which you should copy to `TheoConfig.json`. You can add your `username`, `password` and `baseUrl` to this config and the test classes use these instead of having to modify any *actual* class files. `TheoConfig.json` is in the `.gitignore` so you don't have to worry about creds being committed.
+There is a file called, `TheoBoltConfig.json.example` which you should copy to `TheoBoltConfig.json`. You can edit this configuration with connection settings to your Neo4j instance, and the test classes using these instead of having to modify any *actual* class files. `TheoBoltConfig.json` is in the `.gitignore` so you don't have to worry about creds being committed.
 
 ### Execution
 
