@@ -768,6 +768,57 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
     }
     
+    func testCreateAndReturnRelationshipsSync() throws {
+        
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from, to) = (madeNodes[0], madeNodes[1])
+        let relationship1 = Relationship(fromNode: from, toNode: to, name: "Married to")
+        let relationship2 = Relationship(fromNode: to, toNode: from, name: "Married to")
+        let createdRelationships = client.createAndReturnRelationshipsSync(relationships: [relationship1, relationship2])
+        XCTAssertTrue(createdRelationships.isSuccess)
+        XCTAssertEqual(2, createdRelationships.value!.count)
+    }
+    
+    func testCreateAndReturnRelationships() throws {
+        
+        let exp = expectation(description: "testCreateAndReturnRelationships")
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from, to) = (madeNodes[0], madeNodes[1])
+        let relationship1 = Relationship(fromNode: from, toNode: to, name: "Married to")
+        let relationship2 = Relationship(fromNode: to, toNode: from, name: "Married to")
+        client.createAndReturnRelationships(relationships: [relationship1, relationship2]) { createdRelationships in
+            XCTAssertTrue(createdRelationships.isSuccess)
+            XCTAssertEqual(2, createdRelationships.value!.count)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testCreateAndReturnRelationship() throws {
+        
+        let exp = expectation(description: "testCreateAndReturnRelationships")
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from, to) = (madeNodes[0], madeNodes[1])
+        let relationship = Relationship(fromNode: from, toNode: to, name: "Married to")
+        client.createAndReturnRelationship(relationship: relationship) { createdRelationships in
+            XCTAssertTrue(createdRelationships.isSuccess)
+            XCTAssertEqual("Married to", createdRelationships.value!.name)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+
+    
     func testCreateRelationshipWithCreateToNode() throws {
         
         let client = try makeClient()
@@ -1415,6 +1466,9 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testFindNodeByLabelAndProperties", testFindNodeByLabelAndProperties),
         ("testFindNodeByLabelsAndProperty", testFindNodeByLabelsAndProperty),
         ("testFindNodeByLabelAndProperty", testFindNodeByLabelAndProperty),
+        ("testCreateAndReturnRelationshipsSync", testCreateAndReturnRelationshipsSync),
+        ("testCreateAndReturnRelationships", testCreateAndReturnRelationships),
+        ("testCreateAndReturnRelationship", testCreateAndReturnRelationship),
     ]
 
 }

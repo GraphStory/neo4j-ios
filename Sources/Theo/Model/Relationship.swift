@@ -348,7 +348,6 @@ extension Array where Element: Relationship {
             query += "\nRETURN \(returnItems.joined(separator: ","))"
         }
 
-        print(query)
         return Request.run(statement: query, parameters: Map(dictionary: parameters))
     }
 

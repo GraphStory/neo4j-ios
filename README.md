@@ -150,6 +150,32 @@ client.nodesWith(labels: labels, andProperties: properties) { result in
 ```
 
 ### Create a relationship
+Given two nodes reader and writer, making a relationship named "follows" is easy as
+
+```swift
+let result = client.relateSync(node: reader, to: writer, name: "follows")
+if result.isSuccess {
+  print("Relationship successfully created")
+}
+```
+
+Again, there is an async version of relateSync() called relate() that takes the same parameters and a callback block with the same result as relateSync returned
+
+You can also make a relationship directly and create that:
+
+```swift
+let relationship = Relationship(fromNode: from, toNode: to, name: "Married to")
+client.createAndReturnRelationship(relationship: relationship) { result in
+  switch result {
+  case let .failure(error):
+    print(error.localizedDescription)
+  case let .success(relationship):
+    print("Successfully created relationship \(relationship)")
+  }
+}
+```
+
+Do note that if one or both of the nodes in a relationship have not been created in advance, they will be created together with the relationship
 
 ### Create a node
 
