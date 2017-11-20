@@ -1159,6 +1159,11 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
 (bb)<-[:BREWS]-(br);
 """
         let client = try makeClient()
+        for query in indexQueries.split(separator: ";") {
+            let result = client.executeCypherSync(String(query))
+            XCTAssertTrue(result.isSuccess)
+        }
+        
         try client.executeAsTransaction() { tx in
             for query in queries.split(separator: ";") {
                 let result = client.executeCypherSync(String(query))
