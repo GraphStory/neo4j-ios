@@ -47,22 +47,6 @@ end
 ```
 Run `pod install` to configure your updated workspace. Open the .xcworkspace generated, your project is now ready to use Theo
 
-### Carthage
-Add the following to your Cartfile:
-
-```ogdl
-github "GraphStory/neo4j-ios" ~> 4.0
-```
-Run `carthage update --platform iOS` to build the framework and drag the built `Theo.framework` into your Xcode project.
-
-### git submodule
-
-  1. Add it as a submodule to your existing project. `git submodule add git@github.com:GraphStory/neo4j-ios.git`
-  2. Open the Theo folder, and drag Theo.xcodeproj into the file navigator of your Xcode project.
-  3. In Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar.
-  4. In the tab bar at the top of that window, open the "Build Phases" panel.
-  5. Expand the "Link Binary with Libraries" group, and add Theo.framework.
-  6. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add Theo.framework.
 
 ## Usage
 
