@@ -123,7 +123,7 @@ client.nodeBy(id: 42) { result in
 }
 ```
 
-So finding the node with id 42 is easy, but there is a little routine work in handling that there could be an error with connecting to the database, or there might not be a node with id 42.
+So, finding the node with id 42 is easy, but there is a little routine work in handling that there could be an error with connecting to the database, or there might not be a node with id 42.
 
 Living dangerously and ignoring both error scenarios would look like this:
 
@@ -135,10 +135,59 @@ client.nodeBy(id: 42) { result in
 ```
 
 ### Updating a node
+Given the variable 'node' with an existing node, we might want to update it. Let's add a label:
+
+```swift
+node.add(label: "AnotherLabel")
+```
+
+or add a few properties:
+```swift
+node["age"] = 42
+node["color"] = "white"
+```
+
+and then
+
+
+```swift
+let result = client.updateNodeSync(node: node)
+switch result {
+case let .failure(error):
+  print(error.localizedDescription)
+case .success(_):
+  print("Node updated successfully")
+}
+```
 
 ### Deleting a node
 
+Likewise, given the variable 'node' with an existing node, when we no longer want the data,
+we might want to delete it all together:
 
+```swift
+let result = client.deleteNodeSync(node: node)
+switch result {
+case let .failure(error):
+  print(error.localizedDescription)
+case .success(_):
+  print("Node deleted successfully")
+}
+```
+
+Note that in Neo4j, to delete a node all relationships this node participates in should be deleted first. However, you can force a delete by calling "DETACH DELETE", and it will then remove all the relationships the node participates in as well. Since this is an exception to the rule, there is no helper function for this. But with Theo, running an arbitrary Cypher statement is easy:
+
+```swift
+guard let id = node.id else { return }
+let query = """
+            MATCH (n) WHERE id(n) = {id} DETACH DELETE n
+            """
+if client.executeCypherSync(query, params: [ "id": Int64(id)] ).isSuccess {
+  print("Node deleted successfully")
+} else {
+  print("Something went wrong while deleting the node")
+}
+```
 
 ### Fetch nodes matching a labels and property values
 

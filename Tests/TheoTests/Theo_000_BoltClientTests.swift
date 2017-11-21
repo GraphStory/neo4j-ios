@@ -629,8 +629,11 @@ class Theo_000_BoltClientTests: XCTestCase {
         XCTAssertTrue(createResult.isSuccess)
 
         apple = createResult.value!
+        apple.add(label: "Apple")
         apple["juicy"] = true
+        apple["findMe"] = 42
         let updateResult = client.updateNodeSync(node: apple)
+        print("Apple id: \(apple.id!)")
         XCTAssertTrue(updateResult.isSuccess)
     }
     
