@@ -719,8 +719,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
         var (from, to) = (createdNodes[0], createdNodes[1])
         var result = client.relateSync(node: from, to: to, name: "Married to")
-        if result.isSuccess {
-            print("Relationship successfully created")
+        if !result.isSuccess {
+            XCTFail("Creating relationship failed!")
         }
         
         result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
@@ -889,8 +889,6 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
-        
-        print(String(describing: queryResult))
     }
 
     func testCreateRelationshipsWithExistingNodesUsingNode() throws {
@@ -919,8 +917,6 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
-
-        print(String(describing: queryResult))
     }
     
     func testCreateRelationshipsWithoutExistingNodes() throws {
@@ -948,9 +944,6 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
-        
-        print(String(describing: queryResult))
-        
     }
     
     func testCreateRelationshipsWithMixedNodes() throws {
@@ -979,9 +972,6 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
-        
-        print(String(describing: queryResult))
-        
     }
 
     func testUpdateRelationship() throws {

@@ -21,6 +21,7 @@
 
 Because this framework is open source it is best for most situations to post on Stack Overflow and tag it **[Theo](http://stackoverflow.com/questions/tagged/theo)**. If you do 
 find a bug please file an issue or issue a PR for any features or fixes.
+You are also most welcome to join the conversation in the #neo4j-swift channel in the [neo4j-users Slack](http://neo4j-users-slack-invite.herokuapp.com)
 
 ## Installation
 You can install Theo in a number of ways
@@ -52,7 +53,7 @@ Run `pod install` to configure your updated workspace. Open the .xcworkspace gen
 
 ### Initalization
 
-To get started, you need to set up a BoltClient with the connection information to your Neo4j instance. You could for instance load a JSON into a dictionary, and then pass any values that should overrid the defualts, like this:
+To get started, you need to set up a BoltClient with the connection information to your Neo4j instance. You could for instance load a JSON into a dictionary, and then pass any values that should overrid the defaults, like this:
 
 ```swift
 let config = ["password": "<passcode>"]
@@ -251,8 +252,8 @@ It is easy to make a transaction, and to roll it back if you are not happy with 
 
 ```swift
 try client.executeAsTransaction() { tx in
-  _ = client.executeCypherSync("MATCH (n) SET n.abra = \"kadabra\"")
-  _ = client.executeCypherSync("MATCH (n:Person) WHERE n.name = 'Guy' SET n.likeable = true")
+  client.executeCypherSync("MATCH (n) SET n.abra = \"kadabra\"")
+  client.executeCypherSync("MATCH (n:Person) WHERE n.name = 'Guy' SET n.likeable = true")
   let finalResult = client.executeCypherSync("MATCH (n:Person) WHERE n.name = 'Guy' AND n.abra='kadabra' SET n.starRating = 5")
   if (finalResult.value?.stats.propertiesSetCount ?? 0) == 0 {
 	tx.markAsFailed()
@@ -265,11 +266,11 @@ In the example above, we already executed a few cypher queries. In the following
 
 ```swift
 let query = """
-			MATCH (u:User {username: {user} }) WITH u 
-			MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u 
-			MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) 
-			RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner
-			"""
+            MATCH (u:User {username: {user} }) WITH u 
+            MATCH (u)-[:FOLLOWS*0..1]->(f) WITH DISTINCT f,u 
+            MATCH (f)-[:LASTPOST]-(lp)-[:NEXTPOST*0..3]-(p) 
+            RETURN p.contentId as contentId, p.title as title, p.tagstr as tagstr, p.timestamp as timestamp, p.url as url, f.username as username, f=u as owner
+            """
 let params: [String:PackProtocol] = ["user": "ajordan"]
 let result = client.executeCypherSync(query, params: params)
 if result.isSuccess {

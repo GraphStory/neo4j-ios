@@ -186,6 +186,7 @@ open class BoltClient {
 
     }
 
+    @discardableResult
     public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, AnyError>) {
 
         var theResult: Result<QueryResult, AnyError>! = nil
