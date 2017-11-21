@@ -6,6 +6,7 @@ public protocol ResponseItem {}
 
 public class Node: ResponseItem {
     public var id: UInt64? = nil
+    internal let instanceId: Int = UUID().uuidString.hashValue
 
     /// Alias used when generating queries
     public private(set) var modified: Bool = false

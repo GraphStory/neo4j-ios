@@ -287,10 +287,13 @@ extension Array where Element: Relationship {
 
     public func createRequest(withReturnStatement: Bool = true) -> Request {
 
-        var returnItems = [String]()
+        var returnItems = Set<String>()
         var matchQueries = [String]()
         var createQueries = [String]()
+        var createdNodeAliases = [Int:String]()
+        var matchedNodeAliases = [UInt64:String]()
         var parameters = [String:PackProtocol]()
+        
         var i = 0
         while i < self.count {
             let relationship = self[i]
@@ -305,42 +308,65 @@ extension Array where Element: Relationship {
                 params = " { \(params) }"
             }
 
+            var fromNodeAlias = "fromNode\(i)"
+            var toNodeAlias = "toNode\(i)"
+            
             if let fromNodeId = relationship.fromNodeId ?? relationship.fromNode?.id {
-                matchQueries.append("MATCH (`fromNode\(i)`) WHERE id(`fromNode\(i)`) = \(fromNodeId)")
+                if let existingFromNodeAlias = matchedNodeAliases[fromNodeId] {
+                    fromNodeAlias = existingFromNodeAlias
+                } else {
+                    matchQueries.append("MATCH (`\(fromNodeAlias)`) WHERE id(`\(fromNodeAlias)`) = \(fromNodeId)")
+                    matchedNodeAliases[fromNodeId] = fromNodeAlias
+                }
             } else if let fromNode = relationship.fromNode {
-                let (query,properties) = fromNode.createRequestQuery(
-                    withReturnStatement: false,
-                    nodeAlias: "fromNode\(i)",
-                    paramSuffix: "\(i)",
-                    withCreate: false)
-                createQueries.append(query)
-                parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
+                if let existingFromNodeAlias = createdNodeAliases[fromNode.instanceId] {
+                    fromNodeAlias = existingFromNodeAlias
+                } else {
+                    let (query,properties) = fromNode.createRequestQuery(
+                        withReturnStatement: false,
+                        nodeAlias: fromNodeAlias,
+                        paramSuffix: "\(i)",
+                        withCreate: false)
+                    createQueries.append(query)
+                    createdNodeAliases[fromNode.instanceId] = fromNodeAlias
+                    parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
+                }
             } else {
                 print("Could neither find nodeId or node for fromNode - please report this bug")
             }
             
             if let toNodeId = relationship.toNodeId ?? relationship.toNode?.id {
-                matchQueries.append("MATCH (`toNode\(i)`) WHERE id(`toNode\(i)`) = \(toNodeId)")
+                if let existingToNodeAlias = matchedNodeAliases[toNodeId] {
+                    toNodeAlias = existingToNodeAlias
+                } else {
+                    matchQueries.append("MATCH (`\(toNodeAlias)`) WHERE id(`\(toNodeAlias)`) = \(toNodeId)")
+                    matchedNodeAliases[toNodeId] = toNodeAlias
+                }
             } else if let toNode = relationship.toNode {
-                let (query,properties) = toNode.createRequestQuery(
-                    withReturnStatement: false,
-                    nodeAlias: "toNode\(i)",
-                    paramSuffix: "\(i)",
-                    withCreate: false)
-                createQueries.append(query)
-                parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
+                if let existingToNodeAlias = createdNodeAliases[toNode.instanceId] {
+                    toNodeAlias = existingToNodeAlias
+                } else {
+                    let (query,properties) = toNode.createRequestQuery(
+                        withReturnStatement: false,
+                        nodeAlias: toNodeAlias,
+                        paramSuffix: "\(i)",
+                        withCreate: false)
+                    createQueries.append(query)
+                    createdNodeAliases[toNode.instanceId] = toNodeAlias
+                    parameters.merge( properties, uniquingKeysWith: { _, new in return new } )
+                }
             } else {
                 print("Could neither find nodeId or node for toNode - please report this bug")
             }
 
             if relationship.type == .to {
-                createQueries.append("(`fromNode\(i)`)-[\(`relationshipAlias`):`\(relationship.name)`\(params)]->(`toNode\(i)`)")
+                createQueries.append("(`\(fromNodeAlias)`)-[\(`relationshipAlias`):`\(relationship.name)`\(params)]->(`\(toNodeAlias)`)")
             } else {
-                createQueries.append("(`fromNode\(i)`)<-[\(`relationshipAlias`):`\(relationship.name)`\(params)]-(`toNode\(i)`)")
+                createQueries.append("(`\(fromNodeAlias)`)<-[\(`relationshipAlias`):`\(relationship.name)`\(params)]-(`\(toNodeAlias)`)")
             }
-            returnItems.append(relationshipAlias)
-            returnItems.append("fromNode\(i)")
-            returnItems.append("toNode\(i)")
+            returnItems.insert(relationshipAlias)
+            returnItems.insert(fromNodeAlias)
+            returnItems.insert(toNodeAlias)
         }
 
         var query: String = matchQueries.joined(separator: "\n") + "\nCREATE " + createQueries.joined(separator: ",\n  ")

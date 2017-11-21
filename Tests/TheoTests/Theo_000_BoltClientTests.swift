@@ -633,8 +633,52 @@ class Theo_000_BoltClientTests: XCTestCase {
         apple["juicy"] = true
         apple["findMe"] = 42
         let updateResult = client.updateNodeSync(node: apple)
-        print("Apple id: \(apple.id!)")
         XCTAssertTrue(updateResult.isSuccess)
+        
+        let prevId = apple.id!
+        let exp = expectation(description: "Should get expected update back")
+        client.nodeBy(id: prevId) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            let apple = result.value!!
+            
+            XCTAssertNotNil(apple.id)
+            XCTAssertEqual(prevId, apple.id!)
+            XCTAssertEqual(42, apple["findMe"]?.intValue() ?? -1)
+            XCTAssertTrue(apple["juicy"] as? Bool ?? false)
+            XCTAssertTrue(apple.labels.contains("Apple"))
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+        
+    }
+    
+    func testUpdateAndReturnNode() throws {
+        let client = try makeClient()
+        
+        var apple = Node(labels: ["Fruit"], properties: [:])
+        apple["pits"] = 4
+        apple["color"] = "green"
+        apple["variety"] = "McIntosh"
+        let createResult = client.createAndReturnNodeSync(node: apple)
+        XCTAssertTrue(createResult.isSuccess)
+        
+        apple = createResult.value!
+        apple.add(label: "Apple")
+        apple["juicy"] = true
+        apple["findMe"] = 42
+        
+         let updateResult = client.updateAndReturnNodeSync(node: apple)
+         XCTAssertNotNil(apple.id)
+         XCTAssertTrue(updateResult.isSuccess)
+         XCTAssertNotNil(updateResult.value)
+         apple = updateResult.value!
+         XCTAssertEqual(42, apple["findMe"]?.intValue() ?? -1)
+         XCTAssertTrue(apple["juicy"] as? Bool ?? false)
+         XCTAssertTrue(apple.labels.contains("Apple"))
     }
     
     func testCypherMatching() throws {
@@ -889,6 +933,12 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
+        
+        XCTAssertEqual(1, queryResult!.rows.count)
+        XCTAssertEqual(4, queryResult!.fields.count)
+        XCTAssertEqual(2, queryResult!.nodes.count)
+        XCTAssertEqual(2, queryResult!.relationships.count)
+        XCTAssertEqual("rw", queryResult!.stats.type)
     }
 
     func testCreateRelationshipsWithExistingNodesUsingNode() throws {
@@ -917,6 +967,12 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
+
+        XCTAssertEqual(1, queryResult!.rows.count)
+        XCTAssertEqual(4, queryResult!.fields.count)
+        XCTAssertEqual(2, queryResult!.nodes.count)
+        XCTAssertEqual(2, queryResult!.relationships.count)
+        XCTAssertEqual("rw", queryResult!.stats.type)
     }
     
     func testCreateRelationshipsWithoutExistingNodes() throws {
@@ -944,6 +1000,12 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
+
+        XCTAssertEqual(1, queryResult!.rows.count)
+        XCTAssertEqual(4, queryResult!.fields.count)
+        XCTAssertEqual(2, queryResult!.nodes.count)
+        XCTAssertEqual(2, queryResult!.relationships.count)
+        XCTAssertEqual("rw", queryResult!.stats.type)
     }
     
     func testCreateRelationshipsWithMixedNodes() throws {
@@ -972,6 +1034,12 @@ class Theo_000_BoltClientTests: XCTestCase {
             group.leave()
         }
         group.wait()
+        
+        XCTAssertEqual(1, queryResult!.rows.count)
+        XCTAssertEqual(4, queryResult!.fields.count)
+        XCTAssertEqual(2, queryResult!.nodes.count)
+        XCTAssertEqual(2, queryResult!.relationships.count)
+        XCTAssertEqual("rw", queryResult!.stats.type)
     }
 
     func testUpdateRelationship() throws {
@@ -1467,6 +1535,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testCreateAndReturnRelationshipsSync", testCreateAndReturnRelationshipsSync),
         ("testCreateAndReturnRelationships", testCreateAndReturnRelationships),
         ("testCreateAndReturnRelationship", testCreateAndReturnRelationship),
+        ("testUpdateAndReturnNode", testUpdateAndReturnNode)
     ]
 
 }

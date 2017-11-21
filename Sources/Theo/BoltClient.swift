@@ -668,6 +668,7 @@ extension BoltClient { // Node functions
         }
 
         group.wait()
+        self.pullSynchronouslyAndIgnore()
         return theResult
     }
 
