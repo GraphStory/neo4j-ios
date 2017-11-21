@@ -874,18 +874,18 @@ extension BoltClient { // Relationship functions
 
     // Create
 
-    public func relate(node: Node, to: Node, name: String, properties: [String:PackProtocol] = [:], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
-        let relationship = Relationship(fromNode: node, toNode: to, name: name, type: .from, properties: properties)
+    public func relate(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+        let relationship = Relationship(fromNode: node, toNode: to, type: type, direction: .from, properties: properties)
         let request = relationship.createRequest()
         performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func relateSync(node: Node, to: Node, name: String, properties: [String:PackProtocol] = [:]) -> Result<Relationship, AnyError> {
+    public func relateSync(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:]) -> Result<Relationship, AnyError> {
         let group = DispatchGroup()
         group.enter()
 
         var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
-        relate(node: node, to: to, name: name, properties: properties) { result in
+        relate(node: node, to: to, type: type, properties: properties) { result in
             theResult = result
             group.leave()
         }

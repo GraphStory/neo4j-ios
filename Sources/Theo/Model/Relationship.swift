@@ -2,7 +2,7 @@ import Foundation
 import Bolt
 import PackStream
 
-public enum RelationshipType {
+public enum RelationshipDirection {
     case from
     case to
 }
@@ -14,31 +14,31 @@ public class Relationship: ResponseItem {
     public var createdTime: Date? = nil
 
     public private(set) var properties: [String: PackProtocol]
-    public var name: String {
+    public var type: String {
         didSet {
             isModified = true
-            nameIsModified = true
+            typeIsModified = true
         }
     }
 
     private var updatedProperties: [String: PackProtocol] = [:]
     private var removedPropertyKeys = Set<String>()
-    private var nameIsModified = false
+    private var typeIsModified = false
 
     public var fromNodeId: UInt64?
     public var fromNode: Node?
     public var toNodeId: UInt64?
     public var toNode: Node?
-    public var type: RelationshipType
+    public var direction: RelationshipDirection
 
-    public init(fromNode: Node, toNode: Node, name: String, type: RelationshipType = .from, properties: [String: PackProtocol] = [:]) {
+    public init(fromNode: Node, toNode: Node, type: String, direction: RelationshipDirection = .from, properties: [String: PackProtocol] = [:]) {
 
         self.fromNode = fromNode
         self.fromNodeId = fromNode.id
         self.toNode = toNode
         self.toNodeId = toNode.id
-        self.name = name
         self.type = type
+        self.direction = direction
         self.properties = properties
 
         self.isModified = false
@@ -47,14 +47,14 @@ public class Relationship: ResponseItem {
         self.updatedTime = Date()
     }
 
-    public init(fromNodeId: UInt64, toNodeId:UInt64, name: String, type: RelationshipType, properties: [String: PackProtocol] = [:]) {
+    public init(fromNodeId: UInt64, toNodeId:UInt64, type: String, direction: RelationshipDirection, properties: [String: PackProtocol] = [:]) {
 
         self.fromNode = nil
         self.fromNodeId = fromNodeId
         self.toNode = nil
         self.toNodeId = toNodeId
-        self.name = name
         self.type = type
+        self.direction = direction
         self.properties = properties
 
         self.isModified = false
@@ -70,17 +70,17 @@ public class Relationship: ResponseItem {
             let relationshipId = s.items[0].uintValue(),
             let fromNodeId = s.items[1].uintValue(),
             let toNodeId = s.items[2].uintValue(),
-            let name = s.items[3] as? String,
+            let type = s.items[3] as? String,
             let properties = (s.items[4] as? Map)?.dictionary {
 
             self.id = relationshipId
             self.fromNodeId = fromNodeId
             self.toNodeId = toNodeId
-            self.name = name
+            self.type = type
             self.properties = properties
 
             self.isModified = false
-            self.type = .from
+            self.direction = .from
 
             self.createdTime = Date()
             self.updatedTime = Date()
@@ -139,11 +139,11 @@ public class Relationship: ResponseItem {
         }
         
         let relQuery: String
-        switch type {
+        switch direction {
         case .from:
-            relQuery = "CREATE (fromNode)-[\(relationshipAlias):`\(name)`\(params)]->(toNode)"
+            relQuery = "CREATE (fromNode)-[\(relationshipAlias):`\(type)`\(params)]->(toNode)"
         case .to:
-            relQuery = "CREATE (fromNode)<-[\(relationshipAlias):`\(name)`\(params)]-(toNode)"
+            relQuery = "CREATE (fromNode)<-[\(relationshipAlias):`\(type)`\(params)]-(toNode)"
         }
         
         let query: String
@@ -359,10 +359,10 @@ extension Array where Element: Relationship {
                 print("Could neither find nodeId or node for toNode - please report this bug")
             }
 
-            if relationship.type == .to {
-                createQueries.append("(`\(fromNodeAlias)`)-[\(`relationshipAlias`):`\(relationship.name)`\(params)]->(`\(toNodeAlias)`)")
+            if relationship.direction == .to {
+                createQueries.append("(`\(fromNodeAlias)`)-[\(`relationshipAlias`):`\(relationship.type)`\(params)]->(`\(toNodeAlias)`)")
             } else {
-                createQueries.append("(`\(fromNodeAlias)`)<-[\(`relationshipAlias`):`\(relationship.name)`\(params)]-(`\(toNodeAlias)`)")
+                createQueries.append("(`\(fromNodeAlias)`)<-[\(`relationshipAlias`):`\(relationship.type)`\(params)]-(`\(toNodeAlias)`)")
             }
             returnItems.insert(relationshipAlias)
             returnItems.insert(fromNodeAlias)

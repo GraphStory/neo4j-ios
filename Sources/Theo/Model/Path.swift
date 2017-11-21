@@ -56,12 +56,12 @@ public class Path: ResponseItem {
         let unboundRelationshipIndex = sequence[fromNodeIndex + 1]
         assert(unboundRelationshipIndex != 0) // S has a range encompassed by (..,-1] and [1,..)
         let unboundRelationship = unboundRelationships[abs(unboundRelationshipIndex) - 1]
-        let direction: RelationshipType = unboundRelationshipIndex > 0 ? .to : .from
+        let direction: RelationshipDirection = unboundRelationshipIndex > 0 ? .to : .from
         let segment = Relationship(
             fromNode: fromNode,
             toNode: toNode,
-            name: unboundRelationship.type,
-            type: direction,
+            type: unboundRelationship.type,
+            direction: direction,
             properties: unboundRelationship.properties)
         segments.append(segment)
 

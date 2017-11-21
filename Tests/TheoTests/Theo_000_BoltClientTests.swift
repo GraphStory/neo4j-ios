@@ -639,7 +639,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         let exp = expectation(description: "Should get expected update back")
         client.nodeBy(id: prevId) { result in
             XCTAssertTrue(result.isSuccess)
-            XCTAssertNotNil(result.value)
+            XCTAssertNotNil(result.value as? Node)
             let apple = result.value!!
             
             XCTAssertNotNil(apple.id)
@@ -762,12 +762,12 @@ class Theo_000_BoltClientTests: XCTestCase {
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
         var (from, to) = (createdNodes[0], createdNodes[1])
-        var result = client.relateSync(node: from, to: to, name: "Married to")
+        var result = client.relateSync(node: from, to: to, type: "Married to")
         if !result.isSuccess {
             XCTFail("Creating relationship failed!")
         }
         
-        result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        result = client.relateSync(node: from, to: to, type: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
         
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
@@ -785,7 +785,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let madeNodes = makeSomeNodes()
         var (from, to) = (madeNodes[0], madeNodes[1])
-        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let result = client.relateSync(node: from, to: to, type: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
         
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
@@ -803,7 +803,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         var (from_, to) = (madeNodes[0], madeNodes[1])
         let createdNode = client.createAndReturnNodeSync(node: from_).value!
         var from = createdNode
-        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let result = client.relateSync(node: from, to: to, type: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
         
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
@@ -820,8 +820,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let madeNodes = makeSomeNodes()
         let (from, to) = (madeNodes[0], madeNodes[1])
-        let relationship1 = Relationship(fromNode: from, toNode: to, name: "Married to")
-        let relationship2 = Relationship(fromNode: to, toNode: from, name: "Married to")
+        let relationship1 = Relationship(fromNode: from, toNode: to, type: "Married to")
+        let relationship2 = Relationship(fromNode: to, toNode: from, type: "Married to")
         let createdRelationships = client.createAndReturnRelationshipsSync(relationships: [relationship1, relationship2])
         XCTAssertTrue(createdRelationships.isSuccess)
         XCTAssertEqual(2, createdRelationships.value!.count)
@@ -833,8 +833,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let madeNodes = makeSomeNodes()
         let (from, to) = (madeNodes[0], madeNodes[1])
-        let relationship1 = Relationship(fromNode: from, toNode: to, name: "Married to")
-        let relationship2 = Relationship(fromNode: to, toNode: from, name: "Married to")
+        let relationship1 = Relationship(fromNode: from, toNode: to, type: "Married to")
+        let relationship2 = Relationship(fromNode: to, toNode: from, type: "Married to")
         client.createAndReturnRelationships(relationships: [relationship1, relationship2]) { createdRelationships in
             XCTAssertTrue(createdRelationships.isSuccess)
             XCTAssertEqual(2, createdRelationships.value!.count)
@@ -852,10 +852,10 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let madeNodes = makeSomeNodes()
         let (from, to) = (madeNodes[0], madeNodes[1])
-        let relationship = Relationship(fromNode: from, toNode: to, name: "Married to")
+        let relationship = Relationship(fromNode: from, toNode: to, type: "Married to")
         client.createAndReturnRelationship(relationship: relationship) { createdRelationships in
             XCTAssertTrue(createdRelationships.isSuccess)
-            XCTAssertEqual("Married to", createdRelationships.value!.name)
+            XCTAssertEqual("Married to", createdRelationships.value!.type)
             exp.fulfill()
         }
         
@@ -873,7 +873,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         var (from, to_) = (madeNodes[0], madeNodes[1])
         let createdNode = client.createAndReturnNodeSync(node: to_).value!
         var to = createdNode
-        let result = client.relateSync(node: from, to: to, name: "Married to", properties: [ "happily": true ])
+        let result = client.relateSync(node: from, to: to, type: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
 
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
@@ -891,11 +891,11 @@ class Theo_000_BoltClientTests: XCTestCase {
 
         let reader: Node! = nodes[0]
         let writer: Node! = nodes[1]
-        var relationship = Relationship(fromNode: reader, toNode: writer, name: "follows")
+        var relationship = Relationship(fromNode: reader, toNode: writer, type: "follows")
         let result = client.createAndReturnRelationshipSync(relationship: relationship)
         XCTAssertTrue(result.isSuccess)
         relationship = result.value!
-        XCTAssertEqual("follows", relationship.name)
+        XCTAssertEqual("follows", relationship.type)
         //XCTAssertEqual(reader.labels, relationship.fromNode?.labels ?? [])
         //XCTAssertEqual(writer.labels, relationship.toNode?.labels ?? [])
     }
@@ -914,8 +914,8 @@ class Theo_000_BoltClientTests: XCTestCase {
                 return
         }
         
-        let rel1 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .to, properties: [ "happily": true ])
-        let rel2 = Relationship(fromNodeId: fromId, toNodeId: toId, name: "Married to", type: .from, properties: [ "happily": true ])
+        let rel1 = Relationship(fromNodeId: fromId, toNodeId: toId, type: "Married to", direction: .to, properties: [ "happily": true ])
+        let rel2 = Relationship(fromNodeId: fromId, toNodeId: toId, type: "Married to", direction: .from, properties: [ "happily": true ])
         
         let request = [rel1, rel2].createRequest(withReturnStatement: true)
         var queryResult: QueryResult! = nil
@@ -948,8 +948,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
         let (from, to) = (createdNodes[0], createdNodes[1])
 
-        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])
-        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])
+        let rel1 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .to, properties: [ "happily": true ])
+        let rel2 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .from, properties: [ "happily": true ])
 
         let request = [rel1, rel2].createRequest(withReturnStatement: true)
         var queryResult: QueryResult! = nil
@@ -981,8 +981,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let nodes = makeSomeNodes()
         let (from, to) = (nodes[0], nodes[1])
         
-        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])
-        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])
+        let rel1 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .to, properties: [ "happily": true ])
+        let rel2 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .from, properties: [ "happily": true ])
         
         let request = [rel1, rel2].createRequest(withReturnStatement: true)
         var queryResult: QueryResult! = nil
@@ -1015,8 +1015,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let (from_, to) = (nodes[0], nodes[1])
         let from = client.createAndReturnNodeSync(node: from_).value!
         
-        let rel1 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .to, properties: [ "happily": true ])
-        let rel2 = Relationship(fromNode: from, toNode: to, name: "Married to", type: .from, properties: [ "happily": true ])
+        let rel1 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .to, properties: [ "happily": true ])
+        let rel2 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .from, properties: [ "happily": true ])
 
         let request = [rel1, rel2].createRequest(withReturnStatement: true)
         var queryResult: QueryResult! = nil
@@ -1051,7 +1051,7 @@ class Theo_000_BoltClientTests: XCTestCase {
             let nodes = self.makeSomeNodes()
             let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
             let (from, to) = (createdNodes[0], createdNodes[1])
-            var result = client.relateSync(node: from, to: to, name: "Married", properties: [ "happily": true ])
+            var result = client.relateSync(node: from, to: to, type: "Married", properties: [ "happily": true ])
             let createdRelationship: Relationship = result.value!
 
             XCTAssertTrue(createdRelationship["happily"] as! Bool)
@@ -1135,7 +1135,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         from = resultNodes[0]
         to = resultNodes[1]
 
-        let relResult = client.relateSync(node: from, to: to, name: "WORKED_IN", properties: [ "from": 2015, "to": 2017])
+        let relResult = client.relateSync(node: from, to: to, type: "WORKED_IN", properties: [ "from": 2015, "to": 2017])
         XCTAssertTrue(relResult.isSuccess)
         XCTAssertNotNil(relResult.value)
         let relationship = relResult.value!
@@ -1160,7 +1160,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         from = resultNodes[0]
         to = resultNodes[1]
 
-        let relResult = client.relateSync(node: from, to: to, name: "WORKED_IN", properties: [ "from": 2015, "to": 2017])
+        let relResult = client.relateSync(node: from, to: to, type: "WORKED_IN", properties: [ "from": 2015, "to": 2017])
         XCTAssertTrue(relResult.isSuccess)
         XCTAssertNotNil(relResult.value)
         let relationship = relResult.value!
