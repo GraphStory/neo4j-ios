@@ -99,6 +99,14 @@ open class BoltClient {
             settings: settings)
     }
 
+    /**
+     Connects to Neo4j given the connection settings BoltClient was initialized with.
+     
+     Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
+     so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
+     
+     - parameter completionBlock: Completion result-block that provides a Bool to indicate success, or an Error to explain what went wrong
+     */
     public func connect(completionBlock: ((Result<Bool, AnyError>) -> ())? = nil) {
 
         do {
@@ -115,6 +123,13 @@ open class BoltClient {
         }
     }
 
+    /**
+     Connects to Neo4j given the connection settings BoltClient was initialized with.
+     
+     Synchronous, so the function will return only when the connection attempt has been made.
+     
+     - returns: Result that provides a Bool to indicate success, or an Error to explain what went wrong
+     */
     public func connectSync() -> Result<Bool, AnyError> {
 
         var theResult: Result<Bool, AnyError>! = nil
@@ -128,10 +143,26 @@ open class BoltClient {
         return theResult
     }
     
+    /**
+     Disconnects from Neo4j.
+     */
     public func disconnect() {
         connection.disconnect()
     }
 
+    /**
+     Executes a given request on Neo4j
+     
+     Requires an established connection
+     
+     Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
+     so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
+     
+     - warning: This function only performs a single request, and that request can lead Neo4j to expect a certain follow-up request, or disconnect with a failure if it receives an unexpected request following this request.
+     
+     - parameter request: The Bolt Request that will be sent to Neo4j
+     - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
+     */
     public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         do {
             try connection.request(request) { (successResponse, response) in
@@ -148,6 +179,19 @@ open class BoltClient {
         }
     }
 
+    /**
+     Executes a given request on Neo4j, and pulls the respons data
+     
+     Requires an established connection
+     
+     Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
+     so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
+     
+     - warning: This function should only be used with requests that expect data to be pulled after they run. Other requests can make Neo4j disconnect with a failure when it is subsequent asked for the result data
+     
+     - parameter request: The Bolt Request that will be sent to Neo4j
+     - parameter completionBlock: Completion result-block that provides a complete QueryResult, or an Error to explain what went wrong
+     */
     public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         do {
             try connection.request(request) { (successResponse, response) in
@@ -178,6 +222,20 @@ open class BoltClient {
         }
     }
 
+    /**
+     Executes a given cypher query on Neo4j
+     
+     Requires an established connection
+     
+     Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
+     so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
+     
+     - warning: Executing a query should be followed by a data pull with the response from Neo4j. Not doing so can lead to Neo4j closing the client connection.
+     
+     - parameter query: The Cypher query to be executed
+     - parameter params: The named parameters to be included in the query. All parameter values need to conform to PackProtocol, as this is how they are encoded when sent via Bolt to Neo4j
+     - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
+     */
     public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
 
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
@@ -186,6 +244,17 @@ open class BoltClient {
 
     }
 
+    /**
+     Executes a given cypher query on Neo4j
+     
+     Requires an established connection
+     
+     Synchronous, so the function will return only when the query result is ready
+     
+     - parameter query: The Cypher query to be executed
+     - parameter params: The named parameters to be included in the query. All parameter values need to conform to PackProtocol, as this is how they are encoded when sent via Bolt to Neo4j
+     - returns: Result that provides a complete QueryResult, or an Error to explain what went wrong
+     */
     @discardableResult
     public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, AnyError>) {
 
@@ -362,6 +431,16 @@ open class BoltClient {
     }
 
 
+    /**
+     Executes a given block, usually containing multiple cypher queries run and results processed, as a transaction
+     
+     Requires an established connection
+     
+     Synchronous, so the function will return only when the query result is ready
+     
+     - parameter bookamrk: If a transaction bookmark has been given, the Neo4j node will wait until it has received a transaction with that bookmark before this transaction is run. This ensures that in a multi-node setup, the expected queries have been run before this set is.
+     - parameter transactionBlock: The block of queries and result processing that make up the transaction. The Transaction object is available to it, so that it can mark it as failed, disable autocommit (on by default), or, after the transaction has been completed, get the transaction bookmark.
+     */
     public func executeAsTransaction(bookmark: String? = nil, transactionBlock: @escaping (_ tx: Transaction) throws -> ()) throws {
 
         let transactionGroup = DispatchGroup()
@@ -443,6 +522,17 @@ open class BoltClient {
 
     }
 
+    /**
+     Pull all data, for use after executing a query that puts the Neo4j bolt server in streaming mode
+     
+     Requires an established connection
+     
+     Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
+     so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
+     
+     - parameter partialQueryResult: If, for instance when executing the Cypher query, a partial QueryResult was given, pass it in here to have it fully populated in the completion result block
+     - parameter completionBlock: Completion result-block that provides either a fully update QueryResult if a QueryResult was given, or a partial QueryResult if no prior QueryResult as given. If a failure has occurred, the Result contains an Error to explain what went wrong
+     */
     public func pullAll(partialQueryResult: QueryResult = QueryResult(), completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
         let pullRequest = BoltRequest.pullAll()
         do {
@@ -460,6 +550,7 @@ open class BoltClient {
 
     }
 
+    /// Get the current transaction bookmark
     public func getBookmark() -> String? {
         return connection.currentTransactionBookmark
     }
