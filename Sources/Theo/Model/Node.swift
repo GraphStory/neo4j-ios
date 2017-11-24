@@ -62,13 +62,13 @@ public class Node: ResponseItem {
         }
     }
 
-    func add(label: String) {
+    public func add(label: String) {
         self.labels.append(label)
         self.addedLabels.append(label)
         self.removedLabels = self.removedLabels.filter { $0 != label }
     }
 
-    func remove(label: String) {
+    public func remove(label: String) {
         self.labels = self.labels.filter { $0 != label }
         self.removedLabels.append(label)
         self.addedLabels = self.addedLabels.filter { $0 != label }
