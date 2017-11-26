@@ -1487,8 +1487,104 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
             XCTAssertNil(error)
         }
     }
-
     
+    func testFindRelationshipsByType() throws {
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        
+        let type = "IS_MADLY_IN_LOVE_WITH"
+        let result = client.relateSync(node: nodes[0], to: nodes[1], type: type)
+        XCTAssertTrue(result.isSuccess)
+        XCTAssertNotNil(result.value)
+        let relationship = result.value!
+        
+        let exp = expectation(description: "Found relationship in result")
+        client.relationshipsWith(type: type) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            let relationships = result.value!
+            for rel in relationships {
+                if let foundId = rel.id,
+                    let compareId = relationship.id,
+                    foundId == compareId {
+                    exp.fulfill()
+                    break
+                }
+                
+            }
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testFindRelationshipsByTypeAndProperties() throws {
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        
+        let type = "IS_MADLY_IN_LOVE_WITH"
+        let props: [String: PackProtocol] = [ "propA": true, "propB": "another" ]
+        let result = client.relateSync(node: nodes[0], to: nodes[1], type: type, properties: props )
+        XCTAssertTrue(result.isSuccess)
+        XCTAssertNotNil(result.value)
+        let relationship = result.value!
+        
+        let exp = expectation(description: "Found relationship in result")
+        client.relationshipsWith(type: type, andProperties: props) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            let relationships = result.value!
+            for rel in relationships {
+                if let foundId = rel.id,
+                    let compareId = relationship.id,
+                    foundId == compareId {
+                    exp.fulfill()
+                    break
+                }
+                
+            }
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testFindRelationshipsByTypeAndProperty() throws {
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        
+        let type = "IS_MADLY_IN_LOVE_WITH"
+        let props: [String: PackProtocol] = [ "propA": true, "propB": "another" ]
+        let result = client.relateSync(node: nodes[0], to: nodes[1], type: type, properties: props )
+        XCTAssertTrue(result.isSuccess)
+        XCTAssertNotNil(result.value)
+        let relationship = result.value!
+        
+        let exp = expectation(description: "Found relationship in result")
+        client.relationshipsWith(type: type, andProperties: ["propA": true]) { result in
+            XCTAssertTrue(result.isSuccess)
+            XCTAssertNotNil(result.value)
+            let relationships = result.value!
+            for rel in relationships {
+                if let foundId = rel.id,
+                    let compareId = relationship.id,
+                    foundId == compareId {
+                    exp.fulfill()
+                    break
+                }
+                
+            }
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+
     static var allTests = [
         ("testBreweryDataset", testBreweryDataset),
         ("testCancellingTransaction", testCancellingTransaction),
@@ -1535,7 +1631,10 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testCreateAndReturnRelationshipsSync", testCreateAndReturnRelationshipsSync),
         ("testCreateAndReturnRelationships", testCreateAndReturnRelationships),
         ("testCreateAndReturnRelationship", testCreateAndReturnRelationship),
-        ("testUpdateAndReturnNode", testUpdateAndReturnNode)
+        ("testUpdateAndReturnNode", testUpdateAndReturnNode),
+        ("testFindRelationshipsByType", testFindRelationshipsByType),
+        ("testFindRelationshipsByTypeAndProperties", testFindRelationshipsByTypeAndProperties),
+        ("testFindRelationshipsByTypeAndProperty", testFindRelationshipsByTypeAndProperty),
     ]
 
 }

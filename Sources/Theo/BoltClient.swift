@@ -1293,4 +1293,31 @@ extension BoltClient { // Relationship functions
         group.wait()
         return theResult
     }*/
+    
+    private func queryResultToRelationshipResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Relationship], AnyError>) {
+        if let error = result.error {
+            return .failure(error)
+        }
+        if let (isSuccess, queryResult) = result.value {
+            if isSuccess == false {
+                let error = AnyError(BoltClientError.queryUnsuccessful)
+                return .failure(error)
+            } else {
+                let nodes: [Relationship] = Array<Relationship>(queryResult.relationships.values)
+                return .success(nodes)
+            }
+        } else {
+            let error = AnyError(BoltClientError.queryUnsuccessful)
+            return .failure(error)
+        }
+    }
+    
+    public func relationshipsWith(type: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+        let request = Relationship.queryFor(type: type, andProperties: properties)
+        executeWithResult(request: request) { result in
+            let transformedResult = self.queryResultToRelationshipResult(result: result)
+            completionBlock?(transformedResult)
+        }
+    }
+
 }

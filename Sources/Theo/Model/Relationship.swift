@@ -242,6 +242,24 @@ public class Relationship: ResponseItem {
 
         return query
     }
+    
+    //MARK: Query
+    public static func queryFor(type: String, andProperties properties: [String:PackProtocol], relationshipAlias: String = "rel") -> Request {
+        let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
+        
+        var propertiesQuery = properties.keys.map { "\(relationshipAlias).`\($0)`= {\($0)}" }.joined(separator: "\nAND ")
+        if propertiesQuery != "" {
+            propertiesQuery = "WHERE " + propertiesQuery
+        }
+        
+        
+        let query = """
+        MATCH (a)-[\(relationshipAlias):\(type)]->(b)
+        \(propertiesQuery)
+        RETURN a,\(relationshipAlias),b
+        """
+        return Request.run(statement: query, parameters: Map(dictionary: properties))
+    }
 }
 
 extension String {
