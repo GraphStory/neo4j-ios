@@ -29,7 +29,7 @@ You can install Theo in a number of ways
 Add the following line to your Package dependencies array:
 
 ```swift
-.Package(url: "https://github.com/GraphStory/neo4j-ios.git”, majorVersion: 3, minor: 0)
+.package(url: "https://github.com/GraphStory/neo4j-ios.git", from: "3.0.0")
 ```
 Run `swift build` to build your project, now with Theo included and ready to be used from your source
 
