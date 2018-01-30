@@ -26,3 +26,4 @@ Packages
 /build
 /Theo.xcodeproj/xcshareddata/xcschemes/Theo-Package.xcscheme
 /Package.resolved
+/Tests/TheoTests/TheoBoltConfig.json.bak

@@ -707,6 +707,27 @@ class Theo_000_BoltClientTests: XCTestCase {
         }
 
     }
+    
+    func testCreatePropertylessNodeAsync() throws {
+        
+        let node = Node(label: "Juice", properties: [:])
+        let exp = expectation(description: "testCreatePropertylessNodeAsync")
+        
+        let client = try makeClient()
+        client.createNode(node: node) { (result) in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            case let .success(isSuccess):
+                XCTAssertTrue(isSuccess)
+                exp.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
 
     func testCreateAndRunCypherFromNodeNoResult() throws {
 
@@ -1175,7 +1196,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         try testIntroToCypher() // First make sure we have a result path
 
         let client = try makeClient()
-        let query = "MATCH p = (a)-[*3..5]->(b)\nRETURN p"
+        let query = "MATCH p = (a)-[*3..5]->(b)\nRETURN p LIMIT 5"
         let result = client.executeCypherSync(query)
         XCTAssertNotNil(result.value)
         XCTAssertEqual(1, result.value!.paths.count)
@@ -1275,13 +1296,14 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
     
     func testFindNodeByLabels() throws {
         let client = try makeClient()
-        let labels = ["Father", "Husband"]
+        let nodes = makeSomeNodes()
+        let labels = Array<String>(nodes.flatMap { $0.labels }[1...2]) // Husband, Father
         
         let group = DispatchGroup()
         group.enter()
         
         var nodeCount: Int = -1
-        client.nodesWith(labels: labels) { result in
+        client.nodesWith(labels: labels, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1289,12 +1311,11 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         }
         group.wait()
         
-        let nodes = makeSomeNodes()
         let createResult = client.createNodeSync(node: nodes[0])
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(labels: labels) { result in
+        client.nodesWith(labels: labels, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
@@ -1317,7 +1338,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         group.enter()
         
         var nodeCount: Int = -1
-        client.nodesWith(properties: properties) { result in
+        client.nodesWith(properties: properties, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1330,7 +1351,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(properties: properties) { result in
+        client.nodesWith(properties: properties, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
@@ -1427,7 +1448,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         group.enter()
         
         var nodeCount: Int = -1
-        client.nodesWith(labels: labels, andProperties: property) { result in
+        client.nodesWith(labels: labels, andProperties: property, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1440,7 +1461,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(labels: labels, andProperties: property) { result in
+        client.nodesWith(labels: labels, andProperties: property, skip: 0, limit: 0) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
@@ -1584,6 +1605,102 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         }
     }
     
+    /// Expectation: nothing else runs on the database on the same time
+    func testThatRelationshipsForExistingNodesDoNotCreateNewNodes() throws {
+
+        let count: () throws -> (Int) = { [weak self] in
+            guard let client = try self?.makeClient() else { return -3 }
+            let query = "MATCH (n) RETURN count(n) AS count"
+            let result = client.executeCypherSync(query)
+            let ret: Int
+            switch result {
+            case .failure:
+                ret = -1
+            case let .success(queryResult):
+                if let row = queryResult.rows.first,
+                    let countValue = row["count"] as? UInt64 {
+                    let countIntValue = Int(countValue)
+                    ret = countIntValue
+                } else {
+                    ret = -2
+                }
+            }
+            return ret
+        }
+        
+        let client = try makeClient()
+        let nodes = makeSomeNodes()
+        let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+        let (from, to) = (createdNodes[0], createdNodes[1])
+
+        let before = try count()
+        XCTAssertGreaterThan(before, -1)
+        
+        let rel1 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .to, properties: [ "happily": true ])
+        let rel2 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .from, properties: [ "happily": true ])
+        
+        let request = [rel1, rel2].createRequest(withReturnStatement: true)
+        var queryResult: QueryResult! = nil
+        let group = DispatchGroup()
+        group.enter()
+        client.executeWithResult(request: request) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+                return
+            case let .success((isSuccess, theQueryResult)):
+                XCTAssertTrue(isSuccess)
+                queryResult = theQueryResult
+            }
+            group.leave()
+        }
+        group.wait()
+        
+        XCTAssertEqual(1, queryResult!.rows.count)
+        XCTAssertEqual(4, queryResult!.fields.count)
+        XCTAssertEqual(2, queryResult!.nodes.count)
+        XCTAssertEqual(2, queryResult!.relationships.count)
+        XCTAssertEqual("rw", queryResult!.stats.type)
+        
+        let after = try count()
+    
+        XCTAssertEqual(before, after)
+    }
+    
+    func createBigNodes(num: Int) throws {
+        let query = "UNWIND RANGE(1, 16, 1) AS i CREATE (n:BigNode { i: i, payload: {payload} })"
+        let payload = (0..<1024).map { _ in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" } .joined(separator: "/0123456789/")
+        
+        let client = try makeClient()
+        let result = client.executeCypherSync(query, params: ["payload": payload])
+        switch result {
+        case let .failure(error):
+            XCTFail(error.localizedDescription)
+        case .success(_):
+            break
+        }
+
+    }
+    
+    func testMultiChunkResults() throws {
+        try createBigNodes(num: 16)
+        let exp = expectation(description: "Got lots of data back")
+
+        let client = try makeClient()
+        client.nodesWith(labels: ["BigNode"], andProperties: [:], skip:0, limit: 0) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
+            case let .success(nodes):
+                XCTAssertGreaterThan(nodes.count, 0)
+            }
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 15.0) { (error) in
+            XCTAssertNil(error)
+        }
+    }
 
     static var allTests = [
         ("testBreweryDataset", testBreweryDataset),

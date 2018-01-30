@@ -24,9 +24,14 @@ public class Node: ResponseItem {
     public convenience init(
         label: String,
         properties: [String: PackProtocol]) {
-        
+
         self.init(labels: [label], properties: properties)
     }
+
+    public convenience init() {
+        self.init(labels: [], properties: [:])
+    }
+
 
     public init(
         labels: [String],
@@ -96,7 +101,7 @@ public class Node: ResponseItem {
         let properties = Dictionary(uniqueKeysWithValues: self.properties.map { (key, value) in
             return ("\(key)\(paramSuffix)", value)
         })
-        
+
         return (query, properties)
     }
 
@@ -202,26 +207,40 @@ public class Node: ResponseItem {
 
         return query
     }
-    
+
     //MARK: Query
-    public static func queryFor(labels: [String], andProperties properties: [String:PackProtocol], nodeAlias: String = "node") -> Request {
+    public static func queryFor(labels: [String], andProperties properties: [String:PackProtocol], nodeAlias: String = "node", skip: UInt64 = 0, limit: UInt64 = 25) -> Request {
         let nodeAlias = nodeAlias == "" ? nodeAlias : "`\(nodeAlias)`"
-        
-        var labelQuery = labels.joined(separator: ":")
+
+        let cleanedLabels = labels.map { label -> (String) in
+            if label.contains(" ") {
+                if label.contains("`") {
+                    return label
+                } else {
+                    return "`\(label)`"
+                }
+            } else {
+                return label
+            }
+        }
+
+        var labelQuery = cleanedLabels.joined(separator: ":")
         if labelQuery != "" {
             labelQuery = ":" + labelQuery
         }
-        
+
         var propertiesQuery = properties.keys.map { "\(nodeAlias).`\($0)`= {\($0)}" }.joined(separator: "\nAND ")
         if propertiesQuery != "" {
             propertiesQuery = "WHERE " + propertiesQuery
         }
-        
-        
+
+
+        let skipQuery = skip > 0 ? " SKIP \(skip)" : ""
+        let limitQuery = limit > 0 ? " LIMIT \(limit)" : ""
         let query = """
                     MATCH (\(nodeAlias)\(labelQuery))
                     \(propertiesQuery)
-                    RETURN \(nodeAlias)
+                    RETURN \(nodeAlias)\(skipQuery)\(limitQuery)
                     """
 
         return Request.run(statement: query, parameters: Map(dictionary: properties))
@@ -338,15 +357,15 @@ extension Array where Element: Node {
 extension Node: Equatable {
 }
 public func == (lhs: Node, rhs: Node) -> Bool {
-    
+
     if lhs.id != rhs.id { return false }
     if lhs.labels != rhs.labels { return false }
-    
-    
+
+
     let lKeys = lhs.properties.keys.sorted()
     let rKeys = lhs.properties.keys.sorted()
     if lKeys  != rKeys { return false }
-    
+
     for key in lKeys {
         let lVal = lhs.properties[key]
         let rVal = rhs.properties[key]
@@ -355,7 +374,7 @@ public func == (lhs: Node, rhs: Node) -> Bool {
         if lType != rType {
             return false
         }
-        
+
         if let l = lVal as? Bool, let r = rVal as? Bool {
             if l != r { return false }
         } else if let l = lVal as? Double, let r = rVal as? Double {
@@ -390,6 +409,6 @@ public func == (lhs: Node, rhs: Node) -> Bool {
             if l != r { return false }
         }
     }
-    
+
     return true
 }
