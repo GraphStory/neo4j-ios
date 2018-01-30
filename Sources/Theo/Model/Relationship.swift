@@ -102,7 +102,7 @@ public class Relationship: ResponseItem {
         let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
 
         var properties = self.properties
-        
+
         var params = properties.keys.map { "`\($0)`: {\($0)}" }.joined(separator: ", ")
         if params != "" {
             params = " { \(params) }"
@@ -111,7 +111,7 @@ public class Relationship: ResponseItem {
         let uniquingKeysWith: (PackProtocol, PackProtocol) -> PackProtocol = { (_, new) in
             return new
         }
-        
+
         let fromNodeQuery: String
         if let fromNode = self.fromNode, fromNode.id == nil {
             let (q, fromProps) = fromNode.createRequestQuery(withReturnStatement: false, nodeAlias: "fromNode", paramSuffix: "1", withCreate: true)
@@ -124,7 +124,7 @@ public class Relationship: ResponseItem {
             }
             fromNodeQuery = "MATCH (fromNode) WHERE id(fromNode) = \(fromNodeId)"
         }
-        
+
         let toNodeQuery: String
         if let toNode = self.toNode, toNode.id == nil {
             let (q, toProps) = toNode.createRequestQuery(withReturnStatement: false, nodeAlias: "toNode", paramSuffix: "2", withCreate: true)
@@ -137,7 +137,7 @@ public class Relationship: ResponseItem {
             }
             toNodeQuery = "MATCH (toNode) WHERE id(toNode) = \(toNodeId)"
         }
-        
+
         let relQuery: String
         switch direction {
         case .from:
@@ -145,14 +145,14 @@ public class Relationship: ResponseItem {
         case .to:
             relQuery = "CREATE (fromNode)<-[\(relationshipAlias):`\(type)`\(params)]-(toNode)"
         }
-        
+
         let query: String
         if withReturnStatement {
              query = [fromNodeQuery, toNodeQuery, relQuery, "RETURN \(relationshipAlias),`fromNode`,`toNode`"].cypherSorted().joined(separator: "\n")
         } else {
             query = [fromNodeQuery, toNodeQuery, relQuery].cypherSorted().joined(separator: "\n")
         }
-        
+
         return (query, properties)
     }
 
@@ -242,21 +242,23 @@ public class Relationship: ResponseItem {
 
         return query
     }
-    
+
     //MARK: Query
-    public static func queryFor(type: String, andProperties properties: [String:PackProtocol], relationshipAlias: String = "rel") -> Request {
+    public static func queryFor(type: String, andProperties properties: [String:PackProtocol], relationshipAlias: String = "rel", skip: UInt64 = 0, limit: UInt64 = 25) -> Request {
         let relationshipAlias = relationshipAlias == "" ? relationshipAlias : "`\(relationshipAlias)`"
-        
+
         var propertiesQuery = properties.keys.map { "\(relationshipAlias).`\($0)`= {\($0)}" }.joined(separator: "\nAND ")
         if propertiesQuery != "" {
             propertiesQuery = "WHERE " + propertiesQuery
         }
-        
-        
+
+        let skipQuery = skip > 0 ? " SKIP \(skip)" : ""
+        let limitQuery = limit > 0 ? " LIMIT \(limit)" : ""
+
         let query = """
-        MATCH (a)-[\(relationshipAlias):\(type)]->(b)
+        MATCH (a)-[\(relationshipAlias):`\(type)`]->(b)
         \(propertiesQuery)
-        RETURN a,\(relationshipAlias),b
+        RETURN a,\(relationshipAlias),b\(skipQuery)\(limitQuery)
         """
         return Request.run(statement: query, parameters: Map(dictionary: properties))
     }
@@ -284,7 +286,7 @@ private extension Array {
         var creates = [String]()
         var others = [String]()
         var returns = [String]()
-        
+
         for string in self as? [String] ?? [] {
             if string.beginsWith("MATCH") {
                 matches.append(string)
@@ -296,7 +298,7 @@ private extension Array {
                 others.append(string)
             }
         }
-        
+
         return matches + creates + others + returns
     }
 }
@@ -311,7 +313,7 @@ extension Array where Element: Relationship {
         var createdNodeAliases = [Int:String]()
         var matchedNodeAliases = [UInt64:String]()
         var parameters = [String:PackProtocol]()
-        
+
         var i = 0
         while i < self.count {
             let relationship = self[i]
@@ -328,7 +330,7 @@ extension Array where Element: Relationship {
 
             var fromNodeAlias = "fromNode\(i)"
             var toNodeAlias = "toNode\(i)"
-            
+
             if let fromNodeId = relationship.fromNodeId ?? relationship.fromNode?.id {
                 if let existingFromNodeAlias = matchedNodeAliases[fromNodeId] {
                     fromNodeAlias = existingFromNodeAlias
@@ -352,7 +354,7 @@ extension Array where Element: Relationship {
             } else {
                 print("Could neither find nodeId or node for fromNode - please report this bug")
             }
-            
+
             if let toNodeId = relationship.toNodeId ?? relationship.toNode?.id {
                 if let existingToNodeAlias = matchedNodeAliases[toNodeId] {
                     toNodeAlias = existingToNodeAlias

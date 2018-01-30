@@ -101,10 +101,10 @@ open class BoltClient {
 
     /**
      Connects to Neo4j given the connection settings BoltClient was initialized with.
-     
+
      Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
      so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
-     
+
      - parameter completionBlock: Completion result-block that provides a Bool to indicate success, or an Error to explain what went wrong
      */
     public func connect(completionBlock: ((Result<Bool, AnyError>) -> ())? = nil) {
@@ -125,9 +125,9 @@ open class BoltClient {
 
     /**
      Connects to Neo4j given the connection settings BoltClient was initialized with.
-     
+
      Synchronous, so the function will return only when the connection attempt has been made.
-     
+
      - returns: Result that provides a Bool to indicate success, or an Error to explain what went wrong
      */
     public func connectSync() -> Result<Bool, AnyError> {
@@ -142,7 +142,7 @@ open class BoltClient {
         dispatchGroup.wait()
         return theResult
     }
-    
+
     /**
      Disconnects from Neo4j.
      */
@@ -152,14 +152,14 @@ open class BoltClient {
 
     /**
      Executes a given request on Neo4j
-     
+
      Requires an established connection
-     
+
      Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
      so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
-     
+
      - warning: This function only performs a single request, and that request can lead Neo4j to expect a certain follow-up request, or disconnect with a failure if it receives an unexpected request following this request.
-     
+
      - parameter request: The Bolt Request that will be sent to Neo4j
      - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
      */
@@ -181,14 +181,14 @@ open class BoltClient {
 
     /**
      Executes a given request on Neo4j, and pulls the respons data
-     
+
      Requires an established connection
-     
+
      Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
      so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
-     
+
      - warning: This function should only be used with requests that expect data to be pulled after they run. Other requests can make Neo4j disconnect with a failure when it is subsequent asked for the result data
-     
+
      - parameter request: The Bolt Request that will be sent to Neo4j
      - parameter completionBlock: Completion result-block that provides a complete QueryResult, or an Error to explain what went wrong
      */
@@ -224,14 +224,14 @@ open class BoltClient {
 
     /**
      Executes a given cypher query on Neo4j
-     
+
      Requires an established connection
-     
+
      Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
      so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
-     
+
      - warning: Executing a query should be followed by a data pull with the response from Neo4j. Not doing so can lead to Neo4j closing the client connection.
-     
+
      - parameter query: The Cypher query to be executed
      - parameter params: The named parameters to be included in the query. All parameter values need to conform to PackProtocol, as this is how they are encoded when sent via Bolt to Neo4j
      - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
@@ -246,11 +246,11 @@ open class BoltClient {
 
     /**
      Executes a given cypher query on Neo4j
-     
+
      Requires an established connection
-     
+
      Synchronous, so the function will return only when the query result is ready
-     
+
      - parameter query: The Cypher query to be executed
      - parameter params: The named parameters to be included in the query. All parameter values need to conform to PackProtocol, as this is how they are encoded when sent via Bolt to Neo4j
      - returns: Result that provides a complete QueryResult, or an Error to explain what went wrong
@@ -342,7 +342,9 @@ open class BoltClient {
         var row = [String:ResponseItem]()
 
         for i in 0..<candidateList.count {
-            if i > 0 && i % result.fields.count == 0 {
+            if result.fields.count > 0, // there must be a field
+               i > 0, // skip the first, because the  first row is already set
+               i % result.fields.count == 0 { // then we need to break into the next row
                 rows.append(row)
                 row = [String:ResponseItem]()
             }
@@ -433,11 +435,11 @@ open class BoltClient {
 
     /**
      Executes a given block, usually containing multiple cypher queries run and results processed, as a transaction
-     
+
      Requires an established connection
-     
+
      Synchronous, so the function will return only when the query result is ready
-     
+
      - parameter bookamrk: If a transaction bookmark has been given, the Neo4j node will wait until it has received a transaction with that bookmark before this transaction is run. This ensures that in a multi-node setup, the expected queries have been run before this set is.
      - parameter transactionBlock: The block of queries and result processing that make up the transaction. The Transaction object is available to it, so that it can mark it as failed, disable autocommit (on by default), or, after the transaction has been completed, get the transaction bookmark.
      */
@@ -524,12 +526,12 @@ open class BoltClient {
 
     /**
      Pull all data, for use after executing a query that puts the Neo4j bolt server in streaming mode
-     
+
      Requires an established connection
-     
+
      Asynchronous, so the function returns straight away. It is not defined what thread the completionblock will run on,
      so if you need it to run on main thread or another thread, make sure to dispatch to this that thread
-     
+
      - parameter partialQueryResult: If, for instance when executing the Cypher query, a partial QueryResult was given, pass it in here to have it fully populated in the completion result block
      - parameter completionBlock: Completion result-block that provides either a fully update QueryResult if a QueryResult was given, or a partial QueryResult if no prior QueryResult as given. If a failure has occurred, the Result contains an Error to explain what went wrong
      */
@@ -880,7 +882,7 @@ extension BoltClient { // Node functions
     public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, AnyError>) -> ())?) {
         let query = "MATCH (n) WHERE id(n) = {id} RETURN n"
         let params = ["id": Int64(id)]
-        
+
         // Perform query
         executeCypher(query, params: params) { result in
             switch result {
@@ -916,7 +918,7 @@ extension BoltClient { // Node functions
             }
         }
     }
-    
+
     private func queryResultToNodesResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Node], AnyError>) {
         if let error = result.error {
             return .failure(error)
@@ -934,31 +936,31 @@ extension BoltClient { // Node functions
             return .failure(error)
         }
     }
-    
-    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
-        let request = Node.queryFor(labels: labels, andProperties: properties)
+
+    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: labels, andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
             completionBlock?(transformedResult)
         }
     }
-    
-    public func nodesWith(properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
-        let request = Node.queryFor(labels: [], andProperties: properties)
+
+    public func nodesWith(properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: [], andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
             completionBlock?(transformedResult)
         }
     }
-    
-    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
-        let request = Node.queryFor(labels: [label], andProperties: properties)
+
+    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+        let request = Node.queryFor(labels: [label], andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
             completionBlock?(transformedResult)
         }
     }
-    
+
 }
 
 extension BoltClient { // Relationship functions
@@ -984,7 +986,7 @@ extension BoltClient { // Relationship functions
         group.wait()
         return theResult
     }
-    
+
     public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
         let request = relationships.createRequest(withReturnStatement: true)
         let group = DispatchGroup()
@@ -1009,7 +1011,7 @@ extension BoltClient { // Relationship functions
 
         return theResult
     }
-    
+
     public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
         let request = relationships.createRequest(withReturnStatement: true)
         executeWithResult(request: request) { result in
@@ -1027,7 +1029,7 @@ extension BoltClient { // Relationship functions
             }
         }
     }
-    
+
     public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
         let request = relationship.createRequest(withReturnStatement: true)
         let group = DispatchGroup()
@@ -1058,10 +1060,10 @@ extension BoltClient { // Relationship functions
             group.leave()
         }
         group.wait()
-        
+
         return theResult
     }
-    
+
     public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
         let request = relationship.createRequest(withReturnStatement: true)
         executeWithResult(request: request) { result in
@@ -1293,7 +1295,7 @@ extension BoltClient { // Relationship functions
         group.wait()
         return theResult
     }*/
-    
+
     private func queryResultToRelationshipResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Relationship], AnyError>) {
         if let error = result.error {
             return .failure(error)
@@ -1311,9 +1313,9 @@ extension BoltClient { // Relationship functions
             return .failure(error)
         }
     }
-    
-    public func relationshipsWith(type: String, andProperties properties: [String:PackProtocol] = [:], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
-        let request = Relationship.queryFor(type: type, andProperties: properties)
+
+    public func relationshipsWith(type: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+        let request = Relationship.queryFor(type: type, andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToRelationshipResult(result: result)
             completionBlock?(transformedResult)
