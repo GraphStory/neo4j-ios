@@ -12,14 +12,14 @@ Pod::Spec.new do |s|
     - Bolt support
 DESC
 
-  s.homepage     = "https://github.com/Swift-Neo4j/neo4j-ios"
+  s.homepage     = "https://github.com/Neo4j-Swift/Neo4j-Swift"
   s.license      = { :type => "MIT", :file => "LICENSE" }
 
 
   s.authors             = { "Niklas Saers" => "niklas@saers.com",
                             "Cory Wiles" => "corywiles@icloud.com" }
 
-  s.source       = { :git => "https://github.com/Swift-Neo4j/neo4j-ios.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/Neo4j-Swift/Neo4j-Swift.git", :tag => "#{s.version}" }
 
   s.source_files  = "Classes", "Sources/**/*.swift"
   
