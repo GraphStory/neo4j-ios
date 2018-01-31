@@ -30,7 +30,7 @@ You can install Theo in a number of ways
 Add the following line to your Package dependencies array:
 
 ```swift
-.Package(url: "https://github.com/GraphStory/neo4j-ios.git”, majorVersion: 4, minor: 0)
+.Package(url: "https://github.com/Neo4j-Swift/Neo4j-Swift.git”, majorVersion: 4, minor: 0)
 ```
 Run `swift build` to build your project, now with Theo included and ready to be used from your source
 
@@ -48,6 +48,15 @@ end
 ```
 Run `pod install` to configure your updated workspace. Open the .xcworkspace generated, your project is now ready to use Theo
 
+### git submodule
+
+  1. Add it as a submodule to your existing project. `git submodule add git@github.com:Neo4j-Swift/Neo4j-Swift.git`
+  2. Through Terminal, navigate to the submodule directory and run `swift package fetch`. Theo has other dependencies and they need to be fetched.
+  3. Open the Theo folder, and drag Theo.xcodeproj into the file navigator of your Xcode project.
+  4. In Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar.
+  5. In the tab bar at the top of that window, open the "Build Phases" panel.
+  6. Expand the "Link Binary with Libraries" group, Copy Frameworks and add Theo.framework, Bolt.framework, SSLService.framework, Socket.framework, PacketStream.framework.
+  7. Click on the + button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add the frameworks.
 
 ## Usage
 
