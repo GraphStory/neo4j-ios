@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Theo"
-  s.version      = "3.1.2"
+  s.version      = "4.0.0"
   s.summary      = "Open Source Neo4j library for iOS"
 
   s.description  = <<-DESC
@@ -12,22 +12,22 @@ Pod::Spec.new do |s|
     - Bolt support
 DESC
 
-  s.homepage     = "https://github.com/GraphStory/neo4j-ios"
+  s.homepage     = "https://github.com/Neo4j-Swift/Neo4j-Swift"
   s.license      = { :type => "MIT", :file => "LICENSE" }
 
 
-  s.authors             = { "Cory Wiles" => "corywiles@icloud.com",
-                            "Niklas Saers" => "niklas@saers.com" }
+  s.authors             = { "Niklas Saers" => "niklas@saers.com",
+                            "Cory Wiles" => "corywiles@icloud.com" }
 
-  s.source       = { :git => "https://github.com/GraphStory/neo4j-ios.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/Neo4j-Swift/Neo4j-Swift.git", :tag => "#{s.version}" }
 
   s.source_files  = "Classes", "Sources/**/*.swift"
   
   s.ios.deployment_target = "10.0"
   s.osx.deployment_target = "10.12"
-  s.watchos.deployment_target = "3.0"
   s.tvos.deployment_target = "10.0"
   
-  s.dependency 'BoltProtocol', '~> 0.9.0'
+  s.dependency 'BoltProtocol', '~> 1.0.0'
+  s.dependency 'Result', '~> 3.2.4'
   
 end
