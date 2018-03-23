@@ -885,7 +885,99 @@ class Theo_000_BoltClientTests: XCTestCase {
         }
     }
     
+    func testCreateAndReturnRelationshipByCreatingFromAndToNode() throws {
+        
+        let exp = expectation(description: "testCreateAndReturnRelationships")
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from_, to_) = (madeNodes[0], madeNodes[1])
+        
+        guard
+            let from = client.createAndReturnNodeSync(node: from_).value,
+            let to = client.createAndReturnNodeSync(node: to_).value
+        else {
+            XCTFail("Failed while creating nodes")
+            return
+        }
 
+        let relationship = Relationship(fromNode: from, toNode: to, type: "Married to")
+        client.createAndReturnRelationship(relationship: relationship) { createdRelationships in
+            
+            if case Result.failure(let error) = createdRelationships {
+                XCTFail("Did not expect creation of relationship to fail. Got error \(error)")
+            }
+            
+            XCTAssertTrue(createdRelationships.isSuccess)
+            XCTAssertEqual("Married to", createdRelationships.value!.type)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    func testCreateAndReturnRelationshipByCreatingOnlyFromNode() throws {
+        
+        let exp = expectation(description: "testCreateAndReturnRelationships")
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from_, to) = (madeNodes[0], madeNodes[1])
+        
+        guard
+            let from = client.createAndReturnNodeSync(node: from_).value
+            else {
+                XCTFail("Failed while creating nodes")
+                return
+        }
+        
+        let relationship = Relationship(fromNode: from, toNode: to, type: "Married to")
+        client.createAndReturnRelationship(relationship: relationship) { createdRelationships in
+            
+            if case Result.failure(let error) = createdRelationships {
+                XCTFail("Did not expect creation of relationship to fail. Got error \(error)")
+            }
+            
+            XCTAssertTrue(createdRelationships.isSuccess)
+            XCTAssertEqual("Married to", createdRelationships.value!.type)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
+
+    func testCreateAndReturnRelationshipByCreatingOnlyToNode() throws {
+        
+        let exp = expectation(description: "testCreateAndReturnRelationships")
+        let client = try makeClient()
+        let madeNodes = makeSomeNodes()
+        let (from, to_) = (madeNodes[0], madeNodes[1])
+        
+        guard
+            let to = client.createAndReturnNodeSync(node: to_).value
+            else {
+                XCTFail("Failed while creating nodes")
+                return
+        }
+        
+        let relationship = Relationship(fromNode: from, toNode: to, type: "Married to")
+        client.createAndReturnRelationship(relationship: relationship) { createdRelationships in
+            
+            if case Result.failure(let error) = createdRelationships {
+                XCTFail("Did not expect creation of relationship to fail. Got error \(error)")
+            }
+            
+            XCTAssertTrue(createdRelationships.isSuccess)
+            XCTAssertEqual("Married to", createdRelationships.value!.type)
+            exp.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0) { error in
+            XCTAssertNil(error)
+        }
+    }
     
     func testCreateRelationshipWithCreateToNode() throws {
         
@@ -896,6 +988,10 @@ class Theo_000_BoltClientTests: XCTestCase {
         var to = createdNode
         let result = client.relateSync(node: from, to: to, type: "Married to", properties: [ "happily": true ])
         let createdRelationship: Relationship = result.value!
+        
+        if case Result.failure(let resultError) = result {
+            XCTFail("Did not expect error \(resultError)")
+        }
 
         XCTAssertTrue(createdRelationship["happily"] as! Bool)
         XCTAssertEqual(to.id!, createdRelationship.toNodeId)
