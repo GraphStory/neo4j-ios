@@ -79,7 +79,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         }
     }
 
-    private func makeClient() throws -> BoltClient {
+    internal func makeClient() throws -> BoltClient {
         let client: BoltClient
         
         if Theo_000_BoltClientTests.runCount % 3 == 0 {
@@ -1470,8 +1470,9 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let group = DispatchGroup()
         group.enter()
         
+        let limit: UInt64 = UInt64(Int32.max)
         var nodeCount: Int = -1
-        client.nodesWith(labels: labels, andProperties: properties) { result in
+        client.nodesWith(labels: labels, andProperties: properties, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1484,7 +1485,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(labels: labels, andProperties: properties) { result in
+        client.nodesWith(labels: labels, andProperties: properties, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
@@ -1507,8 +1508,9 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let group = DispatchGroup()
         group.enter()
         
+        let limit: UInt64 = UInt64(Int32.max)
         var nodeCount: Int = -1
-        client.nodesWith(label: label, andProperties: properties) { result in
+        client.nodesWith(label: label, andProperties: properties, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1521,7 +1523,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(label: label, andProperties: properties) { result in
+        client.nodesWith(label: label, andProperties: properties, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
@@ -1579,8 +1581,9 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let group = DispatchGroup()
         group.enter()
         
+        let limit: UInt64 = UInt64(Int32.max)
         var nodeCount: Int = -1
-        client.nodesWith(label: label, andProperties: property) { result in
+        client.nodesWith(label: label, andProperties: property, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             nodeCount = result.value!.count
@@ -1593,7 +1596,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         XCTAssertTrue(createResult.isSuccess)
         
         let exp = expectation(description: "Node should be one more than on previous count")
-        client.nodesWith(label: label, andProperties: property) { result in
+        client.nodesWith(label: label, andProperties: property, skip: 0, limit: limit) { result in
             XCTAssertTrue(result.isSuccess)
             XCTAssertNotNil(result.value)
             XCTAssertEqual(nodeCount + 1, result.value!.count)
