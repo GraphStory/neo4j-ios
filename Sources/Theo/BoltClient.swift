@@ -310,31 +310,31 @@ open class BoltClient {
 
 
     private func parseResponses(responses: [Response], result: QueryResult = QueryResult()) -> QueryResult {
-        let fields = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["fields"] }.first as? List)?.items.flatMap { $0 as? String }
+        let fields = (responses.flatMap { $0.items } .compactMap { ($0 as? Map)?.dictionary["fields"] }.first as? List)?.items.compactMap { $0 as? String }
         if let fields = fields {
             result.fields = fields
         }
 
-        let stats = responses.flatMap { $0.items.flatMap { $0 as? Map }.flatMap { QueryStats(data: $0) } }.first
+        let stats = responses.flatMap { $0.items.compactMap { $0 as? Map }.compactMap { QueryStats(data: $0) } }.first
         if let stats = stats {
             result.stats = stats
         }
 
-        if let resultAvailableAfter = (responses.flatMap { $0.items } .flatMap { ($0 as? Map)?.dictionary["result_available_after"] }.first?.uintValue()) {
+        if let resultAvailableAfter = (responses.flatMap { $0.items } .compactMap { ($0 as? Map)?.dictionary["result_available_after"] }.first?.uintValue()) {
             result.stats.resultAvailableAfter = resultAvailableAfter
         }
 
-        if let resultConsumedAfter = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["result_consumed_after"]?.uintValue()) {
+        if let resultConsumedAfter = (responses.flatMap { $0.items } .compactMap { $0 as? Map }.first?.dictionary["result_consumed_after"]?.uintValue()) {
             result.stats.resultConsumedAfter = resultConsumedAfter
         }
 
-        if let type = (responses.flatMap { $0.items } .flatMap { $0 as? Map }.first?.dictionary["type"] as? String) {
+        if let type = (responses.flatMap { $0.items } .compactMap { $0 as? Map }.first?.dictionary["type"] as? String) {
             result.stats.type = type
         }
 
 
 
-        let candidateList = responses.flatMap { $0.items.flatMap { ($0 as? List)?.items } }.reduce( [], +)
+        let candidateList = responses.flatMap { $0.items.compactMap { ($0 as? List)?.items } }.reduce( [], +)
         var nodes = [UInt64:Node]()
         var relationships = [UInt64:Relationship]()
         var paths = [Path]()
@@ -422,7 +422,7 @@ open class BoltClient {
             return (key, rel)
         }
 
-        let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.flatMap(mapper))
+        let updatedRelationships = Dictionary(uniqueKeysWithValues: relationships.compactMap(mapper))
         result.relationships.merge(updatedRelationships) { (r, _) -> Relationship in return r }
 
         result.paths += paths
@@ -1160,6 +1160,7 @@ extension BoltClient { // Relationship functions
             case let .failure(error):
                 completionBlock?(.failure(error))
             case let .success((isSuccess, _)):
+                self.pullSynchronouslyAndIgnore()
                 completionBlock?(.success(isSuccess))
             }
         }

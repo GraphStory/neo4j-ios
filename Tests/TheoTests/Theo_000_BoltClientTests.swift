@@ -1258,10 +1258,17 @@ class Theo_000_BoltClientTests: XCTestCase {
         let relationship = relResult.value!
 
         relationship["to"] = 2016
-        let updateRelResult = client.updateRelationshipSync(relationship: relationship)
+        var updateRelResult = client.updateRelationshipSync(relationship: relationship)
         XCTAssertTrue(updateRelResult.isSuccess)
         XCTAssertNotNil(updateRelResult.value)
         XCTAssertTrue(updateRelResult.value!)
+        
+        relationship["to"] = 2018
+        updateRelResult = client.updateRelationshipSync(relationship: relationship)
+        XCTAssertTrue(updateRelResult.isSuccess)
+        XCTAssertNotNil(updateRelResult.value)
+        XCTAssertTrue(updateRelResult.value!)
+
     }
 
     func testDeleteRelationship() throws {

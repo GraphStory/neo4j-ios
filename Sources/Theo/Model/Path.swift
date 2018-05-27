@@ -20,9 +20,9 @@ public class Path: ResponseItem {
             let unboundRelationshipsStructures = (s.items[1] as? List)?.items,
             let sequenceValues = (s.items[2] as? List)?.items {
 
-            let nodes = nodeStructs.flatMap { Node(data: $0) }
-            let unboundRelationships = unboundRelationshipsStructures.flatMap { UnboundRelationship(data: $0) }
-            let sequence = sequenceValues.flatMap { $0.intValue() }.flatMap { Int($0) }
+            let nodes = nodeStructs.compactMap { Node(data: $0) }
+            let unboundRelationships = unboundRelationshipsStructures.compactMap { UnboundRelationship(data: $0) }
+            let sequence = sequenceValues.compactMap { $0.intValue() }.compactMap { Int($0) }
 
             self.nodes = nodes
             self.unboundRelationships = unboundRelationships

@@ -52,7 +52,7 @@ public class Node: ResponseItem {
             let nodeId = s.items[0].uintValue(),
             let labelsList = s.items[1] as? List,
             let properties = (s.items[2] as? Map)?.dictionary {
-            let labels = labelsList.items.flatMap { $0 as? String }
+            let labels = labelsList.items.compactMap { $0 as? String }
 
             self.id = nodeId
             self.labels = labels
@@ -341,7 +341,7 @@ extension Array where Element: Node {
     //MARK: Delete
     public func deleteRequest(withReturnStatement: Bool = true) -> Request {
 
-        let ids = self.flatMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
+        let ids = self.compactMap { $0.id }.map { "\($0)" }.joined(separator: ", ")
         let nodeAlias = "`node`"
 
         let query = """
