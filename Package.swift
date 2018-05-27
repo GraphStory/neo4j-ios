@@ -9,7 +9,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Neo4j-Swift/Bolt-swift.git", from: "1.0.2"),
         .package(url: "https://github.com/antitypical/Result.git", from: "3.2.4"),
-        .package(url: "https://github.com/iamjono/LoremSwiftum.git", from: "1.0.0"),
+        .package(url: "https://github.com/iamjono/LoremSwiftum.git", from: "0.0.3"),
     ],
     targets: [
         .target(
