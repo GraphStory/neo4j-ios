@@ -8,30 +8,9 @@ import Socket
 import Dispatch
 #endif
 
-public struct QueryWithParameters {
-    let query: String
-    let parameters: Dictionary<String,Any>
-}
-
-public class Transaction {
-
-    public var succeed: Bool = true
-    public var bookmark: String? = nil
-    public var autocommit: Bool = true
-    internal var commitBlock: (Bool) throws -> Void = { _ in }
-
-    public init() {
-    }
-
-    public func markAsFailed() {
-        succeed = false
-    }
-}
-
 typealias BoltRequest = Bolt.Request
 
-open class BoltClient {
-
+open class BoltClient: ClientProtocol {
     private let hostname: String
     private let port: Int
     private let username: String
@@ -59,17 +38,9 @@ open class BoltClient {
         self.password = configuration.password
         self.encrypted = configuration.encrypted
 
-        let settings = ConnectionSettings(username: self.username, password: self.password, userAgent: "Theo 4.0.3")
+        let settings = ConnectionSettings(username: self.username, password: self.password, userAgent: "Theo 4.1.0")
 
-        let noConfig = SSLConfiguration(json: [:])
-        let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
-                                                                 allowHostToBeSelfSigned: true)
-
-        let socket = try EncryptedSocket(
-            hostname: hostname,
-            port: port,
-            configuration: configuration)
-
+        let socket = try EncryptedSocket(hostname: hostname, port: port)
         self.connection = Connection(
             socket: socket,
             settings: settings)
@@ -83,17 +54,9 @@ open class BoltClient {
         self.password = password
         self.encrypted = encrypted
 
-        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 4.0.3")
+        let settings = ConnectionSettings(username: username, password: password, userAgent: "Theo 4.1.0")
 
-        let noConfig = SSLConfiguration(json: [:])
-        let configuration = EncryptedSocket.defaultConfiguration(sslConfig: noConfig,
-            allowHostToBeSelfSigned: true)
-
-        let socket = try EncryptedSocket(
-            hostname: hostname,
-            port: port,
-            configuration: configuration)
-
+        let socket = try EncryptedSocket(hostname: hostname, port: port)
         self.connection = Connection(
             socket: socket,
             settings: settings)
@@ -504,7 +467,7 @@ open class BoltClient {
         transactionGroup.wait()
     }
 
-    internal func pullSynchronouslyAndIgnore() {
+    public func pullSynchronouslyAndIgnore() {
         let dispatchGroup = DispatchGroup()
         let pullRequest = BoltRequest.pullAll()
         dispatchGroup.enter()
@@ -851,6 +814,7 @@ extension BoltClient { // Node functions
         var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
         deleteNode(node: node) { result in
             theResult = result
+            self.pullSynchronouslyAndIgnore()
             group.leave()
         }
 
@@ -872,6 +836,7 @@ extension BoltClient { // Node functions
         var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
         deleteNodes(nodes: nodes) { result in
             theResult = result
+            self.pullSynchronouslyAndIgnore()
             group.leave()
         }
 

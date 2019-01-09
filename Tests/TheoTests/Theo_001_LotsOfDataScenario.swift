@@ -26,7 +26,7 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
         
         measure {
             do {
-                try client.executeAsTransaction { tx in
+                try client.executeAsTransaction(bookmark: nil) { tx in
                     try self.buildData(client: client)
                     try self.findData(client: client)
                     tx.markAsFailed()
@@ -50,11 +50,11 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
         return words[pos % words.count]
     }
     
-    func buildData(client: BoltClient) throws {
+    func buildData(client: ClientProtocol) throws {
         
         var nodes = [Node]()
         
-        let cypherCreateResult = client.executeCypherSync("CREATE (n:\(label) {created_at: TIMESTAMP()}) RETURN n")
+        let cypherCreateResult = client.executeCypherSync("CREATE (n:\(label) {created_at: TIMESTAMP()}) RETURN n", params: [:])
         XCTAssertTrue(cypherCreateResult.isSuccess)
         XCTAssertEqual(1, cypherCreateResult.value!.nodes.count)
         let nodeWithTimestamp = cypherCreateResult.value!.nodes.values.first!
@@ -62,7 +62,7 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
         let diff = Date().timeIntervalSince1970 - timestamp
         XCTAssertLessThan(diff, 60.0)
         
-        let emptyParameterResult = client.executeCypherSync("CREATE (n:\(label) {param: \"\"}) RETURN n")
+        let emptyParameterResult = client.executeCypherSync("CREATE (n:\(label) {param: \"\"}) RETURN n", params: [:])
         XCTAssertTrue(emptyParameterResult.isSuccess)
         XCTAssertEqual(1, emptyParameterResult.value!.nodes.count)
         let nodeWithEmptyParameter = emptyParameterResult.value!.nodes.values.first!
@@ -84,8 +84,8 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
         XCTAssertTrue(result.isSuccess)
     }
     
-    func findData(client: BoltClient) throws {
-        client.nodesWith(label: label, limit: 0) { result in
+    func findData(client: ClientProtocol) throws {
+        client.nodesWith(label: label, andProperties: [:], skip: 0, limit: 0) { result in
             switch result {
             case .failure(let error):
                 XCTFail("Failure during query: \(error.localizedDescription)")
@@ -93,7 +93,7 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
                 XCTAssertEqual(nodes.count, 102)
                 let deleteResult = client.deleteNodesSync(nodes: nodes)
                 XCTAssertTrue(deleteResult.isSuccess)
-                client.pullSynchronouslyAndIgnore()
+                // client.pullSynchronouslyAndIgnore()
             }
         }
     }

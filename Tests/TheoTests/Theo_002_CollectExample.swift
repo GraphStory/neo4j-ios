@@ -35,11 +35,11 @@ class Theo_002_CollectExample: XCTestCase {
                     RETURN p, COLLECT(e.name)
                     """
         
-        try client.executeAsTransaction { tx in
-            let createResult = client.executeCypherSync(createQueries)
+        try client.executeAsTransaction(bookmark: nil) { tx in
+            let createResult = client.executeCypherSync(createQueries, params: [:])
             XCTAssertTrue(createResult.isSuccess)
             
-            let queryResult = client.executeCypherSync(query)
+            let queryResult = client.executeCypherSync(query, params: [:])
             XCTAssertTrue(queryResult.isSuccess)
             
             print(queryResult)
@@ -52,15 +52,15 @@ class Theo_002_CollectExample: XCTestCase {
         
         let builder = Theo_000_BoltClientTests()
         let client = try builder.makeClient()
-        try client.executeAsTransaction { tx in
+        try client.executeAsTransaction(bookmark: nil) { tx in
 
             let createQuery = (0..<500).map { i in
                 return "CREATE (t\(i):TestNode{value: \(Int.random(lower: 0, 150))})"
             }.joined(separator: "\n")
-            let createResult = client.executeCypherSync(createQuery)
+            let createResult = client.executeCypherSync(createQuery, params: [:])
             XCTAssert(createResult.isSuccess)
         
-            let matchResult = client.executeCypherSync("MATCH (t:TestNode) RETURN COLLECT (t.value)")
+            let matchResult = client.executeCypherSync("MATCH (t:TestNode) RETURN COLLECT (t.value)", params: [:])
             XCTAssert(matchResult.isSuccess)
             guard let queryResult = matchResult.value else {
                 XCTFail("Got no result")

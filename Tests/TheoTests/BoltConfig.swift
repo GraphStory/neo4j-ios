@@ -1,7 +1,7 @@
 import Foundation
+@testable import Theo
 
-
-struct BoltConfig {
+struct BoltConfig: ClientConfigurationProtocol {
     let hostname: String
     let port: Int
     let username: String
