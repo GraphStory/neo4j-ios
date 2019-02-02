@@ -302,21 +302,17 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     func testCancellingTransaction() throws {
-        measure {
-            do {
-                let client = try self.makeClient()
-                let exp = self.expectation(description: "testCancellingTransaction")
-                
-                try client.executeAsTransaction(bookmark: nil) { (tx) in
-                    tx.markAsFailed()
-                    exp.fulfill()
-                }
-                
-                self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
-                    XCTAssertNil(error)
-                })
-            } catch { XCTFail() }
+        let client = try self.makeClient()
+        let exp = self.expectation(description: "testCancellingTransaction")
+        
+        try client.executeAsTransaction(bookmark: nil) { (tx) in
+            tx.markAsFailed()
+            exp.fulfill()
         }
+        
+        self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
+            XCTAssertNil(error)
+        })
     }
 
     func testTransactionResultsInBookmark() throws {
