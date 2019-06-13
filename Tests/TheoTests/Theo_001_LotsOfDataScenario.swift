@@ -1,10 +1,10 @@
 import Foundation
 import XCTest
 import PackStream
-import Socket
+
 import Result
 import Bolt
-import LoremSwiftum
+//import LoremSwiftum
 
 @testable import Theo
 
@@ -26,28 +26,28 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
         
         measure {
             do {
-                try client.executeAsTransaction(bookmark: nil) { tx in
+                //try client.executeAsTransaction(bookmark: nil) { tx in
                     try self.buildData(client: client)
                     try self.findData(client: client)
-                    tx.markAsFailed()
-                }
+                    //tx.markAsFailed()
+                //}
             } catch {
                 XCTFail("Hmm....")
             }
         }
     }
 
-    let data: [String] = Lorem.sentences(count: 30).split(".")
+    let data = Lorem.sentences(30).split(separator: ".")
     private var pos = 0
     private var sentence: String {
         pos = pos + 1
-        return data[pos % data.count]
+        return String(data[pos % data.count])
     }
     
     private var word: String {
         pos = pos + 1
-        let words = self.sentence.split(" ")
-        return words[pos % words.count]
+        let words = self.sentence.split(separator: " ")
+        return String(words[pos % words.count])
     }
     
     func buildData(client: ClientProtocol) throws {

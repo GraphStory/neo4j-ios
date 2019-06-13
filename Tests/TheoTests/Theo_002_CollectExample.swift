@@ -1,10 +1,10 @@
 import Foundation
 import XCTest
 import PackStream
-import Socket
+
 import Result
 import Bolt
-import SwiftRandom
+//import SwiftRandom
 
 @testable import Theo
 
@@ -55,7 +55,7 @@ class Theo_002_CollectExample: XCTestCase {
         try client.executeAsTransaction(bookmark: nil) { tx in
 
             let createQuery = (0..<500).map { i in
-                return "CREATE (t\(i):TestNode{value: \(Int.random(lower: 0, 150))})"
+                return "CREATE (t\(i):TestNode{value: \(Int.random(0, 150))})"
             }.joined(separator: "\n")
             let createResult = client.executeCypherSync(createQuery, params: [:])
             XCTAssert(createResult.isSuccess)

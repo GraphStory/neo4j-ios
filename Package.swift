@@ -8,8 +8,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Neo4j-Swift/Bolt-swift.git", .branch("develop/swift-nio")),
-        .package(url: "https://github.com/antitypical/Result.git", from: "3.2.4"),
-        .package(url: "https://github.com/iamjono/LoremSwiftum.git", from: "0.0.3"),
+        .package(url: "https://github.com/antitypical/Result.git", from: "4.1.0"),
+        /*.package(url: "https://github.com/lukaskubanek/LoremSwiftum.git", .revision("6c6018aec1c61a40c2aa06a68eb843ce42bca262")),*/
     ],
     targets: [
         .target(
@@ -17,6 +17,6 @@ let package = Package(
             dependencies: ["Bolt", "Result"]),
         .testTarget(
             name: "TheoTests",
-            dependencies: ["Theo", "LoremSwiftum"]),
+            dependencies: ["Theo", /* "LoremSwiftum" */]),
     ]
 )

@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import PackStream
-import Socket
+
 import Result
 
 @testable import Theo
@@ -42,14 +42,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         let result = client.connectSync()
         switch result {
         case let .failure(error):
-            if let theError = error.error as? Socket.Error,
-                theError.errorCode == -9806 { // retry aborted connection
-                client.disconnect()
-                performConnectSync(client: client, completionBlock: completionBlock)
-            } else {
-                XCTFail("Failed connecting with error: \(error)")
-                completionBlock?(false)
-            }
+            XCTFail("Failed connecting with error: \(error)")
+            completionBlock?(false)
         case let .success(isSuccess):
             XCTAssertTrue(isSuccess)
             completionBlock?(true)
@@ -61,15 +55,8 @@ class Theo_000_BoltClientTests: XCTestCase {
         client.connect() { connectionResult in
             switch connectionResult {
             case let .failure(error):
-                if let theError = error.error as? Socket.Error,
-                   theError.errorCode == -9806 { // retry aborted connection
-                    self.performConnect(client: client) { result in
-                        completionBlock?(result)
-                    }
-                } else {
-                    XCTFail()
-                    completionBlock?(false)
-                }
+                XCTFail("Failed connecting with error: \(error)")
+                completionBlock?(false)
             case let .success(isConnected):
                 if !isConnected {
                     print("Error, could not connect!")
@@ -133,6 +120,13 @@ class Theo_000_BoltClientTests: XCTestCase {
         }
 
         return client
+    }
+    
+    func testUnwind() throws {
+        let client = try makeClient()
+        let result = client.executeCypherSync("UNWIND range(1, 1000000) AS n RETURN n", params: [:])
+        XCTAssert(result.isSuccess)
+        XCTAssertEqual(1000000, result.value?.rows.count ?? 0)
     }
 
     func testNodeResult() throws {
@@ -290,15 +284,19 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTAssertTrue(client.executeCypherSync("CREATE (n:TheoTestNode { foo: \"bar\"})", params: [:]).isSuccess)
             XCTAssertTrue(client.executeCypherSync("MATCH (n:TheoTestNode { foo: \"bar\"}) RETURN n", params: [:]).isSuccess)
             XCTAssertFalse(client.executeCypherSync("MAXXXTCH (n:TheoTestNode { foo: \"bar\"}) DETACH DELETE n", params: [:]).isSuccess)
+            client.pullSynchronouslyAndIgnore()
             tx.markAsFailed()
 
             XCTAssertFalse(tx.succeed)
+            
             exp.fulfill()
         }
 
         self.waitForExpectations(timeout: TheoTimeoutInterval, handler: { error in
             XCTAssertNil(error)
         })
+        
+        _ = client.connectSync() // TODO: Having to reconnect after a failed transaction isn't good. How can we improve on this?
     }
 
     func testCancellingTransaction() throws {
@@ -529,7 +527,9 @@ class Theo_000_BoltClientTests: XCTestCase {
         case let .failure(error):
             XCTFail(error.localizedDescription)
         case let .success(resultNodes):
-            var resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }.first!
+            XCTAssert(resultNodes.count > 0)
+            let candidates = resultNodes.filter { $0.properties["firstName"] as! String == "Niklas" }
+            var resultNode = candidates.first!
             XCTAssertEqual(3, resultNode.labels.count)
             XCTAssertTrue(resultNode.labels.contains("Father"))
             XCTAssertEqual(4, resultNode.properties.count)
@@ -701,6 +701,7 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTFail(error.localizedDescription)
         case let .success(isSuccess):
             XCTAssertTrue(isSuccess)
+            client.pullSynchronouslyAndIgnore()
         }
 
     }
@@ -717,6 +718,7 @@ class Theo_000_BoltClientTests: XCTestCase {
                 XCTFail(error.localizedDescription)
             case let .success(isSuccess):
                 XCTAssertTrue(isSuccess)
+                client.pullSynchronouslyAndIgnore()
                 exp.fulfill()
             }
         }
@@ -1018,7 +1020,10 @@ class Theo_000_BoltClientTests: XCTestCase {
         
         let client = try makeClient()
         let nodes = makeSomeNodes()
-        let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+        let result = client.createAndReturnNodesSync(nodes: nodes)
+        XCTAssertTrue(result.isSuccess)
+        let createdNodes = result.value!
+        XCTAssertTrue(createdNodes.count == 2)
         let (from, to) = (createdNodes[0], createdNodes[1])
         
         guard let fromId = from.id,
@@ -1060,6 +1065,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         let client = try makeClient()
         let nodes = makeSomeNodes()
         let createdNodes = client.createAndReturnNodesSync(nodes: nodes).value!
+        XCTAssert(createdNodes.count == 2)
         let (from, to) = (createdNodes[0], createdNodes[1])
 
         let rel1 = Relationship(fromNode: from, toNode: to, type: "Married to", direction: .to, properties: [ "happily": true ])
@@ -1364,12 +1370,14 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         }
     }
     
-    func testDisconnect() throws {
+    /*func testDisconnect() throws {
         let client = try makeClient()
         client.disconnect()
         let result = client.executeCypherSync("RETURN 1", params: [:])
         XCTAssertFalse(result.isSuccess)
-    }
+         // Fair enough, but we should then decide how we reconnect
+        _ = client.connectSync()
+    }*/
 
     func testRecord() throws {
         let client = try makeClient()
@@ -1514,7 +1522,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let label = "Father"
         let properties: [String:PackProtocol] = [
             "firstName": "Niklas",
-            "age": 38
+            "age": 40
         ]
         
         let group = DispatchGroup()
@@ -2071,11 +2079,11 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         }
     }
     
-    func testMeasureTestDisconnect() {
+    /*func testMeasureTestDisconnect() {
         measure {
             try! testDisconnect()
         }
-    }
+    }*/
     
     func testMeasureTestRecord() {
         measure {
@@ -2190,7 +2198,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         ("testUpdateNodesWithResult", testUpdateNodesWithResult),
         ("testUpdateRelationship", testUpdateRelationship),
         ("testUpdateRelationshipNoReturn", testUpdateRelationshipNoReturn),
-        ("testDisconnect", testDisconnect),
+        //("testDisconnect", testDisconnect),
         ("testRecord", testRecord),
         ("testFindNodeById", testFindNodeById),
         ("testFindNodeByLabels", testFindNodeByLabels),

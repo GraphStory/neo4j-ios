@@ -1,4 +1,0 @@
-module CNIOOpenSSL {
-    umbrella "/Users/niklas/Swift4/Neo4j-Swift/.build/checkouts/swift-nio-ssl--5301592993357290693/Sources/CNIOOpenSSL/include"
-    export *
-}

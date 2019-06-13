@@ -2,7 +2,7 @@ import Foundation
 import PackStream
 import Bolt
 import Result
-import Socket
+
 
 #if os(Linux)
 import Dispatch
@@ -76,8 +76,6 @@ open class BoltClient: ClientProtocol {
             try self.connection.connect { (connected) in
                 completionBlock?(.success(connected))
             }
-        } catch let error as Socket.Error {
-            completionBlock?(.failure(AnyError(error)))
         } catch let error as Connection.ConnectionError {
             completionBlock?(.failure(AnyError(error)))
         } catch let error {
@@ -133,8 +131,6 @@ open class BoltClient: ClientProtocol {
                 completionBlock?(.success((successResponse, queryResponse)))
             }
 
-        } catch let error as Socket.Error {
-            completionBlock?(.failure(AnyError(error)))
         } catch let error as Response.ResponseError {
             completionBlock?(.failure(AnyError(error)))
         } catch let error {
@@ -176,8 +172,6 @@ open class BoltClient: ClientProtocol {
                     }
                 }
             }
-        } catch let error as Socket.Error {
-            completionBlock?(.failure(AnyError(error)))
         } catch let error as Response.ResponseError {
             completionBlock?(.failure(AnyError(error)))
         } catch let error {
@@ -506,8 +500,6 @@ open class BoltClient: ClientProtocol {
                 let result = parseResponses(responses: responses, result: partialQueryResult)
                 completionBlock?(.success((successResponse, result)))
             }
-        } catch let error as Socket.Error {
-            completionBlock?(.failure(AnyError(error)))
         } catch let error {
             completionBlock?(.failure(AnyError(error)))
             print("Unexpected error while pulling all response data: \(error.localizedDescription)")
@@ -605,6 +597,9 @@ extension BoltClient { // Node functions
         var theResult: Result<[Node], AnyError> = .failure(AnyError(BoltClientError.unknownError))
         createAndReturnNodes(nodes: nodes) { result in
             theResult = result
+            if(nodes.count != nodes.count) {
+                print("Expected nodes in and nodes out to be equal")
+            }
             group.leave()
         }
 
@@ -793,9 +788,11 @@ extension BoltClient { // Node functions
         var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
         updateNodes(nodes: nodes) { result in
             theResult = result
+            self.pullSynchronouslyAndIgnore()
             group.leave()
         }
 
+        
         group.wait()
         return theResult
     }

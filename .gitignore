@@ -20,6 +20,7 @@ Source/Theo/TheoTests/TheoConfig.json
 Tests/TheoTests/TheoConfig.json
 .build
 Packages
+Theo.xcodeproj/**
 /Theo.xcodeproj/project.xcworkspace/xcshareddata
 /Tests/TheoTests/TheoBoltConfig.json
 /Tests/TheoTests/TheoRestConfig.json
@@ -27,3 +28,5 @@ Packages
 /Theo.xcodeproj/xcshareddata/xcschemes/Theo-Package.xcscheme
 /Package.resolved
 /Tests/TheoTests/TheoBoltConfig.json.bak
+/Theo.xcodeproj/project.pbxproj
+/Theo.xcodeproj/GeneratedModuleMap/CNIOOpenSSL/module.modulemap
