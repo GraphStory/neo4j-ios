@@ -8,7 +8,93 @@ import Bolt
 
 @testable import Theo
 
-class Theo_001_LotsOfDataScenario: XCTestCase {
+class TheoTestCase: XCTestCase {
+    func makeClient() throws -> ClientProtocol {
+        let client: BoltClient
+        let configuration = Theo_000_BoltClientTests.configuration
+        
+        if Theo_000_BoltClientTests.runCount % 3 == 0 {
+            client = try BoltClient(hostname: configuration.hostname,
+                                    port: configuration.port,
+                                    username: configuration.username,
+                                    password: configuration.password,
+                                    encrypted: configuration.encrypted)
+        } else if Theo_000_BoltClientTests.runCount % 3 == 1 {
+            class CustomConfig: ClientConfigurationProtocol {
+                let hostname: String
+                let username: String
+                let password: String
+                let port: Int
+                let encrypted: Bool
+                
+                init(configuration: ClientConfigurationProtocol) {
+                    hostname = configuration.hostname
+                    password = configuration.password
+                    username = configuration.username
+                    port = configuration.port
+                    encrypted = configuration.encrypted
+                }
+            }
+            client = try BoltClient(CustomConfig(configuration: configuration))
+        } else {
+            let testPath = URL(fileURLWithPath: #file)
+                .deletingLastPathComponent().path
+            let filePath = "\(testPath)/TheoBoltConfig.json"
+            let data = try Data(contentsOf: URL.init(fileURLWithPath: filePath))
+            
+            let json = try JSONSerialization.jsonObject(with: data) as! [String:Any]
+            let jsonConfig = JSONClientConfiguration(json: json)
+            client = try BoltClient(jsonConfig)
+        }
+        
+        
+        if Theo_000_BoltClientTests.runCount % 2 == 0 {
+            let group = DispatchGroup()
+            group.enter()
+            performConnect(client: client) { connectionSuccessful in
+                XCTAssertTrue(connectionSuccessful)
+                group.leave()
+            }
+            group.wait()
+        } else {
+            performConnectSync(client: client) { connectionSuccessful in
+                XCTAssertTrue(connectionSuccessful)
+            }
+        }
+        
+        return client
+    }
+    
+    func performConnectSync(client: BoltClient, completionBlock: ((Bool) -> ())? = nil) {
+        
+        let result = client.connectSync()
+        switch result {
+        case let .failure(error):
+            XCTFail("Failed connecting with error: \(error)")
+            completionBlock?(false)
+        case let .success(isSuccess):
+            XCTAssertTrue(isSuccess)
+            completionBlock?(true)
+        }
+    }
+    
+    func performConnect(client: BoltClient, completionBlock: ((Bool) -> ())? = nil) {
+        client.connect() { connectionResult in
+            switch connectionResult {
+            case let .failure(error):
+                XCTFail("Failed connecting with error: \(error)")
+                completionBlock?(false)
+            case let .success(isConnected):
+                if !isConnected {
+                    print("Error, could not connect!")
+                }
+                completionBlock?(isConnected)
+            }
+        }
+    }
+}
+
+class Theo_001_LotsOfDataScenario: TheoTestCase {
     
     let label = Lorem.word
     
@@ -19,8 +105,7 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
     
     
     func testScenario() throws {
-        let builder = Theo_000_BoltClientTests()
-        let client = try builder.makeClient()
+        let client = try makeClient()
         
         print("Test with '\(label)'")
         
@@ -36,6 +121,8 @@ class Theo_001_LotsOfDataScenario: XCTestCase {
             }
         }
     }
+    
+    
 
     let data = Lorem.sentences(30).split(separator: ".")
     private var pos = 0

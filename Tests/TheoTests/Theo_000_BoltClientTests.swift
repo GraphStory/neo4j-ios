@@ -26,8 +26,8 @@ class ConfigLoader: NSObject {
 
 }
 
-class Theo_000_BoltClientTests: XCTestCase {
-
+class Theo_000_BoltClientTests: TheoTestCase {
+    
     static let configuration: ClientConfigurationProtocol = ConfigLoader.loadBoltConfig()
     static var runCount: Int = 0
 
@@ -37,6 +37,7 @@ class Theo_000_BoltClientTests: XCTestCase {
         Theo_000_BoltClientTests.runCount = Theo_000_BoltClientTests.runCount + 1
     }
 
+    /*
     private func performConnectSync(client: BoltClient, completionBlock: ((Bool) -> ())? = nil) {
 
         let result = client.connectSync()
@@ -120,13 +121,26 @@ class Theo_000_BoltClientTests: XCTestCase {
         }
 
         return client
+    }*/
+    
+    func testUnwinds() throws {
+
+        let client = try makeClient()
+        
+        for i in 1000...2250 {
+            let cypher: String = "UNWIND range(1, \(i)) AS n RETURN n"
+            let result = client.executeCypherSync(cypher, params: [:])
+            XCTAssert(result.isSuccess)
+            XCTAssertEqual(i, result.value?.rows.count ?? 0)
+        }
     }
     
     func testUnwind() throws {
         let client = try makeClient()
-        let result = client.executeCypherSync("UNWIND range(1, 1000000) AS n RETURN n", params: [:])
+        let i = 100000
+        let result = client.executeCypherSync("UNWIND range(1, \(i)) AS n RETURN n", params: [:])
         XCTAssert(result.isSuccess)
-        XCTAssertEqual(1000000, result.value?.rows.count ?? 0)
+        XCTAssertEqual(i, result.value?.rows.count ?? 0)
     }
 
     func testNodeResult() throws {
@@ -374,6 +388,7 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     func testGettingStartedExample() throws {
+        
         let client = try makeClient()
         let exp = self.expectation(description: "testGettingStartedExample")
 
@@ -482,7 +497,7 @@ class Theo_000_BoltClientTests: XCTestCase {
 
         let node = Node(labels: ["Person","Husband","Father"], properties: [
             "firstName": "Niklas",
-            "age": 38,
+            "age": 40,
             "weight": 80.2,
             "favouriteWhiskys": List(items: ["Ardbeg", "Caol Ila", "Laphroaig"])
             ])
@@ -496,14 +511,14 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTAssertEqual(3, resultNode.labels.count)
             XCTAssertEqual(4, resultNode.properties.count)
             XCTAssertEqual("Niklas", resultNode.properties["firstName"] as! String)
-            XCTAssertEqual(38 as Int64, resultNode.properties["age"]?.intValue())
+            XCTAssertEqual(40 as Int64, resultNode.properties["age"]?.intValue())
         }
     }
 
     func makeSomeNodes() -> [Node] {
         let node1 = Node(labels: ["Person","Husband","Father"], properties: [
             "firstName": "Niklas",
-            "age": 38,
+            "age": 40,
             "weight": 80.2,
             "favouriteWhiskys": List(items: ["Ardbeg", "Caol Ila", "Laphroaig"])
             ])
@@ -534,7 +549,7 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTAssertTrue(resultNode.labels.contains("Father"))
             XCTAssertEqual(4, resultNode.properties.count)
             XCTAssertEqual("Niklas", resultNode.properties["firstName"] as! String)
-            XCTAssertEqual(38 as Int64, resultNode.properties["age"]?.intValue())
+            XCTAssertEqual(40 as Int64, resultNode.properties["age"]?.intValue())
 
             resultNode = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
             XCTAssertEqual(3, resultNode.labels.count)
@@ -546,7 +561,7 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     func testUpdateAndRunCypherFromNodesWithResult() throws {
-
+        
         let nodes = makeSomeNodes()
 
         let client = try makeClient()
@@ -576,7 +591,7 @@ class Theo_000_BoltClientTests: XCTestCase {
             XCTAssertEqual(5, resultNode3.properties.count)
             XCTAssertNil(resultNode3["weight"])
             XCTAssertEqual("Niklas", resultNode3.properties["firstName"] as! String)
-            XCTAssertEqual(38 as Int64, resultNode3.properties["age"]?.intValue())
+            XCTAssertEqual(40 as Int64, resultNode3.properties["age"]?.intValue())
 
             let resultNode4 = resultNodes.filter { $0.properties["firstName"] as! String == "Christina" }.first!
             XCTAssertEqual(4, resultNode4.labels.count)
@@ -591,6 +606,7 @@ class Theo_000_BoltClientTests: XCTestCase {
 
     func testUpdateAndRunCypherFromNodesWithoutResult() throws {
 
+        
         let nodes = makeSomeNodes()
 
         let client = try makeClient()
@@ -1319,7 +1335,7 @@ class Theo_000_BoltClientTests: XCTestCase {
     }
 
     func testBreweryDataset() throws {
-        
+
         let indexQueries =
 """
 CREATE INDEX ON :BeerBrand(name);
@@ -1447,7 +1463,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let client = try makeClient()
         let properties: [String:PackProtocol] = [
             "firstName": "Niklas",
-            "age": 38
+            "age": 40
         ]
         
         let group = DispatchGroup()
@@ -1484,7 +1500,7 @@ CREATE (bb)-[:HAS_ALCOHOLPERCENTAGE]->(ap),
         let labels = ["Father", "Husband"]
         let properties: [String:PackProtocol] = [
             "firstName": "Niklas",
-            "age": 38
+            "age": 40
         ]
         
         let group = DispatchGroup()

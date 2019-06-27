@@ -3,6 +3,6 @@
         "password": "<passcode>",
         "hostname": "localhost",
         "port": 7687,
-		"encrypted": true,
+        "encrypted": true,
         "hostUsesSelfSignedCertificate": true
 }

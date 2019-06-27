@@ -34,7 +34,7 @@ public extension Int32 {
 
 public extension String {
     /// SwiftRandom extension
-    public static func random(ofLength length: Int) -> String {
+    static func random(ofLength length: Int) -> String {
         return random(minimumLength: length, maximumLength: length)
     }
     
@@ -96,28 +96,7 @@ public extension CGFloat {
     }
 }
 
-public extension Date {
-    /// SwiftRandom extension
-    static func randomWithinDaysBeforeToday(_ days: Int) -> Date {
-        let today = Date()
-        let earliest = today.addingTimeInterval(TimeInterval(-days*24*60*60))
-        
-        return Date.random(between: earliest, and: today)
-    }
-    
-    /// SwiftRandom extension
-    static func random() -> Date {
-        let randomTime = TimeInterval(arc4random_uniform(UInt32.max))
-        return Date(timeIntervalSince1970: randomTime)
-    }
-    
-    static func random(between initial: Date, and final:Date) -> Date {
-        let interval = final.timeIntervalSince(initial)
-        let randomInterval = TimeInterval(arc4random_uniform(UInt32(interval)))
-        return initial.addingTimeInterval(randomInterval)
-    }
-    
-}
+
 
 public extension URL {
     /// SwiftRandom extension
@@ -184,14 +163,6 @@ public struct Randoms {
     
     public static func randomCGFloat(_ lower: CGFloat = 0, _ upper: CGFloat = 1) -> CGFloat {
         return CGFloat.random(lower, upper)
-    }
-    
-    public static func randomDateWithinDaysBeforeToday(_ days: Int) -> Date {
-        return Date.randomWithinDaysBeforeToday(days)
-    }
-    
-    public static func randomDate() -> Date {
-        return Date.random()
     }
     
     public static func randomNSURL() -> URL {

@@ -8,7 +8,7 @@ import Bolt
 
 @testable import Theo
 
-class Theo_002_CollectExample: XCTestCase {
+class Theo_002_CollectExample: TheoTestCase {
     
     override func setUp() {
         super.setUp()
@@ -16,8 +16,7 @@ class Theo_002_CollectExample: XCTestCase {
     }
 
     func testCollect() throws {
-        let builder = Theo_000_BoltClientTests()
-        let client = try builder.makeClient()
+        let client = try makeClient()
 
         // grabbed query from https://markhneedham.com/blog/2014/09/26/neo4j-collecting-multiple-values-too-many-parameters-for-function-collect/
         let createQueries =
@@ -50,8 +49,7 @@ class Theo_002_CollectExample: XCTestCase {
     
     func testLukesSample() throws {
         
-        let builder = Theo_000_BoltClientTests()
-        let client = try builder.makeClient()
+        let client = try makeClient()
         try client.executeAsTransaction(bookmark: nil) { tx in
 
             let createQuery = (0..<500).map { i in

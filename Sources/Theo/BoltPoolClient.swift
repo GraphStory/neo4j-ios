@@ -382,7 +382,7 @@ extension BoltPoolClient {
     
     public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
         let client = self.getClient()
-        defer { defer { release(client) } }
+        defer { release(client) }
         return client.updateRelationshipSync(relationship: relationship)
     }
     
