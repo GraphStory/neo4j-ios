@@ -2,7 +2,6 @@ import Foundation
 import XCTest
 import PackStream
 
-import Result
 import Bolt
 //import LoremSwiftum
 
@@ -143,16 +142,27 @@ class Theo_001_LotsOfDataScenario: TheoTestCase {
         
         let cypherCreateResult = client.executeCypherSync("CREATE (n:\(label) {created_at: TIMESTAMP()}) RETURN n", params: [:])
         XCTAssertTrue(cypherCreateResult.isSuccess)
-        XCTAssertEqual(1, cypherCreateResult.value!.nodes.count)
-        let nodeWithTimestamp = cypherCreateResult.value!.nodes.values.first!
+        guard case let Result.success(cypherCreateResultValue) = cypherCreateResult else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual(1, cypherCreateResultValue.nodes.count)
+        let nodeWithTimestamp = cypherCreateResultValue.nodes.values.first!
         let timestamp: TimeInterval = Double(nodeWithTimestamp["created_at"] as? Int64 ?? 0) / 1000.0
         let diff = Date().timeIntervalSince1970 - timestamp
         XCTAssertLessThan(diff, 60.0)
         
         let emptyParameterResult = client.executeCypherSync("CREATE (n:\(label) {param: \"\"}) RETURN n", params: [:])
+        XCTAssertTrue(cypherCreateResult.isSuccess)
+        guard case let Result.success(emptyParameterResultValue) = emptyParameterResult else {
+            XCTFail()
+            return
+        }
+
         XCTAssertTrue(emptyParameterResult.isSuccess)
-        XCTAssertEqual(1, emptyParameterResult.value!.nodes.count)
-        let nodeWithEmptyParameter = emptyParameterResult.value!.nodes.values.first!
+        XCTAssertEqual(1, emptyParameterResultValue.nodes.count)
+        let nodeWithEmptyParameter = emptyParameterResultValue.nodes.values.first!
         let param = nodeWithEmptyParameter["param"] as? String
         XCTAssertEqual(param, "")
 

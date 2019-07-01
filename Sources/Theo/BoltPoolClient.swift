@@ -1,7 +1,6 @@
 import Foundation
 import PackStream
 import Bolt
-import Result
 
 private class ClientInstanceWithProperties {
     let client: ClientProtocol
@@ -106,13 +105,13 @@ public class BoltPoolClient: ClientProtocol {
 }
 
 extension BoltPoolClient {
-    public func connect(completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func connect(completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.connect(completionBlock: completionBlock)
     }
     
-    public func connectSync() -> Result<Bool, AnyError> {
+    public func connectSync() -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.connectSync()
@@ -125,27 +124,27 @@ extension BoltPoolClient {
         client.disconnect()
     }
     
-    public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())?) {
         let client = self.getClient()
         
         defer { release(client) }
         client.execute(request: request, completionBlock: completionBlock)
     }
     
-    public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())?) {
         let client = self.getClient()
         
         defer { release(client) }
         client.executeWithResult(request: request, completionBlock: completionBlock)
     }
     
-    public func executeCypher(_ query: String, params: Dictionary<String, PackProtocol>?, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func executeCypher(_ query: String, params: Dictionary<String, PackProtocol>?, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.executeCypher(query, params: params, completionBlock: completionBlock)
     }
     
-    public func executeCypherSync(_ query: String, params: Dictionary<String, PackProtocol>?) -> (Result<QueryResult, AnyError>) {
+    public func executeCypherSync(_ query: String, params: Dictionary<String, PackProtocol>?) -> (Result<QueryResult, Error>) {
         let client = self.getClient()
         defer { release(client) }
         return client.executeCypherSync(query, params: params)
@@ -157,7 +156,7 @@ extension BoltPoolClient {
         try client.executeAsTransaction(bookmark: bookmark, transactionBlock: transactionBlock)
     }
     
-    public func pullAll(partialQueryResult: QueryResult, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())?) {
+    public func pullAll(partialQueryResult: QueryResult, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.pullAll(partialQueryResult: partialQueryResult, completionBlock: completionBlock)
@@ -169,236 +168,236 @@ extension BoltPoolClient {
         return client.getBookmark()
     }
     
-    public func createAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+    public func createAndReturnNode(node: Node, completionBlock: ((Result<Node, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createAndReturnNode(node: node, completionBlock: completionBlock)
     }
     
-    public func createAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
+    public func createAndReturnNodeSync(node: Node) -> Result<Node, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.createAndReturnNodeSync(node: node)
     }
     
-    public func createNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func createNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createNode(node: node, completionBlock: completionBlock)
     }
     
-    public func createNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func createNodeSync(node: Node) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.createNodeSync(node: node)
     }
     
-    public func createAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func createAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createAndReturnNodes(nodes: nodes, completionBlock: completionBlock)
     }
     
-    public func createAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
+    public func createAndReturnNodesSync(nodes: [Node]) -> Result<[Node], Error> {
         let client = self.getClient()
         defer { release(client) }
         let res = client.createAndReturnNodesSync(nodes: nodes)
         return res
     }
     
-    public func createNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func createNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createNodes(nodes: nodes, completionBlock: completionBlock)
     }
     
-    public func createNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func createNodesSync(nodes: [Node]) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.createNodesSync(nodes: nodes)
     }
     
-    public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+    public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateAndReturnNode(node: node, completionBlock: completionBlock)
     }
     
-    public func updateAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
+    public func updateAndReturnNodeSync(node: Node) -> Result<Node, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateAndReturnNodeSync(node: node)
     }
     
-    public func updateNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateNode(node: node, completionBlock: completionBlock)
     }
     
-    public func performRequestWithNoReturnNode(request: Request, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func performRequestWithNoReturnNode(request: Request, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
     
-    public func updateNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func updateNodeSync(node: Node) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateNodeSync(node: node)
     }
     
-    public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateAndReturnNodes(nodes: nodes, completionBlock: completionBlock)
     }
     
-    public func updateAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
+    public func updateAndReturnNodesSync(nodes: [Node]) -> Result<[Node], Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateAndReturnNodesSync(nodes: nodes)
     }
     
-    public func updateNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateNodes(nodes: nodes, completionBlock: completionBlock)
     }
     
-    public func updateNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func updateNodesSync(nodes: [Node]) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateNodesSync(nodes: nodes)
     }
     
-    public func deleteNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.deleteNode(node: node, completionBlock: completionBlock)
     }
     
-    public func deleteNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func deleteNodeSync(node: Node) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.deleteNodeSync(node: node)
     }
     
-    public func deleteNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.deleteNodes(nodes: nodes, completionBlock: completionBlock)
     }
     
-    public func deleteNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func deleteNodesSync(nodes: [Node]) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.deleteNodesSync(nodes: nodes)
     }
     
-    public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, AnyError>) -> ())?) {
+    public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.nodeBy(id: id, completionBlock: completionBlock)
     }
     
-    public func nodesWith(labels: [String], andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(labels: [String], andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.nodesWith(labels: labels, andProperties: properties, skip: skip, limit: limit, completionBlock: completionBlock)
     }
     
-    public func nodesWith(properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.nodesWith(properties: properties, skip: skip, limit: limit, completionBlock: completionBlock)
     }
     
-    public func nodesWith(label: String, andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(label: String, andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.nodesWith(label: label, andProperties: properties, skip: skip, limit: limit, completionBlock: completionBlock)
     }
     
-    public func relate(node: Node, to: Node, type: String, properties: [String : PackProtocol], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func relate(node: Node, to: Node, type: String, properties: [String : PackProtocol], completionBlock: ((Result<Relationship, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.relate(node: node, to: to, type: type, properties: properties, completionBlock: completionBlock)
     }
     
-    public func relateSync(node: Node, to: Node, type: String, properties: [String : PackProtocol]) -> Result<Relationship, AnyError> {
+    public func relateSync(node: Node, to: Node, type: String, properties: [String : PackProtocol]) -> Result<Relationship, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.relateSync(node: node, to: to, type: type, properties: properties)
     }
     
-    public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
+    public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.createAndReturnRelationshipsSync(relationships: relationships)
     }
     
-    public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+    public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createAndReturnRelationships(relationships: relationships, completionBlock: completionBlock)
     }
     
-    public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+    public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.createAndReturnRelationshipSync(relationship: relationship)
     }
     
-    public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.createAndReturnRelationship(relationship: relationship, completionBlock: completionBlock)
     }
     
-    public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateAndReturnRelationship(relationship: relationship, completionBlock: completionBlock)
     }
     
-    public func updateAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+    public func updateAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateAndReturnRelationshipSync(relationship: relationship)
     }
     
-    public func updateRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateRelationship(relationship: Relationship, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.updateRelationship(relationship: relationship, completionBlock: completionBlock)
     }
     
-    public func performRequestWithNoReturnRelationship(request: Request, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func performRequestWithNoReturnRelationship(request: Request, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
     }
     
-    public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+    public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.updateRelationshipSync(relationship: relationship)
     }
     
-    public func deleteRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteRelationship(relationship: Relationship, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         client.deleteRelationship(relationship: relationship, completionBlock: completionBlock)
     }
     
-    public func deleteRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+    public func deleteRelationshipSync(relationship: Relationship) -> Result<Bool, Error> {
         let client = self.getClient()
         defer { release(client) }
         return client.deleteRelationshipSync(relationship: relationship)
     }
     
-    public func relationshipsWith(type: String, andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+    public func relationshipsWith(type: String, andProperties properties: [String : PackProtocol], skip: UInt64, limit: UInt64, completionBlock: ((Result<[Relationship], Error>) -> ())?) {
         let client = self.getClient()
         defer { release(client) }
         return client.relationshipsWith(type: type, andProperties: properties, skip: skip, limit: limit, completionBlock: completionBlock)

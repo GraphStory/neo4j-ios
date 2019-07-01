@@ -1,7 +1,6 @@
 import Foundation
 import PackStream
 import Bolt
-import Result
 
 
 #if os(Linux)
@@ -70,17 +69,17 @@ open class BoltClient: ClientProtocol {
 
      - parameter completionBlock: Completion result-block that provides a Bool to indicate success, or an Error to explain what went wrong
      */
-    public func connect(completionBlock: ((Result<Bool, AnyError>) -> ())? = nil) {
+    public func connect(completionBlock: ((Result<Bool, Error>) -> ())? = nil) {
 
         do {
             try self.connection.connect { (connected) in
                 completionBlock?(.success(connected))
             }
         } catch let error as Connection.ConnectionError {
-            completionBlock?(.failure(AnyError(error)))
+            completionBlock?(.failure(error))
         } catch let error {
             print("Unknown error while connecting: \(error.localizedDescription)")
-            completionBlock?(.failure(AnyError(error)))
+            completionBlock?(.failure(error))
         }
     }
 
@@ -91,9 +90,9 @@ open class BoltClient: ClientProtocol {
 
      - returns: Result that provides a Bool to indicate success, or an Error to explain what went wrong
      */
-    public func connectSync() -> Result<Bool, AnyError> {
+    public func connectSync() -> Result<Bool, Error> {
 
-        var theResult: Result<Bool, AnyError>! = nil
+        var theResult: Result<Bool, Error>! = nil
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
         connect() { result in
@@ -124,7 +123,7 @@ open class BoltClient: ClientProtocol {
      - parameter request: The Bolt Request that will be sent to Neo4j
      - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
      */
-    public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+    public func execute(request: Request, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())? = nil) {
         do {
             try connection.request(request) { (successResponse, response) in
                 let queryResponse = parseResponses(responses: response)
@@ -132,7 +131,7 @@ open class BoltClient: ClientProtocol {
             }
 
         } catch let error as Response.ResponseError {
-            completionBlock?(.failure(AnyError(error)))
+            completionBlock?(.failure(error))
         } catch let error {
             print("Unhandled error while executing cypher: \(error.localizedDescription)")
         }
@@ -151,20 +150,20 @@ open class BoltClient: ClientProtocol {
      - parameter request: The Bolt Request that will be sent to Neo4j
      - parameter completionBlock: Completion result-block that provides a complete QueryResult, or an Error to explain what went wrong
      */
-    public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+    public func executeWithResult(request: Request, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())? = nil) {
         do {
             try connection.request(request) { (successResponse, response) in
                 if successResponse == false {
-                    completionBlock?(.failure(AnyError(BoltClientError.queryUnsuccessful)))
+                    completionBlock?(.failure(BoltClientError.queryUnsuccessful))
                 } else {
                     let queryResponse = parseResponses(responses: response)
                     self.pullAll(partialQueryResult: queryResponse) { result in
                         switch result {
                         case let .failure(error):
-                            completionBlock?(.failure(AnyError(error)))
+                            completionBlock?(.failure(error))
                         case let .success((successResponse, queryResponse)):
                             if successResponse == false {
-                                completionBlock?(.failure(AnyError(BoltClientError.queryUnsuccessful)))
+                                completionBlock?(.failure(BoltClientError.queryUnsuccessful))
                             } else {
                                 completionBlock?(.success((successResponse, queryResponse)))
                             }
@@ -173,7 +172,7 @@ open class BoltClient: ClientProtocol {
                 }
             }
         } catch let error as Response.ResponseError {
-            completionBlock?(.failure(AnyError(error)))
+            completionBlock?(.failure(error))
         } catch let error {
             print("Unhandled error while executing cypher: \(error.localizedDescription)")
         }
@@ -193,7 +192,7 @@ open class BoltClient: ClientProtocol {
      - parameter params: The named parameters to be included in the query. All parameter values need to conform to PackProtocol, as this is how they are encoded when sent via Bolt to Neo4j
      - parameter completionBlock: Completion result-block that provides a partial QueryResult, or an Error to explain what went wrong
      */
-    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+    public func executeCypher(_ query: String, params: Dictionary<String,PackProtocol>? = nil, completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())? = nil) {
 
         let cypherRequest = BoltRequest.run(statement: query, parameters: Map(dictionary: params ?? [:]))
 
@@ -213,9 +212,9 @@ open class BoltClient: ClientProtocol {
      - returns: Result that provides a complete QueryResult, or an Error to explain what went wrong
      */
     @discardableResult
-    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, AnyError>) {
+    public func executeCypherSync(_ query: String, params: Dictionary<String,PackProtocol>? = nil) -> (Result<QueryResult, Error>) {
 
-        var theResult: Result<QueryResult, AnyError>! = nil
+        var theResult: Result<QueryResult, Error>! = nil
         let dispatchGroup = DispatchGroup()
 
         // Perform query
@@ -228,7 +227,7 @@ open class BoltClient: ClientProtocol {
                 theResult = .failure(error)
             case let .success((isSuccess, _partialResult)):
                 if isSuccess == false {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     theResult = .failure(error)
                 } else {
                     partialResult = _partialResult
@@ -250,7 +249,7 @@ open class BoltClient: ClientProtocol {
                 theResult = .failure(error)
             case let .success(isSuccess, parsedResponses):
                 if isSuccess == false {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     theResult = .failure(error)
                 } else {
                     theResult = .success(parsedResponses)
@@ -492,7 +491,7 @@ open class BoltClient: ClientProtocol {
      - parameter partialQueryResult: If, for instance when executing the Cypher query, a partial QueryResult was given, pass it in here to have it fully populated in the completion result block
      - parameter completionBlock: Completion result-block that provides either a fully update QueryResult if a QueryResult was given, or a partial QueryResult if no prior QueryResult as given. If a failure has occurred, the Result contains an Error to explain what went wrong
      */
-    public func pullAll(partialQueryResult: QueryResult = QueryResult(), completionBlock: ((Result<(Bool, QueryResult), AnyError>) -> ())? = nil) {
+    public func pullAll(partialQueryResult: QueryResult = QueryResult(), completionBlock: ((Result<(Bool, QueryResult), Error>) -> ())? = nil) {
         let pullRequest = BoltRequest.pullAll()
         do {
             try self.connection.request(pullRequest) { (successResponse, responses) in
@@ -501,7 +500,7 @@ open class BoltClient: ClientProtocol {
                 completionBlock?(.success((successResponse, result)))
             }
         } catch let error {
-            completionBlock?(.failure(AnyError(error)))
+            completionBlock?(.failure(error))
             print("Unexpected error while pulling all response data: \(error.localizedDescription)")
         }
 
@@ -518,17 +517,17 @@ extension BoltClient { // Node functions
 
     //MARK: Create
 
-    public func createAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+    public func createAndReturnNode(node: Node, completionBlock: ((Result<Node, Error>) -> ())?) {
         let request = node.createRequest()
         performRequestWithReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func createAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
+    public func createAndReturnNodeSync(node: Node) -> Result<Node, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Node, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Node, Error> = .failure(BoltClientError.unknownError)
         createAndReturnNode(node: node) { result in
             theResult = result
             group.leave()
@@ -538,17 +537,17 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func createNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func createNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = node.createRequest(withReturnStatement: false)
         performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func createNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func createNodeSync(node: Node) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         createNode(node: node) { result in
             theResult = result
             self.pullSynchronouslyAndIgnore()
@@ -559,7 +558,7 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func createAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func createAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], Error>) -> ())?) {
         let request = nodes.createRequest()
         execute(request: request) { response in
             switch response {
@@ -567,7 +566,7 @@ extension BoltClient { // Node functions
                 completionBlock?(.failure(error))
             case let .success((isSuccess, partialQueryResult)):
                 if !isSuccess {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
                     self.pullAll(partialQueryResult: partialQueryResult) { response in
@@ -576,7 +575,7 @@ extension BoltClient { // Node functions
                             completionBlock?(.failure(error))
                         case let .success((isSuccess, queryResult)):
                             if !isSuccess {
-                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                let error = BoltClientError.fetchingRecordsUnsuccessful
                                 completionBlock?(.failure(error))
                             } else {
                                 let nodes: [Node] = queryResult.nodes.map { $0.value }
@@ -589,12 +588,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func createAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
+    public func createAndReturnNodesSync(nodes: [Node]) -> Result<[Node], Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<[Node], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<[Node], Error> = .failure(BoltClientError.unknownError)
         createAndReturnNodes(nodes: nodes) { result in
             theResult = result
             if(nodes.count != nodes.count) {
@@ -607,7 +606,7 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func createNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func createNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = nodes.createRequest(withReturnStatement: false)
         execute(request: request) { response in
             switch response {
@@ -619,12 +618,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func createNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func createNodesSync(nodes: [Node]) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         createNodes(nodes: nodes) { result in
             theResult = result
             group.leave()
@@ -635,20 +634,20 @@ extension BoltClient { // Node functions
     }
 
     //MARK: Update
-    public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+    public func updateAndReturnNode(node: Node, completionBlock: ((Result<Node, Error>) -> ())?) {
 
         let request = node.updateRequest()
         performRequestWithReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    private func performRequestWithReturnNode(request: Request, completionBlock: ((Result<Node, AnyError>) -> ())?) {
+    private func performRequestWithReturnNode(request: Request, completionBlock: ((Result<Node, Error>) -> ())?) {
         execute(request: request) { response in
             switch response {
             case let .failure(error):
                 completionBlock?(.failure(error))
             case let .success((isSuccess, partialQueryResult)):
                 if !isSuccess {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
                     self.pullAll(partialQueryResult: partialQueryResult) { response in
@@ -657,13 +656,13 @@ extension BoltClient { // Node functions
                             completionBlock?(.failure(error))
                         case let .success((isSuccess, queryResult)):
                             if !isSuccess {
-                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                let error = BoltClientError.fetchingRecordsUnsuccessful
                                 completionBlock?(.failure(error))
                             } else {
                                 if let (_, node) = queryResult.nodes.first {
                                     completionBlock?(.success(node))
                                 } else {
-                                    let error = AnyError(BoltClientError.missingNodeResponse)
+                                    let error = BoltClientError.missingNodeResponse
                                     completionBlock?(.failure(error))
                                 }
                             }
@@ -674,12 +673,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateAndReturnNodeSync(node: Node) -> Result<Node, AnyError> {
+    public func updateAndReturnNodeSync(node: Node) -> Result<Node, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Node, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Node, Error> = .failure(BoltClientError.unknownError)
         updateAndReturnNode(node: node) { result in
             theResult = result
             group.leave()
@@ -689,13 +688,13 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func updateNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
 
         let request = node.updateRequest()
         performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func performRequestWithNoReturnNode(request: Request, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func performRequestWithNoReturnNode(request: Request, completionBlock: ((Result<Bool, Error>) -> ())?) {
 
         execute(request: request) { response in
             switch response {
@@ -707,12 +706,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func updateNodeSync(node: Node) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         updateNode(node: node) { result in
             theResult = result
             group.leave()
@@ -723,7 +722,7 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func updateAndReturnNodes(nodes: [Node], completionBlock: ((Result<[Node], Error>) -> ())?) {
         let request = nodes.updateRequest()
         execute(request: request) { response in
             switch response {
@@ -731,7 +730,7 @@ extension BoltClient { // Node functions
                 completionBlock?(.failure(error))
             case let .success((isSuccess, partialQueryResult)):
                 if !isSuccess {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
                     self.pullAll(partialQueryResult: partialQueryResult) { response in
@@ -740,7 +739,7 @@ extension BoltClient { // Node functions
                             completionBlock?(.failure(error))
                         case let .success((isSuccess, queryResult)):
                             if !isSuccess {
-                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                let error = BoltClientError.fetchingRecordsUnsuccessful
                                 completionBlock?(.failure(error))
                             } else {
                                 let nodes: [Node] = queryResult.nodes.map { $0.value }
@@ -753,12 +752,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateAndReturnNodesSync(nodes: [Node]) -> Result<[Node], AnyError> {
+    public func updateAndReturnNodesSync(nodes: [Node]) -> Result<[Node], Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<[Node], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<[Node], Error> = .failure(BoltClientError.unknownError)
         updateAndReturnNodes(nodes: nodes) { result in
             theResult = result
             group.leave()
@@ -768,7 +767,7 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func updateNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = nodes.updateRequest(withReturnStatement: false)
         execute(request: request) { response in
             switch response {
@@ -780,12 +779,12 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func updateNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func updateNodesSync(nodes: [Node]) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         updateNodes(nodes: nodes) { result in
             theResult = result
             self.pullSynchronouslyAndIgnore()
@@ -798,17 +797,17 @@ extension BoltClient { // Node functions
     }
 
     //MARK: Delete
-    public func deleteNode(node: Node, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteNode(node: Node, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = node.deleteRequest()
         performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteNodeSync(node: Node) -> Result<Bool, AnyError> {
+    public func deleteNodeSync(node: Node) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         deleteNode(node: node) { result in
             theResult = result
             self.pullSynchronouslyAndIgnore()
@@ -820,17 +819,17 @@ extension BoltClient { // Node functions
 
     }
 
-    public func deleteNodes(nodes: [Node], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteNodes(nodes: [Node], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = nodes.deleteRequest()
         performRequestWithNoReturnNode(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteNodesSync(nodes: [Node]) -> Result<Bool, AnyError> {
+    public func deleteNodesSync(nodes: [Node]) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         deleteNodes(nodes: nodes) { result in
             theResult = result
             self.pullSynchronouslyAndIgnore()
@@ -841,7 +840,7 @@ extension BoltClient { // Node functions
         return theResult
     }
 
-    public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, AnyError>) -> ())?) {
+    public func nodeBy(id: UInt64, completionBlock: ((Result<Node?, Error>) -> ())?) {
         let query = "MATCH (n) WHERE id(n) = {id} RETURN n"
         let params = ["id": Int64(id)]
 
@@ -853,7 +852,7 @@ extension BoltClient { // Node functions
                 completionBlock?(.failure(error))
             case let .success((isSuccess, _partialResult)):
                 if isSuccess == false {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
 
@@ -863,12 +862,12 @@ extension BoltClient { // Node functions
                             completionBlock?(.failure(error))
                         case let .success(isSuccess, parsedResponses):
                             if isSuccess == false {
-                                let error = AnyError(BoltClientError.queryUnsuccessful)
+                                let error = BoltClientError.queryUnsuccessful
                                 completionBlock?(.failure(error))
                             } else {
                                 let nodes = parsedResponses.nodes.values
                                 if nodes.count > 1 {
-                                    let error = AnyError(BoltClientError.unexpectedNumberOfResponses)
+                                    let error = BoltClientError.unexpectedNumberOfResponses
                                     completionBlock?(.failure(error))
                                 } else {
                                     completionBlock?(.success(nodes.first))
@@ -881,25 +880,23 @@ extension BoltClient { // Node functions
         }
     }
 
-    private func queryResultToNodesResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Node], AnyError>) {
-        if let error = result.error {
-            return .failure(error)
-        }
-        if let (isSuccess, queryResult) = result.value {
+    private func queryResultToNodesResult(result: ((Result<(Bool, QueryResult), Error>))) -> (Result<[Node], Error>) {
+        switch(result) {
+        case let .success(value):
+            let (isSuccess, queryResult) = value
             if isSuccess == false {
-                let error = AnyError(BoltClientError.queryUnsuccessful)
+                let error = BoltClientError.queryUnsuccessful
                 return .failure(error)
             } else {
                 let nodes: [Node] = Array<Node>(queryResult.nodes.values)
                 return .success(nodes)
             }
-        } else {
-            let error = AnyError(BoltClientError.queryUnsuccessful)
+        case let .failure(error):
             return .failure(error)
         }
     }
 
-    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(labels: [String] = [], andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let request = Node.queryFor(labels: labels, andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
@@ -907,7 +904,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func nodesWith(properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let request = Node.queryFor(labels: [], andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
@@ -915,7 +912,7 @@ extension BoltClient { // Node functions
         }
     }
 
-    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], AnyError>) -> ())?) {
+    public func nodesWith(label: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Node], Error>) -> ())?) {
         let request = Node.queryFor(labels: [label], andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToNodesResult(result: result)
@@ -929,17 +926,17 @@ extension BoltClient { // Relationship functions
 
     // Create
 
-    public func relate(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:], completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func relate(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:], completionBlock: ((Result<Relationship, Error>) -> ())?) {
         let relationship = Relationship(fromNode: node, toNode: to, type: type, direction: .from, properties: properties)
         let request = relationship.createRequest()
         performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func relateSync(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:]) -> Result<Relationship, AnyError> {
+    public func relateSync(node: Node, to: Node, type: String, properties: [String:PackProtocol] = [:]) -> Result<Relationship, Error> {
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Relationship, Error> = .failure(BoltClientError.unknownError)
         relate(node: node, to: to, type: type, properties: properties) { result in
             theResult = result
             group.leave()
@@ -949,19 +946,19 @@ extension BoltClient { // Relationship functions
         return theResult
     }
 
-    public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
+    public func createAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], Error> {
         let request = relationships.createRequest(withReturnStatement: true)
         let group = DispatchGroup()
         group.enter()
-        var theResult: Result<[Relationship], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<[Relationship], Error> = .failure(BoltClientError.unknownError)
         executeWithResult(request: request) { result in
             switch result {
             case let .failure(error):
-                theResult = .failure(AnyError(error))
+                theResult = .failure(error)
             case let .success((isSuccess, queryResult)):
                 if isSuccess == false {
                     let error = BoltClientError.queryUnsuccessful
-                    theResult = .failure(AnyError(error))
+                    theResult = .failure(error)
                 } else {
                     let relationships: [Relationship] = Array<Relationship>(queryResult.relationships.values)
                     theResult = .success(relationships)
@@ -974,16 +971,16 @@ extension BoltClient { // Relationship functions
         return theResult
     }
 
-    public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+    public func createAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], Error>) -> ())?) {
         let request = relationships.createRequest(withReturnStatement: true)
         executeWithResult(request: request) { result in
             switch result {
             case let .failure(error):
-                completionBlock?(.failure(AnyError(error)))
+                completionBlock?(.failure(error))
             case let .success((isSuccess, queryResult)):
                 if isSuccess == false {
                     let error = BoltClientError.queryUnsuccessful
-                    completionBlock?(.failure(AnyError(error)))
+                    completionBlock?(.failure(error))
                 } else {
                     let relationships: [Relationship] = Array<Relationship>(queryResult.relationships.values)
                     completionBlock?(.success(relationships))
@@ -992,23 +989,23 @@ extension BoltClient { // Relationship functions
         }
     }
 
-    public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+    public func createAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, Error> {
         let request = relationship.createRequest(withReturnStatement: true)
         let group = DispatchGroup()
         group.enter()
-        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Relationship, Error> = .failure(BoltClientError.unknownError)
         executeWithResult(request: request) { result in
             switch result {
             case let .failure(error):
-                theResult = .failure(AnyError(error))
+                theResult = .failure(error)
             case let .success((isSuccess, queryResult)):
                 if isSuccess == false {
                     let error = BoltClientError.queryUnsuccessful
-                    theResult = .failure(AnyError(error))
+                    theResult = .failure(error)
                 } else {
                     if queryResult.relationships.count == 0 {
                         let error = BoltClientError.unknownError
-                        theResult = .failure(AnyError(error))
+                        theResult = .failure(error)
                     } else if queryResult.relationships.count > 1 {
                         print("createAndReturnRelationshipSync() unexpectantly returned more than one relationship, returning first")
                         let relationship = queryResult.relationships.values.first!
@@ -1026,20 +1023,20 @@ extension BoltClient { // Relationship functions
         return theResult
     }
 
-    public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func createAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, Error>) -> ())?) {
         let request = relationship.createRequest(withReturnStatement: true)
         executeWithResult(request: request) { result in
             switch result {
             case let .failure(error):
-                completionBlock?(.failure(AnyError(error)))
+                completionBlock?(.failure(error))
             case let .success((isSuccess, queryResult)):
                 if isSuccess == false {
                     let error = BoltClientError.queryUnsuccessful
-                    completionBlock?(.failure(AnyError(error)))
+                    completionBlock?(.failure(error))
                 } else {
                     if queryResult.relationships.count == 0 {
                         let error = BoltClientError.unknownError
-                        completionBlock?(.failure(AnyError(error)))
+                        completionBlock?(.failure(error))
                     } else if queryResult.relationships.count > 1 {
                         print("createAndReturnRelationshipSync() unexpectantly returned more than one relationship, returning first")
                         let relationship = queryResult.relationships.values.first!
@@ -1055,20 +1052,20 @@ extension BoltClient { // Relationship functions
 
 
     //MARK: Update
-    public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    public func updateAndReturnRelationship(relationship: Relationship, completionBlock: ((Result<Relationship, Error>) -> ())?) {
 
         let request = relationship.updateRequest()
         performRequestWithReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    private func performRequestWithReturnRelationship(request: Request, completionBlock: ((Result<Relationship, AnyError>) -> ())?) {
+    private func performRequestWithReturnRelationship(request: Request, completionBlock: ((Result<Relationship, Error>) -> ())?) {
         execute(request: request) { response in
             switch response {
             case let .failure(error):
                 completionBlock?(.failure(error))
             case let .success((isSuccess, partialQueryResult)):
                 if !isSuccess {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
                     self.pullAll(partialQueryResult: partialQueryResult) { response in
@@ -1077,13 +1074,13 @@ extension BoltClient { // Relationship functions
                             completionBlock?(.failure(error))
                         case let .success((isSuccess, queryResult)):
                             if !isSuccess {
-                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                let error = BoltClientError.fetchingRecordsUnsuccessful
                                 completionBlock?(.failure(error))
                             } else {
                                 if let (_, relationship) = queryResult.relationships.first {
                                     completionBlock?(.success(relationship))
                                 } else {
-                                    let error = AnyError(BoltClientError.missingRelationshipResponse)
+                                    let error = BoltClientError.missingRelationshipResponse
                                     completionBlock?(.failure(error))
                                 }
                             }
@@ -1094,12 +1091,12 @@ extension BoltClient { // Relationship functions
         }
     }
 
-    public func updateAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, AnyError> {
+    public func updateAndReturnRelationshipSync(relationship: Relationship) -> Result<Relationship, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Relationship, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Relationship, Error> = .failure(BoltClientError.unknownError)
         updateAndReturnRelationship(relationship: relationship) { result in
             theResult = result
             group.leave()
@@ -1109,13 +1106,13 @@ extension BoltClient { // Relationship functions
         return theResult
     }
 
-    public func updateRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateRelationship(relationship: Relationship, completionBlock: ((Result<Bool, Error>) -> ())?) {
 
         let request = relationship.updateRequest()
         performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func performRequestWithNoReturnRelationship(request: Request, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func performRequestWithNoReturnRelationship(request: Request, completionBlock: ((Result<Bool, Error>) -> ())?) {
 
         execute(request: request) { response in
             switch response {
@@ -1128,12 +1125,12 @@ extension BoltClient { // Relationship functions
         }
     }
 
-    public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+    public func updateRelationshipSync(relationship: Relationship) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         updateRelationship(relationship: relationship) { result in
             theResult = result
             group.leave()
@@ -1144,7 +1141,7 @@ extension BoltClient { // Relationship functions
     }
 
     /*
-    public func updateAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+    public func updateAndReturnRelationships(relationships: [Relationship], completionBlock: ((Result<[Relationship], Error>) -> ())?) {
         let request = relationships.updateRequest()
         execute(request: request) { response in
             switch response {
@@ -1152,7 +1149,7 @@ extension BoltClient { // Relationship functions
                 completionBlock?(.failure(error))
             case let .success((isSuccess, partialQueryResult)):
                 if !isSuccess {
-                    let error = AnyError(BoltClientError.queryUnsuccessful)
+                    let error = BoltClientError.queryUnsuccessful
                     completionBlock?(.failure(error))
                 } else {
                     self.pullAll(partialQueryResult: partialQueryResult) { response in
@@ -1161,7 +1158,7 @@ extension BoltClient { // Relationship functions
                             completionBlock?(.failure(error))
                         case let .success((isSuccess, queryResult)):
                             if !isSuccess {
-                                let error = AnyError(BoltClientError.fetchingRecordsUnsuccessful)
+                                let error = Error(BoltClientError.fetchingRecordsUnsuccessful)
                                 completionBlock?(.failure(error))
                             } else {
                                 let relationships: [Relationship] = queryResult.relationships.map { $0.value }
@@ -1174,12 +1171,12 @@ extension BoltClient { // Relationship functions
         }
     }
 
-    public func updateAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], AnyError> {
+    public func updateAndReturnRelationshipsSync(relationships: [Relationship]) -> Result<[Relationship], Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<[Relationship], AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<[Relationship], Error> = .failure(BoltClientError.unknownError)
         updateAndReturnRelationships(relationships: relationships) { result in
             theResult = result
             group.leave()
@@ -1189,7 +1186,7 @@ extension BoltClient { // Relationship functions
         return theResult
     }
 
-    public func updateRelationships(relationships: [Relationship], completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func updateRelationships(relationships: [Relationship], completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = relationships.updateRequest(withReturnStatement: false)
         execute(request: request) { response in
             switch response {
@@ -1201,12 +1198,12 @@ extension BoltClient { // Relationship functions
         }
     }
 
-    public func updateRelationshipsSync(relationships: [Relationship]) -> Result<Bool, AnyError> {
+    public func updateRelationshipsSync(relationships: [Relationship]) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         updateRelationships(relationships: relationships) { result in
             theResult = result
             group.leave()
@@ -1217,17 +1214,17 @@ extension BoltClient { // Relationship functions
     }*/
 
     //MARK: Delete
-    public func deleteRelationship(relationship: Relationship, completionBlock: ((Result<Bool, AnyError>) -> ())?) {
+    public func deleteRelationship(relationship: Relationship, completionBlock: ((Result<Bool, Error>) -> ())?) {
         let request = relationship.deleteRequest()
         performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteRelationshipSync(relationship: Relationship) -> Result<Bool, AnyError> {
+    public func deleteRelationshipSync(relationship: Relationship) -> Result<Bool, Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         deleteRelationship(relationship: relationship) { result in
             theResult = result
             group.leave()
@@ -1239,17 +1236,17 @@ extension BoltClient { // Relationship functions
     }
 
     /*
-    public func deleteRelationships(relationships: [Relationship], completionBlock: ((Result<[Bool], AnyError>) -> ())?) {
+    public func deleteRelationships(relationships: [Relationship], completionBlock: ((Result<[Bool], Error>) -> ())?) {
         let request = relationships.deleteRequest()
         performRequestWithNoReturnRelationship(request: request, completionBlock: completionBlock)
     }
 
-    public func deleteRelationshipsSync(relationships: [Relationship]) -> Result<[Bool], AnyError> {
+    public func deleteRelationshipsSync(relationships: [Relationship]) -> Result<[Bool], Error> {
 
         let group = DispatchGroup()
         group.enter()
 
-        var theResult: Result<Bool, AnyError> = .failure(AnyError(BoltClientError.unknownError))
+        var theResult: Result<Bool, Error> = .failure(BoltClientError.unknownError)
         deleteRelationships(relationships: relationships) { result in
             theResult = result
             group.leave()
@@ -1259,25 +1256,23 @@ extension BoltClient { // Relationship functions
         return theResult
     }*/
 
-    private func queryResultToRelationshipResult(result: ((Result<(Bool, QueryResult), AnyError>))) -> (Result<[Relationship], AnyError>) {
-        if let error = result.error {
-            return .failure(error)
-        }
-        if let (isSuccess, queryResult) = result.value {
+    private func queryResultToRelationshipResult(result: ((Result<(Bool, QueryResult), Error>))) -> (Result<[Relationship], Error>) {
+        switch(result) {
+        case let .success(value):
+            let (isSuccess, queryResult) = value
             if isSuccess == false {
-                let error = AnyError(BoltClientError.queryUnsuccessful)
+                let error = BoltClientError.queryUnsuccessful
                 return .failure(error)
             } else {
                 let nodes: [Relationship] = Array<Relationship>(queryResult.relationships.values)
                 return .success(nodes)
             }
-        } else {
-            let error = AnyError(BoltClientError.queryUnsuccessful)
+        case let .failure(error):
             return .failure(error)
         }
     }
 
-    public func relationshipsWith(type: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Relationship], AnyError>) -> ())?) {
+    public func relationshipsWith(type: String, andProperties properties: [String:PackProtocol] = [:], skip: UInt64 = 0, limit: UInt64 = 25, completionBlock: ((Result<[Relationship], Error>) -> ())?) {
         let request = Relationship.queryFor(type: type, andProperties: properties, skip: skip, limit: limit)
         executeWithResult(request: request) { result in
             let transformedResult = self.queryResultToRelationshipResult(result: result)

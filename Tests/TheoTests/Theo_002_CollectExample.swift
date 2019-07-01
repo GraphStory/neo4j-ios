@@ -2,7 +2,6 @@ import Foundation
 import XCTest
 import PackStream
 
-import Result
 import Bolt
 //import SwiftRandom
 
@@ -60,7 +59,7 @@ class Theo_002_CollectExample: TheoTestCase {
         
             let matchResult = client.executeCypherSync("MATCH (t:TestNode) RETURN COLLECT (t.value)", params: [:])
             XCTAssert(matchResult.isSuccess)
-            guard let queryResult = matchResult.value else {
+            guard case let Result.success(queryResult) = matchResult else {
                 XCTFail("Got no result")
                 return
             }
